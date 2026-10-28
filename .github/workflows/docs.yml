@@ -7,8 +7,6 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
   group: pages
@@ -34,11 +32,6 @@ jobs:
 
       - name: Build the site
         run: uv run --no-sync mkdocs build --strict
-
-      - name: Turn on GitHub Pages for this repository
-        uses: actions/configure-pages@v5
-        with:
-          enablement: true
 
       - name: Upload the site
         uses: actions/upload-pages-artifact@v3
