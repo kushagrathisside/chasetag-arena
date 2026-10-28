@@ -1,0 +1,45 @@
+site_name: chasetag-arena
+site_description: A grounded 2D chase-tag game that runs in a browser on your own computer
+docs_dir: docs
+strict: true
+validation:
+  anchors: warn          # broken #section links fail the strict build
+  unrecognized_links: warn
+
+nav:
+  - Overview: index.md
+  - Getting started: getting-started.md
+  - Playing: playing.md
+  - Architecture: architecture.md
+  - API: api.md
+  - Development: development.md
+  - Roadmap: roadmap.md
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - toc.follow
+    - content.code.copy
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.superfences

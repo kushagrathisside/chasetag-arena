@@ -1,19 +1,49 @@
 # chasetag-arena
 
-A grounded 2D chase-tag game. Two bodies share a fenced arena: one chases, one runs, and a tag
-or a fall ends the round. Each seat can be played by a scripted bot, by the keyboard, or by a
-trained planner.
+chasetag-arena is a small, installable game of one-versus-one chase tag. Two bodies move on a
+fenced 12 × 12 m arena, and roles swap each round. Each seat can be controlled by a scripted bot,
+by your keyboard, or by a trained planner.
 
-Status: in development. The package is not yet usable and its interface will change.
+The game runs a local server and opens in your browser. It shows each round live, with the
+official score, the tag and fall events, and the match tally.
+
+Status: in development. The server and the browser client work. Planner seats, saved rounds and
+the logs submission are not built yet, and the interface will change.
 
 The simulator core is vendored from the `groundtag` research repository. `vendor/SYNC.md` records
 the commit it was copied from and the hash of every copied file.
+
+## What works now
+
+- Play rounds in the browser with bots (greedy, intercept, wander, idle, fallback) or the keyboard.
+- Choose the player of each seat. A change applies at the next round.
+- Pause, step, restart, and change the speed. The keys are listed on the playing page.
+- The round and match scores, the tags, the falls and the time-outs.
+
+## Quick start
+
+Install the project once, in your checkout, then start the game:
+
+```
+uv sync
+uv run chasetag-arena serve
+```
+
+The command prints the address, `http://127.0.0.1:8765/`, and opens it in your browser. Use
+`--no-browser` to skip opening it. Press Ctrl+C to stop.
+
+## Documentation
+
+The documentation is in [`docs/`](docs/index.md). It covers the install, the controls, the
+architecture, the HTTP API, the development workflow and the roadmap. It is built with MkDocs from
+the `docs/` folder. See [`docs/development.md`](docs/development.md) for the build commands.
 
 ## Development
 
 ```
 uv sync
-uv run --no-sync pytest -q
+uv run --no-sync python -m pytest
+node --test tests/js/*.mjs
 uv run --no-sync ruff check
 uv run --no-sync ruff format --check
 ```
@@ -23,3 +53,8 @@ To refresh the vendored core from a `groundtag` checkout:
 ```
 uv run --no-sync python scripts/sync_core.py /path/to/groundtag
 ```
+
+## Licence
+
+Not chosen yet. The owner will choose it, and it must match the licence of `groundtag`, which the
+vendored core comes from. See [`LICENSE`](LICENSE).

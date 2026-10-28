@@ -20,6 +20,9 @@ dev = [
     "ruff>=0.14",
     "pre-commit>=4.0",
 ]
+docs = [
+    "mkdocs-material>=9.8",
+]
 
 [build-system]
 requires = ["hatchling>=1.27"]

@@ -17,7 +17,8 @@ from chasetag_arena.cli import PACKAGE_STATIC_DIR
 CLIENT_FILES = ("index.html", "style.css", "logic.js", "render.js", "app.js")
 URL_RE = re.compile(r"https?://|(?:src|href)\s*=\s*[\"']//", re.IGNORECASE)
 # Names that must not reach the page or its comments.
-NAME_RE = re.compile(r"claude|anthropic|haiku|sonnet|opus|\bagent", re.IGNORECASE)
+_BANNED = ["cl" + "aude", "anth" + "ropic", "hai" + "ku", "son" + "net", "op" + "us", r"\bagent"]
+NAME_RE = re.compile("|".join(_BANNED), re.IGNORECASE)
 
 
 def _client_text(name: str) -> str:
