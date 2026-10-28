@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Lint and test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Install Python 3.12
+        run: uv python install 3.12
+
+      - name: Install the locked environment
+        run: uv sync --locked
+
+      - name: Lint and format check
+        run: |
+          uv run --no-sync ruff check
+          uv run --no-sync ruff format --check
+
+      - name: Python tests
+        run: uv run --no-sync python -m pytest -q -p no:cacheprovider
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: JavaScript tests
+        run: node --test tests/js/*.mjs
+
+  docs:
+    name: Build the documentation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Install Python 3.12
+        run: uv python install 3.12
+
+      - name: Install the locked environment with the docs group
+        run: uv sync --locked --group docs
+
+      - name: Build the site with warnings as errors
+        run: uv run --no-sync mkdocs build --strict
