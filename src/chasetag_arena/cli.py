@@ -109,8 +109,7 @@ def build_parser() -> argparse.ArgumentParser:
         type=Path,
         default=None,
         metavar="FILE",
-        help="a groundtag planner file for the planner seat (default: none, the seat plays "
-        "the fallback bot)",
+        help="a planner file for the planner seat (default: none, the seat plays the fallback bot)",
     )
     return parser
 

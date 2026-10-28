@@ -1,0 +1,24 @@
+<mxfile host="app.diagrams.net" version="24.7.5">
+  <diagram id="scoring" name="Page-1">
+    <mxGraphModel dx="900" dy="450" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1100" pageHeight="420" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="x_start" value="Round ends" style="ellipse;whiteSpace=wrap;html=1;fontSize=12;fontColor=#15191f;fillColor=#e8dcf2;strokeColor=#6c4a8a;" vertex="1" parent="1"><mxGeometry x="20" y="170" width="120" height="70" as="geometry"/></mxCell>
+        <mxCell id="x_tag_q" value="Tagged?" style="rhombus;whiteSpace=wrap;html=1;fontSize=12;fontColor=#15191f;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1"><mxGeometry x="180" y="160" width="150" height="90" as="geometry"/></mxCell>
+        <mxCell id="x_fall_q" value="Fell?" style="rhombus;whiteSpace=wrap;html=1;fontSize=12;fontColor=#15191f;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1"><mxGeometry x="420" y="160" width="150" height="90" as="geometry"/></mxCell>
+        <mxCell id="x_time" value="&lt;b&gt;Otherwise: the 20 s&lt;/b&gt;&lt;br&gt;of game time run out" style="rounded=1;whiteSpace=wrap;html=1;fontSize=12;fontColor=#15191f;fillColor=#f2f2f2;strokeColor=#555555;" vertex="1" parent="1"><mxGeometry x="660" y="160" width="200" height="90" as="geometry"/></mxCell>
+        <mxCell id="x_tag" value="&lt;b&gt;Tag at time t:&lt;/b&gt;&lt;br&gt;Chaser 1 − t/20&lt;br&gt;Runner t/20" style="rounded=1;whiteSpace=wrap;html=1;fontSize=12;fontColor=#15191f;fillColor=#d5e8d4;strokeColor=#2d6a3e;" vertex="1" parent="1"><mxGeometry x="150" y="20" width="210" height="100" as="geometry"/></mxCell>
+        <mxCell id="x_fall" value="&lt;b&gt;Fall:&lt;/b&gt;&lt;br&gt;Both seats score 0" style="rounded=1;whiteSpace=wrap;html=1;fontSize=12;fontColor=#15191f;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1"><mxGeometry x="400" y="20" width="200" height="100" as="geometry"/></mxCell>
+        <mxCell id="x_survive" value="&lt;b&gt;Time-out:&lt;/b&gt;&lt;br&gt;Runner scores 1&lt;br&gt;Chaser scores 0" style="rounded=1;whiteSpace=wrap;html=1;fontSize=12;fontColor=#15191f;fillColor=#d5e8d4;strokeColor=#2d6a3e;" vertex="1" parent="1"><mxGeometry x="640" y="20" width="240" height="100" as="geometry"/></mxCell>
+        <mxCell id="x1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;fontSize=11;fontColor=#15191f;labelBackgroundColor=#ffffff;strokeColor=#15191f;" edge="1" parent="1" source="x_start" target="x_tag_q"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="x2" value="yes" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;fontSize=11;fontColor=#15191f;labelBackgroundColor=#ffffff;strokeColor=#15191f;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="x_tag_q" target="x_tag"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="x3" value="no" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;fontSize=11;fontColor=#15191f;labelBackgroundColor=#ffffff;strokeColor=#15191f;" edge="1" parent="1" source="x_tag_q" target="x_fall_q"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="x4" value="yes" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;fontSize=11;fontColor=#15191f;labelBackgroundColor=#ffffff;strokeColor=#15191f;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="x_fall_q" target="x_fall"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="x5" value="no" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;fontSize=11;fontColor=#15191f;labelBackgroundColor=#ffffff;strokeColor=#15191f;" edge="1" parent="1" source="x_fall_q" target="x_time"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="x6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;fontSize=11;fontColor=#15191f;labelBackgroundColor=#ffffff;strokeColor=#15191f;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="x_time" target="x_survive"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="x_note" value="Scores are for the round just ended. Each seat&#x27;s score is between 0 and 1." style="rounded=1;whiteSpace=wrap;html=1;fontSize=12;fontColor=#15191f;fillColor=#f2f2f2;strokeColor=#555555;" vertex="1" parent="1"><mxGeometry x="180" y="300" width="720" height="50" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

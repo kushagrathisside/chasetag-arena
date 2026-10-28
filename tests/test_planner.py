@@ -168,7 +168,7 @@ REFUSALS = [
     pytest.param(_wide_output, "outputs 3 values", id="output-width"),
     pytest.param(_set("net/obs_mean", np.zeros(16)), "normaliser", id="normaliser-length"),
     pytest.param(_non_finite, "not finite", id="non-finite"),
-    pytest.param(_meta(stage="walker"), "walker policy", id="walker-stage"),
+    pytest.param(_meta(stage="walker"), "full-body model", id="walker-stage"),
 ]
 
 

@@ -1,0 +1,21 @@
+<mxfile host="app.diagrams.net" version="24.7.5">
+  <diagram id="keypress-to-picture" name="Page-1">
+    <mxGraphModel dx="900" dy="450" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1100" pageHeight="230" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="k1" value="&lt;b&gt;1 You press an arrow key&lt;/b&gt;&lt;br&gt;The page notes the key" style="rounded=1;whiteSpace=wrap;html=1;fontSize=12;fontColor=#15191f;fillColor=#dae8fc;strokeColor=#1d5fa8;" vertex="1" parent="1"><mxGeometry x="20" y="70" width="150" height="100" as="geometry"/></mxCell>
+        <mxCell id="k2" value="&lt;b&gt;2 The page sends the direction&lt;/b&gt;&lt;br&gt;Every 0.1 s while held" style="rounded=1;whiteSpace=wrap;html=1;fontSize=12;fontColor=#15191f;fillColor=#dae8fc;strokeColor=#1d5fa8;" vertex="1" parent="1"><mxGeometry x="200" y="70" width="150" height="100" as="geometry"/></mxCell>
+        <mxCell id="k3" value="&lt;b&gt;3 The server holds it&lt;/b&gt;&lt;br&gt;For 0.25 s after each message" style="rounded=1;whiteSpace=wrap;html=1;fontSize=12;fontColor=#15191f;fillColor=#dae8fc;strokeColor=#1d5fa8;" vertex="1" parent="1"><mxGeometry x="380" y="70" width="150" height="100" as="geometry"/></mxCell>
+        <mxCell id="k4" value="&lt;b&gt;4 The next decision moves&lt;/b&gt;&lt;br&gt;your body by 0.1 s of game time" style="rounded=1;whiteSpace=wrap;html=1;fontSize=12;fontColor=#15191f;fillColor=#dae8fc;strokeColor=#1d5fa8;" vertex="1" parent="1"><mxGeometry x="560" y="70" width="150" height="100" as="geometry"/></mxCell>
+        <mxCell id="k5" value="&lt;b&gt;5 Every open page gets&lt;/b&gt;&lt;br&gt;the new frame" style="rounded=1;whiteSpace=wrap;html=1;fontSize=12;fontColor=#15191f;fillColor=#dae8fc;strokeColor=#1d5fa8;" vertex="1" parent="1"><mxGeometry x="740" y="70" width="150" height="100" as="geometry"/></mxCell>
+        <mxCell id="k6" value="&lt;b&gt;6 The page draws it&lt;/b&gt;&lt;br&gt;100 ms behind the newest frame" style="rounded=1;whiteSpace=wrap;html=1;fontSize=12;fontColor=#15191f;fillColor=#d5e8d4;strokeColor=#2d6a3e;" vertex="1" parent="1"><mxGeometry x="920" y="70" width="150" height="100" as="geometry"/></mxCell>
+        <mxCell id="kk0" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;fontSize=11;fontColor=#15191f;labelBackgroundColor=#ffffff;strokeColor=#15191f;" edge="1" parent="1" source="k1" target="k2"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="kk1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;fontSize=11;fontColor=#15191f;labelBackgroundColor=#ffffff;strokeColor=#15191f;" edge="1" parent="1" source="k2" target="k3"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="kk2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;fontSize=11;fontColor=#15191f;labelBackgroundColor=#ffffff;strokeColor=#15191f;" edge="1" parent="1" source="k3" target="k4"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="kk3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;fontSize=11;fontColor=#15191f;labelBackgroundColor=#ffffff;strokeColor=#15191f;" edge="1" parent="1" source="k4" target="k5"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="kk4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;fontSize=11;fontColor=#15191f;labelBackgroundColor=#ffffff;strokeColor=#15191f;" edge="1" parent="1" source="k5" target="k6"><mxGeometry relative="1" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

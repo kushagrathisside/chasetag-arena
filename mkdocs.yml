@@ -1,5 +1,5 @@
 site_name: chasetag-arena
-site_description: A grounded 2D chase-tag game that runs in a browser on your own computer
+site_description: A one-on-one chase-tag game that runs in your browser, on your own computer
 docs_dir: docs
 strict: true
 validation:
@@ -7,13 +7,18 @@ validation:
   unrecognized_links: warn
 
 nav:
-  - Overview: index.md
-  - Getting started: getting-started.md
+  - Home: index.md
+  - Install: install.md
+  - First round: getting-started.md
+  - The game: the-game.md
   - Playing: playing.md
-  - Architecture: architecture.md
+  - Planners: planners.md
+  - Troubleshooting: troubleshooting.md
+  - How it works: how-it-works.md
   - API: api.md
-  - Development: development.md
+  - Contributing: contributing.md
   - Roadmap: roadmap.md
+  - License: license.md
 
 theme:
   name: material
@@ -43,3 +48,5 @@ markdown_extensions:
       permalink: true
   - pymdownx.details
   - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true

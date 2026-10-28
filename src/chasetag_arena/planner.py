@@ -96,7 +96,8 @@ def load_planner(path: str | Path) -> Planner:
 
     if meta.get("stage") == "walker":
         raise PlannerError(
-            f"{file} is a walker policy for the full body; the arena needs a planner"
+            f"{file} is for the full-body model, which this arena does not play; "
+            "the arena needs a planar planner"
         )
     interval = meta.get("decision_interval")
     if interval != OFFICIAL.decision_substeps:

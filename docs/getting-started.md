@@ -1,64 +1,81 @@
-# Getting started
+# First round
 
-## Requirements
+This page starts the server and walks you through a first round. It assumes you have finished the
+[install](install.md).
 
-- Python 3.12. The project supports Python 3.12 only.
-- The CPU build of JAX. The `jax` dependency installs it. No GPU is needed.
-- [uv](https://docs.astral.sh/uv/), which installs the project and runs it.
+## Start the server
 
-## Install from source
+From the `chasetag-arena` folder, run:
 
-In your own checkout of the repository, run this once, the first time:
-
-```
-uv sync
-```
-
-Run `uv sync` only in your own checkout, and only the first time. After that, `uv run` starts the
-game.
-
-## Start the game
-
-```
+```bash
 uv run chasetag-arena serve
 ```
 
-The command prints the address and opens it in your browser:
+The terminal prints the address and opens your browser:
 
-```
+```text
 chasetag-arena: serving at http://127.0.0.1:8765/ (Ctrl+C to stop)
 ```
 
-Press Ctrl+C in the terminal to stop the server.
+Leave this terminal open. The game runs in it, and Ctrl+C in this terminal stops the game.
 
-### Options
+!!! tip "The browser did not open?"
+    Copy the address from the terminal, `http://127.0.0.1:8765/`, and paste it into your browser.
+    See [troubleshooting](troubleshooting.md) for more.
+
+## Play your first round
+
+Work through these steps. Each step says what you should see.
+
+1. **Choose seat A.** At the top of the page, open the **Seat A** list and pick `keyboard`. The
+   body in seat A is the one you will drive. The label reads *Applies next round* until the round
+   ends.
+2. **Leave seat B as it is.** It is set to `greedy`, a bot that chases you hard when it is the chaser.
+3. **Start.** The game starts running when the page loads. Use **Pause** if you want to stop it, and
+   **Play** to start it again.
+4. **Drive.** Press the arrow keys to move your body. Up moves it toward the top of the arena, and
+   right moves it toward the right side.
+5. **Watch the round end.** The round ends when one body tags the other, when a body falls, or when
+   20 s of game time pass. The round panel says which one happened.
+6. **Read the score.** The round score shows what each seat earned in that round. The match totals
+   below it add up every round since the game started or since you pressed **Restart**.
+7. **Play the next round.** After a short pause of 1.5 s, the next round starts, and the roles swap.
+   Changes to the seat lists apply now.
+
+![The arcade page in dark mode](assets/screenshots/desktop-dark.png)
+
+When you are done, press Ctrl+C in the terminal.
+
+## Common first choices
+
+| What you want | Set seat A to | Set seat B to | Notes |
+|---|---|---|---|
+| Play yourself against a bot | `keyboard` | `greedy` | The default bot is a sensible opponent. |
+| Watch two bots | `greedy` | `wander` | Good for learning the rules without playing. |
+| Practise a tag | `keyboard` | `idle` | `idle` never moves, so you can practise closing in on a still target. |
+| Watch a planner | `planner` | `greedy` | Needs a planner file. See [planners](planners.md). |
+
+## Options for `serve`
 
 | Option | Default | What it does |
 |---|---|---|
-| `--host ADDRESS` | `127.0.0.1` | The address to bind. The default is reachable from this computer only. |
-| `--port N` | `8765` | The port to bind. `0` picks a free port and prints it. |
+| `--host ADDRESS` | `127.0.0.1` | The address to listen on. The default lets only this computer connect. |
+| `--port N` | `8765` | The port to listen on. `0` picks a free port and prints it. |
 | `--no-browser` | off | Print the address without opening a browser. |
-| `--static-dir DIR` | the copy in the package | A folder of page files to serve instead of the built-in page. |
-| `--planner FILE` | none | A groundtag planner file for the planner seat. Without it, a planner seat plays the fallback bot. The server does not start if the file cannot run. |
+| `--planner FILE` | none | A planner file for the planner seat. Without it, the planner seat plays the fallback bot. |
+| `--static-dir DIR` | the copy in the package | A folder of page files to serve in place of the built-in page. |
 
-## What the browser shows
+For example, to listen on port 9000 without opening a browser:
 
-The page has three parts:
+```bash
+uv run chasetag-arena serve --port 9000 --no-browser
+```
 
-- **Controls** across the top: a selector for each seat, the body, Pause or Play, Step, Restart,
-  and the speed.
-- **The arena**: a square fence with a grid. Body A is blue and body B is orange. The label on each
-  body says whether it is chasing or running, and a short line shows its heading. The clock in the
-  top-left corner shows the game time of the round.
-- **The panel** on the right: the round number, the phase, the round score for each seat, and the
-  match totals.
+!!! warning "Keep the server on this computer"
+    The server has no sign-in. Anyone who can reach it can control the game. Use the default
+    `--host` unless you know your network and need another address.
 
-The connection status at the top right reads Connected, Reconnecting or Offline. If the server stops,
-the page keeps trying to reconnect, and it shows the new server's game when the server is back. The
-game makes no decisions while no page is open, so an unwatched game uses no CPU.
+## Next steps
 
-On a phone the panels stack under the controls and the arena, and the arena fills the width of the column:
-
-![The arcade page at phone width](assets/screenshots/phone-light.png)
-
-Every control is explained on the [playing](playing.md) page.
+- [The game](the-game.md) explains the arena, the rules and the scoring in full.
+- [Playing](playing.md) describes every control on the page.

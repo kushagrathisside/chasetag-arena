@@ -21,12 +21,18 @@ does not exist returns `404` with the text `not found`.
 Says whether a planner file is loaded for the planner seat. The page reads it each time it connects.
 
 ```json
-{"loaded": true, "name": "walk-2d", "file": "walk-2d.npz"}
+{"loaded": true, "name": "my-planner", "file": "my-planner.npz"}
 ```
 
 With no planner file the answer is `{"loaded": false}`. `name` is the name in the file's `meta`
 record, or the file's name without its extension when the record gives none. `file` is the file's
 name, without its folder.
+
+Example:
+
+```bash
+curl http://127.0.0.1:8765/planner
+```
 
 ## `GET /events`
 
@@ -89,6 +95,12 @@ value, so a paused game still tells its viewers. That repeated frame has the sam
 Frames are full snapshots, so a viewer that misses one loses nothing once the next one arrives. A slow
 viewer may miss frames, but it never blocks the game.
 
+Example, to watch the frames for a few seconds:
+
+```bash
+curl -N http://127.0.0.1:8765/events
+```
+
 ## `POST /control`
 
 Sends one control. The body is a JSON object, and its `kind` field names the control:
@@ -105,6 +117,13 @@ Sends one control. The body is a JSON object, and its `kind` field names the con
 
 `seat` is `0` or `1`. Numbers must be finite, and a boolean is not a number. A field that the kind does
 not take is an error, so a typo does not pass silently.
+
+For example, to pause the game, then start it again:
+
+```bash
+curl -X POST -H "Content-Type: application/json" -d '{"kind": "pause"}' http://127.0.0.1:8765/control
+curl -X POST -H "Content-Type: application/json" -d '{"kind": "play"}' http://127.0.0.1:8765/control
+```
 
 Responses:
 
