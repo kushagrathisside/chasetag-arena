@@ -284,6 +284,26 @@ test("describePhase gives the status lines the page shows", () => {
   assert.equal(logic.describePhase({ ...tagged, phase: "ended" }, false, 0).detail, "");
 });
 
+test("a paused round over shows Paused, the result, and no countdown", () => {
+  const tagged = frame(1, 1, [body(0, 0, 0, 0), body(1, 0, 0, 0)], {
+    phase: "intermission",
+    ended_by: "tag",
+  });
+  assert.deepEqual(logic.describePhase(tagged, true, 0), {
+    headline: "Paused",
+    detail: "Round over: tagged",
+  });
+  assert.deepEqual(logic.describePhase(tagged, true, 9), {
+    headline: "Paused",
+    detail: "Round over: tagged",
+  });
+  const ended = { ...tagged, phase: "ended" };
+  assert.deepEqual(logic.describePhase(ended, true, 0), {
+    headline: "Paused",
+    detail: "Round over: tagged",
+  });
+});
+
 test("keys 1 to 4 map to the speeds the help panel names", () => {
   assert.deepEqual(logic.SPEED_KEYS, { 1: 0.25, 2: 0.5, 3: 1, 4: 2 });
 });

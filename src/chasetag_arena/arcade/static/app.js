@@ -13,6 +13,9 @@
   const LAG_MS = 100; // draw this far behind the newest frame
   const TRAIL_LEN = 30; // decisions kept in each body's trail
   const KEY_SEND_MS = 100; // keyboard command rate while a key is held (about 10 Hz)
+  // The server sends no paused flag, and a paused game publishes no frames. A running round
+  // with no frame for this long is shown as paused, which also covers a pause sent by another page.
+  const PAUSE_STALL_MS = 1500;
   const SPEED_OPTIONS = ["0.25", "0.5", "1", "2", "4"];
   const hasOwn = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key);
 
@@ -60,7 +63,8 @@
     latest: null,
     echo: null, // the selectors the server last reported, as [seat0, seat1]
     pending: [null, null], // selectors sent but not yet echoed
-    paused: false,
+    paused: false, // the pause this page sent last: true after Pause or Step, false after Play
+    lastFrameMs: 0, // page time when the newest frame arrived
     trails: null,
     flash: null,
     intermissionSince: null, // page time when the intermission frame arrived
@@ -106,6 +110,9 @@
     app.session = freshSession();
     app.trails = null;
     app.flash = null;
+    // The server's pause is not sent on a new connection, so the display reads it from the
+    // frame stream again until this page sends a command.
+    app.paused = false;
     loadPlannerInfo();
     const es = new EventSource("/events");
     app.es = es;
@@ -156,6 +163,7 @@
 
     const prev = app.latest;
     app.latest = frame;
+    app.lastFrameMs = now;
 
     if (frame.phase === "intermission") {
       const started = !prev || prev.round !== frame.round || prev.phase !== "intermission";
@@ -228,12 +236,29 @@
     renderPhase();
   }
 
+  // Whether the game is paused. This page's own pause counts at once. Otherwise a running
+  // round whose frames have stopped, on a connected page, is taken as paused, so a pause sent
+  // from another page shows here too.
+  function isPaused(nowPerf) {
+    if (app.paused) return true;
+    const frame = app.latest;
+    return (
+      app.connection === "connected" &&
+      frame !== null &&
+      frame.phase === "running" &&
+      nowPerf - app.lastFrameMs > PAUSE_STALL_MS
+    );
+  }
+
   function renderPhase() {
     const frame = app.latest;
     if (!frame) return;
-    const since =
-      app.intermissionSince === null ? 0 : (performance.now() - app.intermissionSince) / 1000;
-    const text = L.describePhase(frame, app.paused, since);
+    const now = performance.now();
+    const paused = isPaused(now);
+    const since = app.intermissionSince === null ? 0 : (now - app.intermissionSince) / 1000;
+    const label = paused ? "Play" : "Pause";
+    if (els.playToggle.textContent !== label) els.playToggle.textContent = label;
+    const text = L.describePhase(frame, paused, since);
     const key = `${text.headline}|${text.detail}`;
     if (key === app.lastPhaseKey) return;
     app.lastPhaseKey = key;
@@ -267,6 +292,8 @@
 
   function setPaused(paused) {
     app.paused = paused;
+    // A play gives the server a moment to publish again before the stall reads as a pause.
+    if (!paused) app.lastFrameMs = performance.now();
     send({ kind: paused ? "pause" : "play" });
     els.playToggle.textContent = paused ? "Play" : "Pause";
     app.lastPhaseKey = "";
@@ -274,7 +301,7 @@
   }
 
   function togglePlay() {
-    setPaused(!app.paused);
+    setPaused(!isPaused(performance.now()));
   }
 
   function stepOnce() {

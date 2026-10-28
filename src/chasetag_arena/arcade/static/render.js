@@ -173,6 +173,34 @@
     };
   }
 
+  // The arena's square in canvas pixels: the fence's rectangle, as `{x, y, w, h}`.
+  function arenaBoxPx(view) {
+    const tl = view.toCanvas(-view.half, view.half);
+    const br = view.toCanvas(view.half, -view.half);
+    return { x: tl.px, y: tl.py, w: br.px - tl.px, h: br.py - tl.py };
+  }
+
+  /**
+   * The length of a heading tick from the centre `c` along the unit direction (dx, dy), in
+   * canvas pixels. The tick is `lengthPx` long unless its tip would pass the `box` edge, in
+   * which case it stops at that edge. A direction that never meets an edge keeps its length.
+   */
+  function tickLengthPx(c, dx, dy, lengthPx, box) {
+    const EPS = 1e-12;
+    // The distance along the ray until it crosses the box edges on one axis.
+    const reach = (v, d, lo, hi) => {
+      if (d > EPS) return (hi - v) / d;
+      if (d < -EPS) return (lo - v) / d;
+      return Infinity;
+    };
+    const limit = Math.min(
+      lengthPx,
+      reach(c.px, dx, box.x, box.x + box.w),
+      reach(c.py, dy, box.y, box.y + box.h),
+    );
+    return Math.max(0, limit);
+  }
+
   function drawBody(ctx, view, palette, body, c, r) {
     const colour = seatColour(palette, body.seat);
     ctx.save();
@@ -189,10 +217,13 @@
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // Heading tick: world direction (cos h, sin h), drawn with the canvas y axis flipped.
-    const tickPx = TICK_PER_RADIUS * r;
-    const tipX = c.px + Math.cos(body.heading) * tickPx;
-    const tipY = c.py - Math.sin(body.heading) * tickPx;
+    // Heading tick: world direction (cos h, sin h), drawn with the canvas y axis flipped. It
+    // stops at the fence, so a body against a wall does not draw its tick outside the arena.
+    const dx = Math.cos(body.heading);
+    const dy = -Math.sin(body.heading);
+    const tickPx = tickLengthPx(c, dx, dy, TICK_PER_RADIUS * r, arenaBoxPx(view));
+    const tipX = c.px + dx * tickPx;
+    const tipY = c.py + dy * tickPx;
     ctx.beginPath();
     ctx.moveTo(c.px, c.py);
     ctx.lineTo(tipX, tipY);
@@ -304,6 +335,8 @@
     readPalette,
     makeView,
     drawArena,
+    arenaBoxPx,
+    tickLengthPx,
     bodyRadiusPx,
     badgeMetrics,
     badgeSize,

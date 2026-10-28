@@ -225,7 +225,12 @@
       return { headline: paused ? "Paused" : "Running", detail: "" };
     }
     const reason = { tag: "tagged", fall: "fell", timeout: "time out" }[frame.ended_by];
-    const headline = reason ? `Round over: ${reason}` : "Round over";
+    const over = reason ? `Round over: ${reason}` : "Round over";
+    // A paused game shows Paused and no countdown. The round's result stays in the detail line.
+    if (paused) {
+      return { headline: "Paused", detail: over };
+    }
+    const headline = over;
     if (frame.phase === "ended") {
       return { headline, detail: "" };
     }
@@ -277,8 +282,11 @@
     };
   }
 
-  // The fallback ring around a body has this many candidates, evenly spaced.
+  // The fallback ring around a body has this many candidates, evenly spaced, at each of
+  // BADGE_RING_LEVELS distances. Each level lies half a body radius farther out than the last.
   const BADGE_RING_STEPS = 12;
+  const BADGE_RING_LEVELS = 5;
+  const BADGE_RING_STEP_FRAC = 0.5;
 
   /**
    * Where each role badge goes, as centres in canvas pixels.
@@ -289,8 +297,8 @@
    * right. Every candidate is clamped inside the canvas, so a badge that would leave one edge
    * slides in from it. A badge pushed onto a body, its own included, is not clear, so it moves
    * to the other side. A candidate is clear when it covers no badge already placed and touches
-   * no body. If no side is clear, a ring of positions around the body is tried. If none of
-   * those is clear, the first side that covers no placed badge is used. So two badges never
+   * no body. If no side is clear, rings of positions around the body are tried, nearest first.
+   * If none of those is clear, the first side that covers no placed badge is used. So two badges never
    * overlap while a placement exists.
    */
   function placeBadges(anchors, radiusPx, sizes, order, canvas) {
@@ -307,11 +315,17 @@
         { cx: a.px + radiusPx + gap + s.w / 2, cy: a.py },
       ].map((c) => clampBadgeCentre(c, s, canvas));
       const far = radiusPx + gap + Math.hypot(s.w, s.h) / 2;
-      const ring = Array.from({ length: BADGE_RING_STEPS }, (_, k) => {
-        const th = (k / BADGE_RING_STEPS) * TAU;
-        const c = { cx: a.px + far * Math.cos(th), cy: a.py - far * Math.sin(th) };
-        return clampBadgeCentre(c, s, canvas);
-      });
+      // The nearest level comes first, so a farther one is tried only when every nearer
+      // candidate is blocked. A body against a wall, with a badge that clamps onto it, needs that.
+      const ring = [];
+      for (let level = 0; level < BADGE_RING_LEVELS; level += 1) {
+        const dist = far + level * radiusPx * BADGE_RING_STEP_FRAC;
+        for (let k = 0; k < BADGE_RING_STEPS; k += 1) {
+          const th = (k / BADGE_RING_STEPS) * TAU;
+          const c = { cx: a.px + dist * Math.cos(th), cy: a.py - dist * Math.sin(th) };
+          ring.push(clampBadgeCentre(c, s, canvas));
+        }
+      }
       const clearOfBadges = (c) => boxes.every((b) => !boxesOverlap(boxAt(c, s), b));
       const clear = (c) =>
         clearOfBadges(c) && anchors.every((o) => !boxTouchesDisc(boxAt(c, s), o, radiusPx));

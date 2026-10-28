@@ -162,6 +162,38 @@ test("the two badges never overlap, for any close pair of bodies and either chas
   }
 });
 
+// True when the badge's box touches the disc of radius RADIUS_PX centred on `p`.
+function touchesBody(box, p) {
+  const nx = Math.min(Math.max(p.px, box.x), box.x + box.w);
+  const ny = Math.min(Math.max(p.py, box.y), box.y + box.h);
+  return (nx - p.px) ** 2 + (ny - p.py) ** 2 < RADIUS_PX * RADIUS_PX;
+}
+
+test("a badge at the bottom wall beside another body never sits on a body", () => {
+  // Two bodies side by side near the bottom wall. The lower badge would clamp up onto its own
+  // body, so it must go to a clear spot instead, close to its body and off the other badge.
+  const anchors = [
+    { px: 40.9, py: 581.1 },
+    { px: 64.9, py: 581.1 },
+  ];
+  for (const order of [
+    [0, 1],
+    [1, 0],
+  ]) {
+    const centres = logic.placeBadges(anchors, RADIUS_PX, SIZES, order, CANVAS);
+    const boxes = centres.map((c, i) => boxOf(c, SIZES[i]));
+    boxes.forEach((box, i) => {
+      assert.ok(insideCanvas(box), `badge ${i} leaves the canvas for order ${order}`);
+      for (const body of anchors) {
+        assert.equal(touchesBody(box, body), false, `badge ${i} touches a body for order ${order}`);
+      }
+      const near = Math.hypot(centres[i].cx - anchors[i].px, centres[i].cy - anchors[i].py);
+      assert.ok(near < 4 * RADIUS_PX, `badge ${i} is ${near.toFixed(1)} px from its body`);
+    });
+    assert.equal(overlap(boxes[0], boxes[1]), false, `badges overlap for order ${order}`);
+  }
+});
+
 test("no bodies gives no badges", () => {
   assert.deepEqual(logic.placeBadges([], RADIUS_PX, [], [], CANVAS), []);
 });
