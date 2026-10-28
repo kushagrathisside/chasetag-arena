@@ -1,0 +1,47 @@
+[project]
+name = "chasetag-arena"
+version = "0.1.0"
+description = "A grounded 2D chase-tag game: play against bots, the keyboard or trained planners"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    # Plain `jax` installs the CPU build of jaxlib. The CUDA plugins come only with the
+    # `jax[cuda12]` extra, which this game does not use.
+    "jax>=0.6",
+    "numpy",
+]
+
+[project.scripts]
+chasetag-arena = "chasetag_arena.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0",
+    "ruff>=0.14",
+    "pre-commit>=4.0",
+]
+
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/chasetag_arena"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests"]
+# Vendored files stay byte-identical to groundtag apart from the import rewrite, so the
+# hash guard in tests/test_vendor.py holds. Only scripts/sync_core.py changes them.
+extend-exclude = ["src/chasetag_arena/core", "src/chasetag_arena/agents/bots.py"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "RUF"]
+ignore = ["RUF001", "RUF002", "RUF003"]  # allow unicode (×, →, ψ) in strings and comments
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.uv]
+default-groups = ["dev"]
