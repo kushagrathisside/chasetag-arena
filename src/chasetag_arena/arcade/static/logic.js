@@ -29,6 +29,9 @@
   const KEYBOARD_MAX_SPEED_MPS = 1.5;
   // The server's intermission between rounds, in wall-clock seconds.
   const INTERMISSION_S = 1.5;
+  const BADGE_GAP_FRAC = 0.25; // gap between a body and its badge, as a share of the radius
+  const BADGE_MIN_GAP_PX = 3;
+  const BADGE_EDGE_MARGIN_PX = 4; // the least distance from a role badge to any canvas edge
 
   function clamp01(t) {
     if (!(t > 0)) return 0; // also catches NaN
@@ -229,7 +232,90 @@
   /** The key-to-speed map used by keys 1 to 4. */
   const SPEED_KEYS = { 1: 0.25, 2: 0.5, 3: 1, 4: 2 };
 
+  function boxAt(centre, size) {
+    return { x: centre.cx - size.w / 2, y: centre.cy - size.h / 2, w: size.w, h: size.h };
+  }
+
+  function boxesOverlap(a, b) {
+    return a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
+  }
+
+  // True when a disc of radius `r` centred at `p` touches the box.
+  function boxTouchesDisc(box, p, r) {
+    const nx = Math.min(Math.max(p.px, box.x), box.x + box.w);
+    const ny = Math.min(Math.max(p.py, box.y), box.y + box.h);
+    return (nx - p.px) ** 2 + (ny - p.py) ** 2 < r * r;
+  }
+
+  /**
+   * The badge centre moved, if needed, so the badge lies inside the canvas, which is `canvas.w`
+   * by `canvas.h` pixels, with BADGE_EDGE_MARGIN_PX clear of every edge. A centre whose badge
+   * is already inside comes back unchanged.
+   */
+  function clampBadgeCentre(centre, size, canvas) {
+    const m = BADGE_EDGE_MARGIN_PX;
+    const clampAxis = (v, lo, hi) => Math.min(Math.max(v, lo), hi);
+    return {
+      cx: clampAxis(centre.cx, m + size.w / 2, canvas.w - m - size.w / 2),
+      cy: clampAxis(centre.cy, m + size.h / 2, canvas.h - m - size.h / 2),
+    };
+  }
+
+  // The fallback ring around a body has this many candidates, evenly spaced.
+  const BADGE_RING_STEPS = 12;
+
+  /**
+   * Where each role badge goes, as centres in canvas pixels.
+   *
+   * `anchors` are the body centres, `sizes` the badge sizes, `order` the indices in the order
+   * they are placed (so the chaser's badge is placed first), and `canvas` the `{w, h}` size of
+   * the canvas. A badge goes above its body if it fits there, otherwise below, then left, then
+   * right. Every candidate is clamped inside the canvas, so a badge that would leave one edge
+   * slides in from it. A badge pushed onto a body, its own included, is not clear, so it moves
+   * to the other side. A candidate is clear when it covers no badge already placed and touches
+   * no body. If no side is clear, a ring of positions around the body is tried. If none of
+   * those is clear, the first side that covers no placed badge is used. So two badges never
+   * overlap while a placement exists.
+   */
+  function placeBadges(anchors, radiusPx, sizes, order, canvas) {
+    const gap = Math.max(BADGE_MIN_GAP_PX, radiusPx * BADGE_GAP_FRAC);
+    const placed = new Array(anchors.length);
+    const boxes = [];
+    for (const i of order) {
+      const a = anchors[i];
+      const s = sizes[i];
+      const sides = [
+        { cx: a.px, cy: a.py - radiusPx - gap - s.h / 2 },
+        { cx: a.px, cy: a.py + radiusPx + gap + s.h / 2 },
+        { cx: a.px - radiusPx - gap - s.w / 2, cy: a.py },
+        { cx: a.px + radiusPx + gap + s.w / 2, cy: a.py },
+      ].map((c) => clampBadgeCentre(c, s, canvas));
+      const far = radiusPx + gap + Math.hypot(s.w, s.h) / 2;
+      const ring = Array.from({ length: BADGE_RING_STEPS }, (_, k) => {
+        const th = (k / BADGE_RING_STEPS) * TAU;
+        const c = { cx: a.px + far * Math.cos(th), cy: a.py - far * Math.sin(th) };
+        return clampBadgeCentre(c, s, canvas);
+      });
+      const clearOfBadges = (c) => boxes.every((b) => !boxesOverlap(boxAt(c, s), b));
+      const clear = (c) =>
+        clearOfBadges(c) && anchors.every((o) => !boxTouchesDisc(boxAt(c, s), o, radiusPx));
+      const choice =
+        sides.find(clear) ||
+        ring.find(clear) ||
+        sides.find(clearOfBadges) ||
+        ring.find(clearOfBadges) ||
+        sides[0];
+      placed[i] = choice;
+      boxes.push(boxAt(choice, s));
+    }
+    return placed;
+  }
+
   return {
+    boxAt,
+    clampBadgeCentre,
+    placeBadges,
+    BADGE_EDGE_MARGIN_PX,
     wrapAngle,
     lerpAngle,
     interpolateFrames,

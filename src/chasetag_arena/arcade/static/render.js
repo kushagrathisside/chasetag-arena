@@ -7,21 +7,21 @@
  * object.
  */
 (function (root, factory) {
-  const api = factory();
-  if (typeof module === "object" && module !== null && module.exports) {
+  const isNode = typeof module === "object" && module !== null && module.exports;
+  // Under Node the geometry comes from logic.js; in the browser logic.js has set its global.
+  const api = factory(isNode ? require("./logic.js") : root.ChasetagLogic);
+  if (isNode) {
     module.exports = api;
   } else {
     root.ChasetagRender = api;
   }
-})(typeof globalThis !== "undefined" ? globalThis : this, function () {
+})(typeof globalThis !== "undefined" ? globalThis : this, function (logic) {
   "use strict";
 
   const TAU = 2 * Math.PI;
   const BODY_RADIUS_FRAC = 0.035; // body radius as a share of the arena width
   const TICK_PER_RADIUS = 2.4; // heading tick length as a multiple of the body radius
   const CORNER_LENGTH_M = 0.7;
-  const BADGE_GAP_FRAC = 0.25; // gap between a body and its badge, as a share of the radius
-  const BADGE_MIN_GAP_PX = 3;
   const BADGE_FONT_FRAC = 0.7; // badge text size, as a share of the body radius
   const BADGE_PAD_FRAC = 0.3; // badge padding on each side of the text, as a share of the radius
   const BADGE_FONT_MIN_PX = 10; // the smallest text size the badge is drawn at
@@ -218,57 +218,8 @@
     };
   }
 
-  function boxAt(centre, size) {
-    return { x: centre.cx - size.w / 2, y: centre.cy - size.h / 2, w: size.w, h: size.h };
-  }
-
-  function boxesOverlap(a, b) {
-    return a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
-  }
-
-  // True when a disc of radius `r` centred at `p` touches the box.
-  function boxTouchesDisc(box, p, r) {
-    const nx = Math.min(Math.max(p.px, box.x), box.x + box.w);
-    const ny = Math.min(Math.max(p.py, box.y), box.y + box.h);
-    return (nx - p.px) ** 2 + (ny - p.py) ** 2 < r * r;
-  }
-
-  /**
-   * Where each role badge goes, as centres in canvas pixels.
-   *
-   * `anchors` are the body centres, `sizes` the badge sizes, and `order` the indices in the
-   * order they are placed, so the chaser's badge is placed first. A badge goes above its body
-   * if it fits there, otherwise below, then left, then right. A candidate is clear when it
-   * covers no badge already placed and no other body. If no candidate is clear, the first one
-   * that covers no placed badge is used, so two badges never overlap while a placement exists.
-   */
-  function placeBadges(anchors, radiusPx, sizes, order) {
-    const gap = Math.max(BADGE_MIN_GAP_PX, radiusPx * BADGE_GAP_FRAC);
-    const placed = new Array(anchors.length);
-    const boxes = [];
-    for (const i of order) {
-      const a = anchors[i];
-      const s = sizes[i];
-      const candidates = [
-        { cx: a.px, cy: a.py - radiusPx - gap - s.h / 2 },
-        { cx: a.px, cy: a.py + radiusPx + gap + s.h / 2 },
-        { cx: a.px - radiusPx - gap - s.w / 2, cy: a.py },
-        { cx: a.px + radiusPx + gap + s.w / 2, cy: a.py },
-      ];
-      const clearOfBadges = (c) => boxes.every((b) => !boxesOverlap(boxAt(c, s), b));
-      const clear = (c) =>
-        clearOfBadges(c) &&
-        anchors.every((o, j) => j === i || !boxTouchesDisc(boxAt(c, s), o, radiusPx));
-      const choice =
-        candidates.find(clear) || candidates.find(clearOfBadges) || candidates[0];
-      placed[i] = choice;
-      boxes.push(boxAt(choice, s));
-    }
-    return placed;
-  }
-
   function drawBadge(ctx, palette, centre, text, size, fontPx) {
-    const box = boxAt(centre, size);
+    const box = logic.boxAt(centre, size);
     const radius = box.h / 2;
     const { x, y, w: width, h: height } = box;
     ctx.beginPath();
@@ -339,7 +290,7 @@
     const sizes = roles.map((role) => badgeSize(ctx, role, metrics));
     // The chaser's badge is placed first, so when two badges clash the evader's moves.
     const order = scene.bodies.map((_, i) => i).sort((i, j) => (roles[j] === "CHASE") - (roles[i] === "CHASE"));
-    const badges = placeBadges(anchors, r, sizes, order);
+    const badges = logic.placeBadges(anchors, r, sizes, order, { w: view.sizePx, h: view.sizePx });
 
     scene.bodies.forEach((body, i) => drawBody(ctx, view, palette, body, anchors[i], r));
     scene.bodies.forEach((_, i) =>
@@ -356,7 +307,6 @@
     bodyRadiusPx,
     badgeMetrics,
     badgeSize,
-    placeBadges,
     FLASH_MS,
     PALETTE_NAMES,
   };
