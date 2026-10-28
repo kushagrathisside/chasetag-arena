@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>chasetag-arena</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="style.css">
+  <script src="logic.js" defer></script>
+  <script src="render.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="top">
+    <h1 class="brand">chasetag-arena</h1>
+    <p class="connection" id="connection" role="status" aria-live="polite">
+      <span class="dot" aria-hidden="true"></span>
+      <span id="connection-text">Reconnecting</span>
+    </p>
+    <button type="button" class="ghost" id="help-toggle" aria-expanded="false" aria-controls="help">
+      Keyboard help
+    </button>
+  </header>
+
+  <section class="controls" aria-label="Game controls">
+    <div class="field">
+      <label for="seat0-select">Seat A</label>
+      <select id="seat0-select" data-seat="0">
+        <option value="keyboard">keyboard</option>
+        <option value="greedy" selected>greedy</option>
+        <option value="intercept">intercept</option>
+        <option value="wander">wander</option>
+        <option value="idle">idle</option>
+        <option value="fallback">fallback</option>
+        <option value="planner" disabled>planner (No planner release yet)</option>
+      </select>
+      <span class="pending" id="seat0-pending" hidden>Applies next round</span>
+    </div>
+    <div class="field">
+      <label for="seat1-select">Seat B</label>
+      <select id="seat1-select" data-seat="1">
+        <option value="keyboard">keyboard</option>
+        <option value="greedy" selected>greedy</option>
+        <option value="intercept">intercept</option>
+        <option value="wander">wander</option>
+        <option value="idle">idle</option>
+        <option value="fallback">fallback</option>
+        <option value="planner" disabled>planner (No planner release yet)</option>
+      </select>
+      <span class="pending" id="seat1-pending" hidden>Applies next round</span>
+    </div>
+    <div class="field">
+      <label for="body-select">Body</label>
+      <select id="body-select" disabled>
+        <option value="K/default" selected>K/default</option>
+      </select>
+      <span class="note" id="body-note">Running: K/default</span>
+    </div>
+    <div class="buttons" role="group" aria-label="Playback">
+      <button type="button" id="play-toggle">Pause</button>
+      <button type="button" id="step">Step</button>
+      <button type="button" id="restart">Restart</button>
+    </div>
+    <div class="field">
+      <label for="speed">Speed</label>
+      <select id="speed">
+        <option value="0.25">0.25×</option>
+        <option value="0.5">0.5×</option>
+        <option value="1" selected>1×</option>
+        <option value="2">2×</option>
+        <option value="4">4×</option>
+      </select>
+    </div>
+  </section>
+
+  <main class="layout">
+    <section class="arena-wrap" aria-label="Arena">
+      <canvas id="arena" role="img" aria-label="Arena, waiting for the first frame"></canvas>
+    </section>
+
+    <aside class="panel" aria-label="Round and match">
+      <h2 class="round-title" id="round-title">Round 0</h2>
+      <p class="phase" id="phase" aria-live="polite">Waiting</p>
+      <p class="phase-detail" id="phase-detail"></p>
+
+      <h3>Round score</h3>
+      <dl class="scores">
+        <div class="score score-a">
+          <dt><span class="seat-chip seat-chip-a" aria-hidden="true">A</span> Seat A</dt>
+          <dd id="round-score-a">0.000</dd>
+        </div>
+        <div class="score score-b">
+          <dt><span class="seat-chip seat-chip-b" aria-hidden="true">B</span> Seat B</dt>
+          <dd id="round-score-b">0.000</dd>
+        </div>
+      </dl>
+
+      <h3>Match</h3>
+      <dl class="tally">
+        <div><dt>Seat A score</dt><dd id="match-a">0.000</dd></div>
+        <div><dt>Seat B score</dt><dd id="match-b">0.000</dd></div>
+        <div><dt>Tags</dt><dd id="match-tags">0</dd></div>
+        <div><dt>Falls</dt><dd id="match-falls">0</dd></div>
+        <div><dt>Time-outs</dt><dd id="match-timeouts">0</dd></div>
+      </dl>
+    </aside>
+  </main>
+
+  <section class="help" id="help" hidden aria-label="Keyboard help">
+    <h2>Keyboard</h2>
+    <ul>
+      <li><kbd>←</kbd> <kbd>↑</kbd> <kbd>↓</kbd> <kbd>→</kbd> drive the keyboard seat (set a seat to keyboard first).</li>
+      <li><kbd>Space</kbd> pauses, and pressing it again plays.</li>
+      <li><kbd>.</kbd> steps one decision.</li>
+      <li><kbd>1</kbd> to <kbd>4</kbd> set speed to 0.25×, 0.5×, 1× and 2×.</li>
+    </ul>
+  </section>
+
+  <noscript>
+    <p class="note">This page needs JavaScript to draw the arena.</p>
+  </noscript>
+</body>
+</html>

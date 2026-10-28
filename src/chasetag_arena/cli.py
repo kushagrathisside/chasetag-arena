@@ -19,6 +19,8 @@ from chasetag_arena.arcade.server import ArcadeServer
 
 DEFAULT_HOST: Final[str] = "127.0.0.1"
 DEFAULT_PORT: Final[int] = 8765
+# The browser client that ships inside the package. ``--static-dir`` replaces it.
+PACKAGE_STATIC_DIR: Final[Path] = Path(__file__).resolve().parent / "arcade" / "static"
 _WAIT_POLL_S: Final[float] = 0.5  # short waits keep Ctrl+C responsive
 _THREAD_JOIN_S: Final[float] = 5.0
 
@@ -53,7 +55,8 @@ def start_serving(options: ServeOptions) -> Serving:
     without leaving a game thread behind.
     """
     loop = GameLoop(seed=secrets.randbits(31))
-    server = ArcadeServer(loop, options.host, options.port, options.static_dir)
+    static_dir = PACKAGE_STATIC_DIR if options.static_dir is None else options.static_dir
+    server = ArcadeServer(loop, options.host, options.port, static_dir)
     loop.start()
     thread = threading.Thread(target=server.serve_forever, name="chasetag_arena-http", daemon=True)
     thread.start()
@@ -92,7 +95,10 @@ def build_parser() -> argparse.ArgumentParser:
         "--no-browser", action="store_true", help="print the URL without opening a browser"
     )
     serve.add_argument(
-        "--static-dir", type=Path, default=None, help="directory of arcade client files"
+        "--static-dir",
+        type=Path,
+        default=None,
+        help="directory of arcade client files (default: the copy in the package)",
     )
     return parser
 
