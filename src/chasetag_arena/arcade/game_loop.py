@@ -199,6 +199,12 @@ class GameLoop:
             if frames in self._subscribers:
                 self._subscribers.remove(frames)
 
+    def latest_frame(self) -> dict[str, Any] | None:
+        """The last published frame, or None before the first. Does not subscribe, so it
+        never wakes a parked loop."""
+        with self._lock:
+            return self._last_frame
+
     # --- the game thread ---------------------------------------------------------------
 
     def decide(self) -> bool:
