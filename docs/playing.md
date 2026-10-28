@@ -18,7 +18,7 @@ chooses who plays it.
 | `wander` | A bot. It drifts in a random direction. |
 | `idle` | A bot. It never moves. |
 | `fallback` | A bot. It is the cautious stand-in for a trained planner: it caps its speed, and it keeps falls rare. |
-| `planner` | Shown as disabled: "No planner release yet". |
+| `planner` | The planner file given with `--planner FILE`. Without one, the choice is disabled on the page. |
 
 A change of selector shows "Applies next round" until the next round starts. A selector never
 changes a round in progress. Which seat chases is drawn at random for each round.

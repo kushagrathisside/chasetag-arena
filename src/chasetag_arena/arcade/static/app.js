@@ -82,11 +82,31 @@
     els.connectionText.textContent = text[state];
   }
 
+  // The planner option is enabled only while the server has a planner loaded. The answer is
+  // read on each connection, so a server restarted with another planner shows at once.
+  function applyPlannerInfo(info) {
+    const state = L.plannerOptionState(info);
+    for (const select of els.selects) {
+      const option = select.querySelector('option[value="planner"]');
+      option.disabled = state.disabled;
+      option.textContent = state.text;
+    }
+    if (app.echo) reconcileSelectors(app.echo);
+  }
+
+  function loadPlannerInfo() {
+    fetch("/planner", { cache: "no-store" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then(applyPlannerInfo)
+      .catch(() => applyPlannerInfo(null));
+  }
+
   function connect() {
     app.retryTimer = null;
     app.session = freshSession();
     app.trails = null;
     app.flash = null;
+    loadPlannerInfo();
     const es = new EventSource("/events");
     app.es = es;
     es.onopen = () => {

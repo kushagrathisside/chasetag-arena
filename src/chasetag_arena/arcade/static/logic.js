@@ -201,6 +201,22 @@
   }
 
   /**
+   * The planner option's label and whether it is enabled, from the server's `/planner` answer.
+   * The option is enabled only when a planner is loaded and it has a name to show.
+   */
+  function plannerOptionState(info) {
+    const named =
+      info !== null &&
+      typeof info === "object" &&
+      info.loaded === true &&
+      typeof info.name === "string" &&
+      info.name !== "";
+    return named
+      ? { disabled: false, text: `planner (${info.name})` }
+      : { disabled: true, text: "planner (not loaded)" };
+  }
+
+  /**
    * The status lines for a frame. `sinceIntermissionS` is the time since the intermission
    * frame arrived, and only matters in that phase.
    */
@@ -328,6 +344,7 @@
     validateFrame,
     formatSeconds,
     describePhase,
+    plannerOptionState,
     arenaSidePx,
     ARENA_MIN_PX,
     SPEED_KEYS,

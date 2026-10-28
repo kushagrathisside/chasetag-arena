@@ -108,10 +108,19 @@ class _Handler(BaseHTTPRequestHandler):
             self._send_json(200, {"ok": True, "version": __version__})
         elif path == "/events":
             self._stream_events()
+        elif path == "/planner":
+            self._send_json(200, self._planner_info())
         elif path == "/control":
             self._send_json(405, {"error": "use POST"}, allow="POST")
         else:
             self._send_static(path)
+
+    def _planner_info(self) -> dict[str, Any]:
+        """Whether a planner file is loaded for the planner seat, and what the page shows for it."""
+        planner = self._arcade.loop.planner
+        if planner is None:
+            return {"loaded": False}
+        return {"loaded": True, "name": planner.name, "file": planner.file}
 
     def do_POST(self) -> None:
         if _route(self.path) == "/control":

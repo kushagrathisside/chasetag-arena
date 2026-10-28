@@ -18,6 +18,7 @@ from chasetag_arena.arcade import server as server_module
 from chasetag_arena.arcade.controls import PauseControl
 from chasetag_arena.arcade.game_loop import GameLoop
 from chasetag_arena.arcade.server import MAX_BODY_BYTES, ArcadeServer
+from chasetag_arena.planner import Planner, load_planner
 
 FRAME_KEYS = {
     "seq",
@@ -86,8 +87,10 @@ def start() -> Iterator[Any]:
     """Start a loop and a server on port 0. Teardown stops both, whatever the test did."""
     running: list[tuple[GameLoop, ArcadeServer, threading.Thread]] = []
 
-    def _start(static_dir: Path | None = None) -> tuple[GameLoop, ArcadeServer]:
-        loop = GameLoop(seed=11, selectors=("greedy", "greedy"))
+    def _start(
+        static_dir: Path | None = None, planner: Planner | None = None
+    ) -> tuple[GameLoop, ArcadeServer]:
+        loop = GameLoop(seed=11, selectors=("greedy", "greedy"), planner=planner)
         server = ArcadeServer(loop, "127.0.0.1", 0, static_dir)
         loop.start()
         thread = threading.Thread(target=server.serve_forever, daemon=True)
@@ -108,6 +111,21 @@ def test_healthz_returns_ok_and_version(start: Any) -> None:
     assert status == 200
     assert json.loads(body) == {"ok": True, "version": "0.1.0"}
     assert headers["Cache-Control"] == "no-store"
+
+
+def test_planner_endpoint_reports_that_no_planner_is_loaded(start: Any) -> None:
+    _, server = start()
+    status, headers, body = _get(server, "/planner")
+    assert status == 200
+    assert json.loads(body) == {"loaded": False}
+    assert headers["Cache-Control"] == "no-store"
+
+
+def test_planner_endpoint_names_the_loaded_planner(start: Any, planner_file: Path) -> None:
+    _, server = start(planner=load_planner(planner_file))
+    status, _, body = _get(server, "/planner")
+    assert status == 200
+    assert json.loads(body) == {"loaded": True, "name": "test-planner", "file": "planner.npz"}
 
 
 def test_events_send_a_snapshot_then_one_frame_per_decision(start: Any) -> None:

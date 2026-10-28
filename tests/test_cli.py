@@ -152,3 +152,28 @@ def test_close_returns_promptly_with_no_viewers(monkeypatch: pytest.MonkeyPatch)
     began = time.monotonic()
     serving.close()
     assert time.monotonic() - began < 5.0
+
+
+def test_the_planner_option_is_read_and_optional() -> None:
+    assert build_parser().parse_args(["serve"]).planner is None
+    args = build_parser().parse_args(["serve", "--planner", "planner.npz"])
+    assert args.planner == Path("planner.npz")
+
+
+def test_a_planner_that_cannot_run_is_a_usage_error(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    bad = tmp_path / "bad.npz"
+    bad.write_text("not a planner", encoding="utf-8")
+    code = main(["serve", "--no-browser", "--port", "0", "--planner", str(bad)])
+    assert code == 2
+    assert "chasetag-arena: cannot read planner file" in capsys.readouterr().err
+
+
+def test_the_planner_option_reaches_the_game_loop(planner_file: Path) -> None:
+    serving = start_serving(ServeOptions(port=0, open_browser=False, planner=planner_file))
+    try:
+        assert serving.loop.planner is not None
+        assert serving.loop.planner.name == "test-planner"
+    finally:
+        serving.close()

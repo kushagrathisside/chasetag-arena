@@ -10,11 +10,12 @@ This page lists what is built and what is planned. A planned item is not part of
 - **The browser client**: the arena, the controls, the status and the round and match scores.
 - **The keyboard seat**: the arrow keys drive a body.
 - **The selectors**: keyboard, greedy, intercept, wander, idle and fallback.
+- **The planner seat**: a groundtag planner file, given with `--planner`, plays a seat.
 
 ## Planned, not built
 
-- **Planner releases**: downloading a planner release, checking its checksum, and the planner seat.
-  Until then, the planner choice is disabled in the page. The server plays the fallback bot in its place.
+- **Planner releases**: downloading a planner release and checking its checksum. Until then, a
+  planner is given by its file path with `--planner`.
 - **Learning history panel**.
 - **Saving rounds**.
 - **Compare panel and preference rows**.

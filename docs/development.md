@@ -6,6 +6,7 @@
 src/chasetag_arena/
     __main__.py          python -m chasetag_arena
     cli.py               the serve command
+    planner.py           the planner seat: reads a groundtag planner file
     arcade/              the server and the browser client
         server.py        HTTP handlers, the event stream, static files
         game_loop.py     the game thread

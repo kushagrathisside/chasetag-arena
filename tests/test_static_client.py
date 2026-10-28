@@ -62,6 +62,11 @@ def test_index_loads_the_stylesheet_and_the_scripts_with_defer() -> None:
         assert re.search(rf'<script src="{re.escape(name)}" defer></script>', html), name
 
 
+def test_the_page_reads_the_planner_state_from_the_server() -> None:
+    assert '"/planner"' in _client_text("app.js")
+    assert 'value="planner"' in _client_text("index.html")
+
+
 def test_no_static_file_refers_to_a_remote_url() -> None:
     for name in CLIENT_FILES:
         assert not URL_RE.search(_client_text(name)), f"{name} refers to a remote address"

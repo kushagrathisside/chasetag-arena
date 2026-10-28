@@ -306,3 +306,21 @@ test("arenaSidePx returns a whole number of pixels, rounded down", () => {
   assert.equal(logic.arenaSidePx(500.7, 900, 100), 500);
   assert.equal(logic.arenaSidePx(800, 900, 183.6), 716);
 });
+
+// --- planner option ----------------------------------------------------------------------
+
+test("plannerOptionState enables the planner option only for a loaded, named planner", () => {
+  assert.deepEqual(logic.plannerOptionState({ loaded: true, name: "walk-2d", file: "w.npz" }), {
+    disabled: false,
+    text: "planner (walk-2d)",
+  });
+  assert.deepEqual(logic.plannerOptionState({ loaded: false }), {
+    disabled: true,
+    text: "planner (not loaded)",
+  });
+  assert.deepEqual(logic.plannerOptionState({ loaded: true, name: "" }), {
+    disabled: true,
+    text: "planner (not loaded)",
+  });
+  assert.deepEqual(logic.plannerOptionState(null), { disabled: true, text: "planner (not loaded)" });
+});

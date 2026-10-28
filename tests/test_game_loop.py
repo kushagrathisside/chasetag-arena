@@ -6,9 +6,12 @@ import queue
 import time
 from typing import Any
 
+import jax
+import jax.numpy as jnp
 import numpy as np
 import pytest
 
+from chasetag_arena.agents.bots import BOTS
 from chasetag_arena.arcade.controls import (
     KeyboardControl,
     PauseControl,
@@ -20,7 +23,9 @@ from chasetag_arena.arcade.controls import (
 from chasetag_arena.arcade.game_loop import GameLoop
 from chasetag_arena.core import game
 from chasetag_arena.core.families.kinematic import default_params
+from chasetag_arena.core.spec.features import encode_v1
 from chasetag_arena.core.state import RUNNING, GameState
+from chasetag_arena.planner import Planner
 
 # An episode is 2000 control steps, which is 200 decisions. This bound never binds.
 MAX_DECISIONS = 210
@@ -231,3 +236,36 @@ def test_submit_selector_is_held_until_round_start() -> None:
     loop.submit(PlayControl())
     loop.decide()
     assert loop.selectors == ("greedy", "greedy")
+
+
+def _constant_planner(raw: tuple[float, float]) -> Planner:
+    """A planner that outputs ``raw`` in every state: zero weights, so the output is the bias."""
+    hidden = 4
+    return Planner(
+        name="constant",
+        file="constant.npz",
+        weights=(np.zeros((hidden, 17)), np.zeros((2, hidden))),
+        biases=(np.zeros(hidden), np.asarray(raw, dtype=np.float64)),
+        activation="tanh",
+        obs_mean=np.zeros(17),
+        obs_var=np.ones(17),
+    )
+
+
+def test_the_planner_seat_plays_the_loaded_planner() -> None:
+    planner = _constant_planner((0.5, -0.25))
+    loop = GameLoop(seed=2, selectors=("planner", "idle"), clock=FakeClock(), planner=planner)
+    assert loop.planner is planner
+    loop.decide()
+    np.testing.assert_allclose(np.asarray(loop.last_actions)[0], [0.5, -0.25], atol=1e-6)
+    np.testing.assert_array_equal(np.asarray(loop.last_actions)[1], [0.0, 0.0])
+
+
+def test_the_planner_seat_plays_the_fallback_bot_when_no_planner_is_loaded() -> None:
+    loop = GameLoop(seed=2, selectors=("planner", "idle"), clock=FakeClock())
+    assert loop.planner is None
+    expected, _ = BOTS["fallback"].act(
+        encode_v1(loop.state, 0), jax.random.PRNGKey(0), jnp.zeros(2)
+    )
+    loop.decide()
+    np.testing.assert_allclose(np.asarray(loop.last_actions)[0], np.asarray(expected), atol=1e-6)

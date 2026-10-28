@@ -16,6 +16,18 @@ does not exist returns `404` with the text `not found`.
 {"ok": true, "version": "0.1.0"}
 ```
 
+## `GET /planner`
+
+Says whether a planner file is loaded for the planner seat. The page reads it each time it connects.
+
+```json
+{"loaded": true, "name": "walk-2d", "file": "walk-2d.npz"}
+```
+
+With no planner file the answer is `{"loaded": false}`. `name` is the name in the file's `meta`
+record, or the file's name without its extension when the record gives none. `file` is the file's
+name, without its folder.
+
 ## `GET /events`
 
 A stream of frames, in the `text/event-stream` format. The server sends two kinds of event:
@@ -75,7 +87,7 @@ Sends one control. The body is a JSON object, and its `kind` field names the con
 
 | Kind | Body | Effect |
 |---|---|---|
-| `selector` | `{"kind": "selector", "seat": 0, "value": "greedy"}` | Sets who plays a seat. `value` is one of `keyboard`, `planner`, `greedy`, `intercept`, `wander`, `idle` or `fallback`. It applies at the next round start. `planner` is accepted, and it plays the `fallback` bot until planner releases exist. |
+| `selector` | `{"kind": "selector", "seat": 0, "value": "greedy"}` | Sets who plays a seat. `value` is one of `keyboard`, `planner`, `greedy`, `intercept`, `wander`, `idle` or `fallback`. It applies at the next round start. `planner` plays the loaded planner, or the `fallback` bot when the server has no planner file (see [`GET /planner`](#get-planner)). |
 | `keyboard` | `{"kind": "keyboard", "seat": 0, "cmd": [0.0, 1.5]}` | Holds a velocity for a seat, in metres per second, in the world frame. Each component must be within ±1.5. The command expires 0.25 s after it arrives unless it is sent again. |
 | `pause` | `{"kind": "pause"}` | Stops decisions. |
 | `play` | `{"kind": "play"}` | Resumes decisions. |

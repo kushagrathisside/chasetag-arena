@@ -7,7 +7,7 @@ by your keyboard, or by a trained planner.
 The game runs a local server and opens in your browser. It shows each round live, with the
 official score, the tag and fall events, and the match tally.
 
-Status: in development. The server and the browser client work. Planner seats, saved rounds and
+Status: in development. The server, the browser client and the planner seat work. Saved rounds and
 the logs submission are not built yet, and the interface will change.
 
 The simulator core is vendored from the `groundtag` research repository. `vendor/SYNC.md` records
@@ -15,7 +15,8 @@ the commit it was copied from and the hash of every copied file.
 
 ## What works now
 
-- Play rounds in the browser with bots (greedy, intercept, wander, idle, fallback) or the keyboard.
+- Play rounds in the browser with bots (greedy, intercept, wander, idle, fallback), the keyboard, or
+  a trained planner from a groundtag planner file: `uv run chasetag-arena serve --planner FILE`.
 - Choose the player of each seat. A change applies at the next round.
 - Pause, step, restart, and change the speed. The keys are listed on the playing page.
 - The round and match scores, the tags, the falls and the time-outs.

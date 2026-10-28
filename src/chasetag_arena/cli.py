@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import secrets
+import sys
 import threading
 import webbrowser
 from dataclasses import dataclass
@@ -16,6 +17,7 @@ from typing import Final
 
 from chasetag_arena.arcade.game_loop import GameLoop
 from chasetag_arena.arcade.server import ArcadeServer
+from chasetag_arena.planner import PlannerError, load_planner
 
 DEFAULT_HOST: Final[str] = "127.0.0.1"
 DEFAULT_PORT: Final[int] = 8765
@@ -31,6 +33,7 @@ class ServeOptions:
     port: int = DEFAULT_PORT
     open_browser: bool = True
     static_dir: Path | None = None
+    planner: Path | None = None
 
 
 @dataclass
@@ -51,10 +54,11 @@ class Serving:
 def start_serving(options: ServeOptions) -> Serving:
     """Start the game and the HTTP server, announce the URL, and return without blocking.
 
-    The server socket is bound before the game starts, so a port already in use fails
-    without leaving a game thread behind.
+    The planner file is read first and the server socket is bound before the game starts, so
+    a planner that cannot run, or a port already in use, fails without leaving a thread behind.
     """
-    loop = GameLoop(seed=secrets.randbits(31))
+    planner = None if options.planner is None else load_planner(options.planner)
+    loop = GameLoop(seed=secrets.randbits(31), planner=planner)
     static_dir = PACKAGE_STATIC_DIR if options.static_dir is None else options.static_dir
     server = ArcadeServer(loop, options.host, options.port, static_dir)
     loop.start()
@@ -100,6 +104,14 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="directory of arcade client files (default: the copy in the package)",
     )
+    serve.add_argument(
+        "--planner",
+        type=Path,
+        default=None,
+        metavar="FILE",
+        help="a groundtag planner file for the planner seat (default: none, the seat plays "
+        "the fallback bot)",
+    )
     return parser
 
 
@@ -110,8 +122,13 @@ def main(argv: list[str] | None = None) -> int:
         port=args.port,
         open_browser=not args.no_browser,
         static_dir=args.static_dir,
+        planner=args.planner,
     )
-    serving = start_serving(options)
+    try:
+        serving = start_serving(options)
+    except PlannerError as exc:
+        print(f"chasetag-arena: {exc}", file=sys.stderr)
+        return 2
     try:
         while serving.thread.is_alive():
             serving.thread.join(_WAIT_POLL_S)

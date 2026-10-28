@@ -42,11 +42,12 @@ from chasetag_arena.core.spec.features import encode_v1
 from chasetag_arena.core.spec.frames import to_heading_frame
 from chasetag_arena.core.spec.rules import OFFICIAL, Rules
 from chasetag_arena.core.state import FALL, RUNNING, TAG, TIMEOUT, GameState
+from chasetag_arena.planner import Planner
 
 BODY_LABEL: Final[str] = "K/default"  # the default body; the limited preset is not vendored yet
 INTERMISSION_S: Final[float] = 1.5
 SUBSCRIBER_QUEUE_SIZE: Final[int] = 64
-# Until the trained planner ships (phase 4), a planner seat plays the cautious fallback bot.
+# With no planner file loaded, a planner seat plays the cautious fallback bot.
 _PLANNER_STANDIN: Final[str] = "fallback"
 _ZERO: Final[tuple[float, float]] = (0.0, 0.0)
 
@@ -81,11 +82,6 @@ class _Tally:
         }
 
 
-def _bot_for(name: str) -> Bot:
-    """The bot that plays a seat selected as ``name``. Not valid for ``keyboard``."""
-    return BOTS[_PLANNER_STANDIN if name == "planner" else name]
-
-
 class GameLoop:
     """Owns one game and plays it on its own thread. Only the game thread touches game state.
 
@@ -102,6 +98,7 @@ class GameLoop:
         params: BodyParams | None = None,
         rules: Rules = OFFICIAL,
         clock: Callable[[], float] = time.monotonic,
+        planner: Planner | None = None,
     ) -> None:
         for name in selectors:
             if name not in SELECTORS:
@@ -109,6 +106,8 @@ class GameLoop:
         self._rules = rules
         self._params = default_params() if params is None else params
         self._clock = clock
+        self._planner = planner
+        self._planner_bot = None if planner is None else planner.as_bot()
 
         self._lock = threading.Lock()  # guards _subscribers, _pending and _last_frame
         self._subscribers: list[queue.Queue[dict[str, Any]]] = []
@@ -151,6 +150,11 @@ class GameLoop:
     @property
     def selectors(self) -> tuple[str, str]:
         return self._selectors
+
+    @property
+    def planner(self) -> Planner | None:
+        """The planner file that plays the planner seat, or None when none is loaded."""
+        return self._planner
 
     @property
     def decisions(self) -> int:
@@ -260,6 +264,14 @@ class GameLoop:
 
     # --- internals ---------------------------------------------------------------------
 
+    def _bot_for(self, name: str) -> Bot:
+        """The bot that plays a seat selected as ``name``. Not valid for ``keyboard``."""
+        if name != "planner":
+            return BOTS[name]
+        if self._planner_bot is None:
+            return BOTS[_PLANNER_STANDIN]
+        return self._planner_bot
+
     def _drain_controls(self) -> None:
         """Apply queued controls in the order they arrived."""
         while True:
@@ -297,7 +309,7 @@ class GameLoop:
             if name == "keyboard":
                 self._bot_states[seat] = jnp.zeros(2)
             else:
-                self._bot_states[seat] = _bot_for(name).init_state(sub)
+                self._bot_states[seat] = self._bot_for(name).init_state(sub)
         self._phase = "running"
         self._round_score = _ZERO
         self._last_ended_by = RUNNING
@@ -316,7 +328,8 @@ class GameLoop:
                 continue
             obs = encode_v1(state, seat, self._rules)
             self._bot_keys[seat], sub = jax.random.split(self._bot_keys[seat])
-            raw, self._bot_states[seat] = _bot_for(name).act(obs, sub, self._bot_states[seat])
+            bot = self._bot_for(name)
+            raw, self._bot_states[seat] = bot.act(obs, sub, self._bot_states[seat])
             rows.append(raw)
         return jnp.stack(rows)
 

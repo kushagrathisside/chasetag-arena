@@ -13,8 +13,9 @@ back. The rules of the game live only on the server.
   and the control queue, and it starts the game thread.
 - **Game loop**: the one thread that plays the game. It applies the controls, chooses both seats'
   actions, steps the simulator core, and publishes a frame.
-- **Players**: the bots, the keyboard seat, and the planner seat, which plays the fallback bot until
-  planner releases exist.
+- **Players**: the bots, the keyboard seat, and the planner seat. The planner seat plays the planner
+  file given with `--planner`, or the fallback bot when none is given. The planner is read in
+  `planner.py`, outside the vendored core.
 - **Vendored core**: the simulator core and the bots, copied from the groundtag research repository.
 
 ![Components of the browser client, the server, the game loop, the players and the vendored core](diagrams/components.svg)

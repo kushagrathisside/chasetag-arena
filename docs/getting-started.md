@@ -39,6 +39,7 @@ Press Ctrl+C in the terminal to stop the server.
 | `--port N` | `8765` | The port to bind. `0` picks a free port and prints it. |
 | `--no-browser` | off | Print the address without opening a browser. |
 | `--static-dir DIR` | the copy in the package | A folder of page files to serve instead of the built-in page. |
+| `--planner FILE` | none | A groundtag planner file for the planner seat. Without it, a planner seat plays the fallback bot. The server does not start if the file cannot run. |
 
 ## What the browser shows
 
