@@ -56,5 +56,7 @@ uv run --no-sync python scripts/sync_core.py /path/to/groundtag
 
 ## Licence
 
-Not chosen yet. The owner will choose it, and it must match the licence of `groundtag`, which the
-vendored core comes from. See [`LICENSE`](LICENSE).
+Licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE). You may read, use, change and
+share the game for any noncommercial purpose, including research, study and personal projects.
+Commercial use needs a separate licence from the author. The simulator core is copied from
+`groundtag`, a repository owned by the same author.
