@@ -38,6 +38,8 @@ function frame(seq, round, bodies, extra = {}) {
     round_score: [0, 0],
     match: { seat0: 0, seat1: 0, tags: 0, falls: 0, timeouts: 0 },
     selectors: { seat0: "keyboard", seat1: "greedy", body: "K/default" },
+    paused: false,
+    speed: 1,
     ...extra,
   };
 }
@@ -266,42 +268,64 @@ test("validateFrame accepts a well-formed frame and rejects broken ones", () => 
 
 test("describePhase gives the status lines the page shows", () => {
   const running = frame(1, 1, [body(0, 0, 0, 0), body(1, 0, 0, 0)]);
-  assert.deepEqual(logic.describePhase(running, false, 0), { headline: "Running", detail: "" });
-  assert.deepEqual(logic.describePhase(running, true, 0), { headline: "Paused", detail: "" });
+  assert.deepEqual(logic.describePhase(running, 0), { headline: "Running", detail: "" });
+  assert.deepEqual(logic.describePhase({ ...running, paused: true }, 0), {
+    headline: "Paused",
+    detail: "",
+  });
 
   const tagged = { ...running, phase: "intermission", ended_by: "tag" };
-  assert.deepEqual(logic.describePhase(tagged, false, 0), {
+  assert.deepEqual(logic.describePhase(tagged, 0), {
     headline: "Round over: tagged",
     detail: "Next round in 1.5 s",
   });
-  assert.equal(logic.describePhase({ ...tagged, ended_by: "fall" }, false, 0).headline, "Round over: fell");
+  assert.equal(logic.describePhase({ ...tagged, ended_by: "fall" }, 0).headline, "Round over: fell");
   assert.equal(
-    logic.describePhase({ ...tagged, ended_by: "timeout" }, false, 0).headline,
+    logic.describePhase({ ...tagged, ended_by: "timeout" }, 0).headline,
     "Round over: time out",
   );
-  assert.equal(logic.describePhase(tagged, false, 0.5).detail, "Next round in 1.0 s");
-  assert.equal(logic.describePhase(tagged, false, 9).detail, "Next round in 0.0 s");
-  assert.equal(logic.describePhase({ ...tagged, phase: "ended" }, false, 0).detail, "");
+  assert.equal(logic.describePhase(tagged, 0.5).detail, "Next round in 1.0 s");
+  assert.equal(logic.describePhase(tagged, 9).detail, "Next round in 0.0 s");
+  assert.equal(logic.describePhase({ ...tagged, phase: "ended" }, 0).detail, "");
 });
 
 test("a paused round over shows Paused, the result, and no countdown", () => {
   const tagged = frame(1, 1, [body(0, 0, 0, 0), body(1, 0, 0, 0)], {
     phase: "intermission",
     ended_by: "tag",
+    paused: true,
   });
-  assert.deepEqual(logic.describePhase(tagged, true, 0), {
+  assert.deepEqual(logic.describePhase(tagged, 0), {
     headline: "Paused",
     detail: "Round over: tagged",
   });
-  assert.deepEqual(logic.describePhase(tagged, true, 9), {
+  assert.deepEqual(logic.describePhase(tagged, 9), {
     headline: "Paused",
     detail: "Round over: tagged",
   });
   const ended = { ...tagged, phase: "ended" };
-  assert.deepEqual(logic.describePhase(ended, true, 0), {
+  assert.deepEqual(logic.describePhase(ended, 0), {
     headline: "Paused",
     detail: "Round over: tagged",
   });
+});
+
+test("validateFrame needs the server's paused flag and a positive speed", () => {
+  const good = frame(1, 1, [body(0, 0, 0, 0), body(1, 1, 1, 0)]);
+  assert.equal(logic.validateFrame({ ...good, paused: "yes" }), false);
+  assert.equal(logic.validateFrame({ ...good, paused: undefined }), false);
+  assert.equal(logic.validateFrame({ ...good, speed: 0 }), false);
+  assert.equal(logic.validateFrame({ ...good, speed: NaN }), false);
+  assert.equal(logic.validateFrame({ ...good, speed: 0.25, paused: true }), true);
+});
+
+test("isStatusRepeat is true only for a frame that repeats the moment before it", () => {
+  const prev = frame(3, 2, [body(0, 0, 0, 0), body(1, 1, 1, 0)], { t_event: 1.2 });
+  assert.equal(logic.isStatusRepeat(null, prev), false);
+  assert.equal(logic.isStatusRepeat(prev, { ...prev, seq: 4, paused: true }), true);
+  assert.equal(logic.isStatusRepeat(prev, { ...prev, seq: 4, t_event: 1.3 }), false);
+  assert.equal(logic.isStatusRepeat(prev, { ...prev, seq: 4, round: 3 }), false);
+  assert.equal(logic.isStatusRepeat(prev, { ...prev, seq: 4, phase: "intermission" }), false);
 });
 
 test("keys 1 to 4 map to the speeds the help panel names", () => {

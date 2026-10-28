@@ -32,6 +32,8 @@ FRAME_KEYS = {
     "round_score",
     "match",
     "selectors",
+    "paused",
+    "speed",
 }
 PHASES = {"running", "ended", "intermission"}
 

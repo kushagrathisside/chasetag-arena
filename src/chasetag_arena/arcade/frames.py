@@ -90,6 +90,8 @@ def state_to_frame(
     body_label: str,
     match: Mapping[str, Any],
     round_score: Sequence[float] | np.ndarray,
+    paused: bool,
+    speed: float,
 ) -> dict[str, Any]:
     """Build the frame for ``state``.
 
@@ -100,11 +102,18 @@ def state_to_frame(
 
     ``ended_by`` takes a core outcome code (``RUNNING``, ``TAG``, ``FALL``, ``TIMEOUT``), not
     a string, so the caller can pass the code of a finished round during intermission.
+
+    ``paused`` and ``speed`` are the server's current pause and speed. A viewer shows them as
+    they are, so it never has to guess them from the frames it has received.
     """
     if phase not in PHASES:
         raise ValueError(f"phase must be one of {PHASES}, got {phase!r}")
     if ended_by not in _ENDED_BY:
         raise ValueError(f"ended_by must be a core outcome code, got {ended_by!r}")
+    if not isinstance(paused, bool):
+        raise ValueError(f"paused must be a bool, got {paused!r}")
+    if not (math.isfinite(speed) and speed > 0.0):
+        raise ValueError(f"speed must be a positive finite number, got {speed!r}")
 
     pos = np.asarray(state.bodies.pos, dtype=np.float64)
     height = np.asarray(state.bodies.height, dtype=np.float64)
@@ -143,6 +152,8 @@ def state_to_frame(
         "round_score": [_finite_round(v, 3, "round_score") for v in shown_list],
         "match": _match(match),
         "selectors": _selectors(selectors, body_label),
+        "paused": paused,
+        "speed": float(speed),
     }
 
 

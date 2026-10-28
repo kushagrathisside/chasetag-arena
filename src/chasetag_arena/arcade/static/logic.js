@@ -92,6 +92,21 @@
   }
 
   /**
+   * Whether `frame` only repeats the moment `prev` showed. The server sends the current frame
+   * again when the pause or the speed changes, so it has the same round, game time and phase.
+   * Such a frame adds no trail point and no flash.
+   */
+  function isStatusRepeat(prev, frame) {
+    return (
+      prev !== null &&
+      prev !== undefined &&
+      prev.round === frame.round &&
+      prev.t_event === frame.t_event &&
+      prev.phase === frame.phase
+    );
+  }
+
+  /**
    * Trails for both bodies. A new round starts empty. `state` is `{round, trails}` or null.
    */
   function advanceTrails(state, frame, max) {
@@ -193,6 +208,8 @@
     if (obj.chaser !== 0 && obj.chaser !== 1) return false;
     if (!Array.isArray(obj.round_score) || obj.round_score.length !== 2) return false;
     if (!obj.match || !obj.selectors) return false;
+    if (typeof obj.paused !== "boolean") return false;
+    if (!isFiniteNumber(obj.speed) || obj.speed <= 0) return false;
     return true;
   }
 
@@ -217,10 +234,11 @@
   }
 
   /**
-   * The status lines for a frame. `sinceIntermissionS` is the time since the intermission
-   * frame arrived, and only matters in that phase.
+   * The status lines for a frame, from the server's own `paused` flag. `sinceIntermissionS` is
+   * the time since the intermission frame arrived, and only matters in that phase.
    */
-  function describePhase(frame, paused, sinceIntermissionS) {
+  function describePhase(frame, sinceIntermissionS) {
+    const paused = frame.paused === true;
     if (frame.phase === "running") {
       return { headline: paused ? "Paused" : "Running", detail: "" };
     }
@@ -351,6 +369,7 @@
     interpolateFrames,
     pushTrail,
     advanceTrails,
+    isStatusRepeat,
     pickRenderTime,
     bracketFrames,
     ReconnectPolicy,

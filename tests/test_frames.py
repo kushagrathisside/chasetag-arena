@@ -38,6 +38,8 @@ def _frame(state: GameState, *, phase: str = "running", ended_by: int = RUNNING)
         body_label="K/default",
         match=MATCH,
         round_score=[0.0, 0.0],
+        paused=False,
+        speed=1.0,
     )
 
 
@@ -55,6 +57,8 @@ def test_contract_keys_and_types_are_present() -> None:
         "round_score",
         "match",
         "selectors",
+        "paused",
+        "speed",
     }
     assert isinstance(frame["seq"], int)
     assert isinstance(frame["round"], int)
@@ -120,6 +124,8 @@ def test_ended_phase_shows_the_step_scores_and_intermission_keeps_round_score() 
         body_label="K/default",
         match=MATCH,
         round_score=[0.0, 0.0],
+        paused=False,
+        speed=1.0,
     )
     assert ended["round_score"] == [0.8, 0.2]
     held = state_to_frame(
@@ -134,6 +140,8 @@ def test_ended_phase_shows_the_step_scores_and_intermission_keeps_round_score() 
         body_label="K/default",
         match=MATCH,
         round_score=[0.8, 0.2],
+        paused=False,
+        speed=1.0,
     )
     assert held["round_score"] == [0.8, 0.2]
 
@@ -153,3 +161,54 @@ def test_encode_frame_rejects_nan_and_emits_compact_json() -> None:
     frame["t_server"] = float("nan")
     with pytest.raises(ValueError):
         encode_frame(frame)
+
+
+def test_paused_and_speed_are_the_server_values() -> None:
+    state = _state()
+    paused = state_to_frame(
+        state,
+        [0.0, 0.0],
+        seq=1,
+        t_server=0.0,
+        round_no=1,
+        phase="running",
+        ended_by=RUNNING,
+        selectors=SELECTORS,
+        body_label="K/default",
+        match=MATCH,
+        round_score=[0.0, 0.0],
+        paused=True,
+        speed=0.25,
+    )
+    assert paused["paused"] is True
+    assert paused["speed"] == 0.25
+
+
+@pytest.mark.parametrize(
+    ("paused", "speed"),
+    [
+        (1, 1.0),
+        ("yes", 1.0),
+        (False, 0.0),
+        (False, -1.0),
+        (False, float("nan")),
+        (False, float("inf")),
+    ],
+)
+def test_paused_and_speed_are_checked(paused: object, speed: float) -> None:
+    with pytest.raises(ValueError):
+        state_to_frame(
+            _state(),
+            [0.0, 0.0],
+            seq=1,
+            t_server=0.0,
+            round_no=1,
+            phase="running",
+            ended_by=RUNNING,
+            selectors=SELECTORS,
+            body_label="K/default",
+            match=MATCH,
+            round_score=[0.0, 0.0],
+            paused=paused,  # type: ignore[arg-type]
+            speed=speed,
+        )

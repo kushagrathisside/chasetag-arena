@@ -55,7 +55,9 @@ Each event's data is a single line of JSON. A frame looks like this:
   "chaser": 1,
   "round_score": [0.0, 0.0],
   "match": {"seat0": 1.238, "seat1": 1.763, "tags": 3, "falls": 0, "timeouts": 0},
-  "selectors": {"seat0": "greedy", "seat1": "greedy", "body": "K/default"}
+  "selectors": {"seat0": "greedy", "seat1": "greedy", "body": "K/default"},
+  "paused": false,
+  "speed": 1.0
 }
 ```
 
@@ -77,6 +79,12 @@ Each event's data is a single line of JSON. A frame looks like this:
 | `round_score` | array | The score of each seat. It is the round's score in the `ended` phase. In the other phases it is the score of the round that has just ended, or zero while a round runs. |
 | `match` | object | `seat0` and `seat1` are the summed scores since the last restart. `tags`, `falls` and `timeouts` count the rounds. |
 | `selectors` | object | `seat0` and `seat1` are the players now in each seat. `body` is `K/default`. |
+| `paused` | boolean | `true` while the game is paused. A viewer shows this flag, not a guess from the frames. |
+| `speed` | number | The speed multiplier now in force, as set by the `speed` control. |
+
+A pause, a play or a speed change sends the current frame again at once, with the new `paused` or `speed`
+value, so a paused game still tells its viewers. That repeated frame has the same `round`, `t_event` and
+`phase` as the one before it.
 
 Frames are full snapshots, so a viewer that misses one loses nothing once the next one arrives. A slow
 viewer may miss frames, but it never blocks the game.

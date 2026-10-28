@@ -273,16 +273,20 @@ class GameLoop:
         return self._planner_bot
 
     def _drain_controls(self) -> None:
-        """Apply queued controls in the order they arrived."""
+        """Apply queued controls in the order they arrived, then tell viewers of any change to
+        the pause or the speed, since a paused game makes no decision that would carry it."""
+        changed = False
         while True:
             try:
                 control = self._controls.get_nowait()
             except queue.Empty:
-                return
+                break
             if isinstance(control, PauseControl):
                 self._paused = True
+                changed = True
             elif isinstance(control, PlayControl):
                 self._paused = False
+                changed = True
             elif isinstance(control, StepControl):
                 self._step_pending += 1
             elif isinstance(control, RestartControl):
@@ -290,6 +294,25 @@ class GameLoop:
                 self._start_round()
             elif isinstance(control, SpeedControl):
                 self._speed = control.value
+                changed = True
+        if changed:
+            self._publish_status()
+
+    def _publish_status(self) -> None:
+        """Publish the current game again, with the pause and speed as they now are.
+
+        The phase is the one the game is in now. An ended frame is never current here, because
+        the intermission frame follows it in the same call, so this always repeats a running or
+        an intermission frame.
+        """
+        if self._phase == "intermission":
+            self._publish(
+                self._frame(
+                    self._state, _ZERO, "intermission", self._last_ended_by, self._round_score
+                )
+            )
+        else:
+            self._publish(self._frame(self._state, _ZERO, "running", RUNNING, _ZERO))
 
     def _start_round(self) -> None:
         """Apply pending selectors, reset the game, and publish the round's first frame."""
@@ -377,6 +400,8 @@ class GameLoop:
             body_label=BODY_LABEL,
             match=self._tally.as_dict(),
             round_score=round_score,
+            paused=self._paused,
+            speed=self._speed,
         )
 
     def _publish(self, frame: dict[str, Any]) -> None:

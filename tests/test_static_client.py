@@ -107,7 +107,7 @@ def _page_body_label() -> tuple[str, str]:
     assert len(options) == 1, options
     value, text = options[0]
     assert value == text, "the option's value and its text differ"
-    note = re.search(r'<span class="note" id="body-note">Running: ([^<]*)</span>', html)
+    note = re.search(r'<span class="note" id="body-note">Body: ([^<]*)</span>', html)
     assert note is not None, "the page has no body status line"
     return text, note.group(1)
 

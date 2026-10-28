@@ -269,3 +269,56 @@ def test_the_planner_seat_plays_the_fallback_bot_when_no_planner_is_loaded() -> 
     )
     loop.decide()
     np.testing.assert_allclose(np.asarray(loop.last_actions)[0], np.asarray(expected), atol=1e-6)
+
+
+def test_pause_and_speed_reach_viewers_without_a_decision() -> None:
+    clock = FakeClock()
+    loop = GameLoop(seed=3, selectors=("idle", "idle"), clock=clock)
+    frames = loop.subscribe()
+    _drain(frames)
+
+    loop.submit(PauseControl())
+    loop.decide()
+    (paused,) = _drain(frames)
+    assert paused["paused"] is True
+    assert paused["speed"] == 1.0
+    assert paused["phase"] == "running"
+    assert loop.decisions == 0
+
+    loop.submit(SpeedControl(value=2.0))
+    loop.submit(PlayControl())
+    loop.decide()
+    played, decision = _drain(frames)  # the status frame, then the decision Play allows
+    assert played["paused"] is False
+    assert played["speed"] == 2.0
+    assert played["seq"] > paused["seq"]
+    assert decision["seq"] > played["seq"]
+    assert decision["paused"] is False
+
+
+def test_pause_during_intermission_repeats_the_intermission_frame() -> None:
+    clock = FakeClock()
+    loop = GameLoop(seed=5, selectors=("greedy", "greedy"), clock=clock)
+    frames = loop.subscribe()
+    _drain(frames)
+    while _ended(loop) == RUNNING:
+        loop.decide()
+    _drain(frames)
+
+    loop.submit(PauseControl())
+    loop.decide()
+    (repeat,) = _drain(frames)
+    assert repeat["phase"] == "intermission"
+    assert repeat["paused"] is True
+    assert repeat["ended_by"] is not None
+    assert repeat["round_score"] == loop.latest_frame()["round_score"]
+
+
+def test_latest_frame_carries_the_pause_for_a_new_viewer() -> None:
+    clock = FakeClock()
+    loop = GameLoop(seed=0, selectors=("idle", "idle"), clock=clock)
+    loop.submit(PauseControl())
+    loop.decide()
+    late = loop.subscribe()
+    (snapshot,) = _drain(late)
+    assert snapshot["paused"] is True

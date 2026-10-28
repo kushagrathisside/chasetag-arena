@@ -13,10 +13,6 @@
   const LAG_MS = 100; // draw this far behind the newest frame
   const TRAIL_LEN = 30; // decisions kept in each body's trail
   const KEY_SEND_MS = 100; // keyboard command rate while a key is held (about 10 Hz)
-  // The server sends no paused flag, and a paused game publishes no frames. A running round
-  // with no frame for this long is shown as paused, which also covers a pause sent by another page.
-  const PAUSE_STALL_MS = 1500;
-  const SPEED_OPTIONS = ["0.25", "0.5", "1", "2", "4"];
   const hasOwn = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key);
 
   const $ = (id) => document.getElementById(id);
@@ -63,8 +59,7 @@
     latest: null,
     echo: null, // the selectors the server last reported, as [seat0, seat1]
     pending: [null, null], // selectors sent but not yet echoed
-    paused: false, // the pause this page sent last: true after Pause or Step, false after Play
-    lastFrameMs: 0, // page time when the newest frame arrived
+    paused: false, // the server's pause, from the newest frame; this page's Pause, Play or Step sets it first
     trails: null,
     flash: null,
     intermissionSince: null, // page time when the intermission frame arrived
@@ -110,9 +105,6 @@
     app.session = freshSession();
     app.trails = null;
     app.flash = null;
-    // The server's pause is not sent on a new connection, so the display reads it from the
-    // frame stream again until this page sends a command.
-    app.paused = false;
     loadPlannerInfo();
     const es = new EventSource("/events");
     app.es = es;
@@ -163,7 +155,8 @@
 
     const prev = app.latest;
     app.latest = frame;
-    app.lastFrameMs = now;
+    app.paused = frame.paused;
+    reconcileSpeed(frame.speed);
 
     if (frame.phase === "intermission") {
       const started = !prev || prev.round !== frame.round || prev.phase !== "intermission";
@@ -178,13 +171,14 @@
       app.flash = makeFlash(frame, now);
     }
 
-    // The intermission frame repeats the terminal positions, so it adds no trail point.
-    if (frame.phase !== "intermission") {
+    // The intermission frame repeats the terminal positions, so it adds no trail point. A
+    // pause or speed change repeats the current frame, which adds none either.
+    if (frame.phase !== "intermission" && !L.isStatusRepeat(prev, frame)) {
       app.trails = L.advanceTrails(app.trails, frame, TRAIL_LEN);
     }
 
     reconcileSelectors([frame.selectors.seat0, frame.selectors.seat1]);
-    els.bodyNote.textContent = `Running: ${frame.selectors.body}`;
+    els.bodyNote.textContent = `Body: ${frame.selectors.body}`;
     updateHud(frame);
   }
 
@@ -214,6 +208,13 @@
     }
   }
 
+  // The select shows the server's speed. A speed with no option in the select is left as it is.
+  function reconcileSpeed(speed) {
+    const value = String(speed);
+    const known = Array.from(els.speed.options).some((option) => option.value === value);
+    if (known && els.speed.value !== value) els.speed.value = value;
+  }
+
   function formatScore(v) {
     return v.toFixed(3);
   }
@@ -236,29 +237,16 @@
     renderPhase();
   }
 
-  // Whether the game is paused. This page's own pause counts at once. Otherwise a running
-  // round whose frames have stopped, on a connected page, is taken as paused, so a pause sent
-  // from another page shows here too.
-  function isPaused(nowPerf) {
-    if (app.paused) return true;
-    const frame = app.latest;
-    return (
-      app.connection === "connected" &&
-      frame !== null &&
-      frame.phase === "running" &&
-      nowPerf - app.lastFrameMs > PAUSE_STALL_MS
-    );
-  }
-
+  // The button and the status text show the server's pause, so a pause sent from another page
+  // shows here too, and a page that connects to a paused game shows it at once.
   function renderPhase() {
     const frame = app.latest;
     if (!frame) return;
     const now = performance.now();
-    const paused = isPaused(now);
     const since = app.intermissionSince === null ? 0 : (now - app.intermissionSince) / 1000;
-    const label = paused ? "Play" : "Pause";
+    const label = frame.paused ? "Play" : "Pause";
     if (els.playToggle.textContent !== label) els.playToggle.textContent = label;
-    const text = L.describePhase(frame, paused, since);
+    const text = L.describePhase(frame, since);
     const key = `${text.headline}|${text.detail}`;
     if (key === app.lastPhaseKey) return;
     app.lastPhaseKey = key;
@@ -268,8 +256,9 @@
 
   // --- controls ------------------------------------------------------------------------
 
+  // Resolves to whether the server accepted the control.
   function send(body) {
-    fetch("/control", {
+    return fetch("/control", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
@@ -277,9 +266,11 @@
     })
       .then((res) => {
         if (!res.ok) console.warn("chasetag-arena: control refused", res.status, body);
+        return res.ok;
       })
       .catch(() => {
         // The page is offline or the server is restarting. The next command retries.
+        return false;
       });
   }
 
@@ -287,21 +278,24 @@
     const echoed = app.echo ? app.echo[seat] : null;
     app.pending[seat] = value === echoed ? null : value;
     els.pending[seat].hidden = app.pending[seat] === null;
-    send({ kind: "selector", seat, value });
+    send({ kind: "selector", seat, value }).then((ok) => {
+      // A change the server never took would stay pending for a round that never starts it.
+      if (ok || app.pending[seat] !== value) return;
+      app.pending[seat] = null;
+      els.pending[seat].hidden = true;
+      if (app.echo) reconcileSelectors(app.echo);
+    });
   }
 
+  // The page's target only: the display waits for the server's next frame to show the pause.
+  // Two quick presses then toggle twice, even before the first frame has arrived.
   function setPaused(paused) {
     app.paused = paused;
-    // A play gives the server a moment to publish again before the stall reads as a pause.
-    if (!paused) app.lastFrameMs = performance.now();
     send({ kind: paused ? "pause" : "play" });
-    els.playToggle.textContent = paused ? "Play" : "Pause";
-    app.lastPhaseKey = "";
-    renderPhase();
   }
 
   function togglePlay() {
-    setPaused(!isPaused(performance.now()));
+    setPaused(!app.paused);
   }
 
   function stepOnce() {
