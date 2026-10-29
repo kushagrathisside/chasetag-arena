@@ -41,7 +41,7 @@ uv run --no-sync ruff format --check
 uv run --no-sync mkdocs build --strict
 ```
 
-The pre-commit hooks run the Python checks before each commit. [docs/development.md](docs/development.md)
+The pre-commit hooks run the Python checks before each commit. [docs/contributing.md](docs/contributing.md)
 describes the rest of the workflow.
 
 ## Pull requests

@@ -9,12 +9,13 @@ viewer is subscribed, so an unwatched game uses no CPU.
 from __future__ import annotations
 
 import contextlib
+import logging
 import queue
 import threading
 import time
 from collections.abc import Callable
-from dataclasses import dataclass
-from typing import Any, Final
+from dataclasses import dataclass, replace
+from typing import Any, Final, Protocol
 
 import jax
 import jax.numpy as jnp
@@ -23,7 +24,9 @@ from jax import Array
 
 from chasetag_arena.agents.bots import BOTS, Bot, raw_for_command
 from chasetag_arena.arcade.controls import (
+    DEFAULT_TIME_LIMIT_S,
     SELECTORS,
+    TIME_LIMITS_S,
     Control,
     KeyboardControl,
     KeyboardState,
@@ -33,6 +36,7 @@ from chasetag_arena.arcade.controls import (
     SelectorControl,
     SpeedControl,
     StepControl,
+    TimeLimitControl,
 )
 from chasetag_arena.arcade.frames import Phase, state_to_frame
 from chasetag_arena.core import game
@@ -50,6 +54,40 @@ SUBSCRIBER_QUEUE_SIZE: Final[int] = 64
 # With no planner file loaded, a planner seat plays the cautious fallback bot.
 _PLANNER_STANDIN: Final[str] = "fallback"
 _ZERO: Final[tuple[float, float]] = (0.0, 0.0)
+logger = logging.getLogger(__name__)
+
+
+def rules_for_limit(limit_s: int) -> Rules:
+    """The official rules with a round limit of ``limit_s`` game seconds.
+
+    Only the length of a round changes. Tags, falls, starts and the arena are the official
+    values, and the score of a tag still splits by the fraction of the round that has passed.
+    """
+    if limit_s not in TIME_LIMITS_S:
+        raise ValueError(f"time limit must be one of {TIME_LIMITS_S} seconds, got {limit_s}")
+    return replace(OFFICIAL, episode_s=float(limit_s))
+
+
+class RoundObserver(Protocol):
+    """Told what happens in each round. Only a logged session attaches one."""
+
+    def round_started(
+        self, round_no: int, selectors: tuple[str, str], state: GameState
+    ) -> None: ...
+
+    def decision(self, round_no: int, state: GameState, actions: Array) -> None: ...
+
+    def round_ended(
+        self, round_no: int, state: GameState, scores: Array, ended_by: int
+    ) -> None: ...
+
+
+def _refuse_unlogged_seat(control: SelectorControl) -> None:
+    """A logged session keeps the keyboard on seat 0, and seat 1 on a bot."""
+    if control.seat == 0 and control.value != "keyboard":
+        raise ValueError("in a logged session the keyboard stays on seat 0")
+    if control.seat == 1 and control.value in ("keyboard", "planner"):
+        raise ValueError("in a logged session seat 1 plays a bot")
 
 
 @dataclass
@@ -96,18 +134,22 @@ class GameLoop:
         seed: int,
         selectors: tuple[str, str] = ("greedy", "greedy"),
         params: BodyParams | None = None,
-        rules: Rules = OFFICIAL,
+        rules: Rules | None = None,
         clock: Callable[[], float] = time.monotonic,
         planner: Planner | None = None,
+        recorder: RoundObserver | None = None,
     ) -> None:
         for name in selectors:
             if name not in SELECTORS:
                 raise ValueError(f"unknown selector {name!r}")
-        self._rules = rules
+        self._rules = rules_for_limit(DEFAULT_TIME_LIMIT_S) if rules is None else rules
+        self._pending_limit: int | None = None
         self._params = default_params() if params is None else params
         self._clock = clock
         self._planner = planner
         self._planner_bot = None if planner is None else planner.as_bot()
+        self._recorder = recorder
+        self._recording_error: str | None = None
 
         self._lock = threading.Lock()  # guards _subscribers, _pending and _last_frame
         self._subscribers: list[queue.Queue[dict[str, Any]]] = []
@@ -174,13 +216,36 @@ class GameLoop:
         """The (2, 2) raw actions the most recent decision used, or None before the first."""
         return self._last_actions
 
+    @property
+    def limit_s(self) -> int:
+        """The longest a round may run now, in game seconds. A change waits for the next round."""
+        return int(self._rules.episode_s)
+
+    @property
+    def recording_active(self) -> bool:
+        """Whether rounds are being written to the store. False once a write has failed."""
+        return self._recorder is not None
+
+    @property
+    def recording_error(self) -> str | None:
+        """The failure that stopped the recording, or None while nothing has failed."""
+        return self._recording_error
+
     # --- thread-safe entry points ------------------------------------------------------
 
     def submit(self, control: Control) -> None:
-        """Accept a parsed control from any thread. Selectors wait for the next round."""
+        """Accept a parsed control from any thread. Selectors and the time limit wait for the
+        next round. A logged session refuses both changes that would alter its record."""
         if isinstance(control, SelectorControl):
             with self._lock:
+                if self._recorder is not None:
+                    _refuse_unlogged_seat(control)
                 self._pending[control.seat] = control.value
+        elif isinstance(control, TimeLimitControl):
+            with self._lock:
+                if self._recorder is not None:
+                    raise ValueError("in a logged session the time limit is fixed")
+                self._pending_limit = control.value
         elif isinstance(control, KeyboardControl):
             self._keyboard.update(control.seat, control.cmd, self._clock())
         else:
@@ -315,7 +380,7 @@ class GameLoop:
             self._publish(self._frame(self._state, _ZERO, "running", RUNNING, _ZERO))
 
     def _start_round(self) -> None:
-        """Apply pending selectors, reset the game, and publish the round's first frame."""
+        """Apply pending selectors and time limit, reset the game, and publish its first frame."""
         with self._lock:
             if self._pending:
                 selectors = list(self._selectors)
@@ -323,6 +388,9 @@ class GameLoop:
                     selectors[seat] = name
                 self._selectors = (selectors[0], selectors[1])
                 self._pending = {}
+            if self._pending_limit is not None:
+                self._rules = rules_for_limit(self._pending_limit)
+                self._pending_limit = None
         self._round_no += 1
         self._key, k_round = jax.random.split(self._key)
         self._state = game.reset(k_round, self._params, self._rules)
@@ -333,6 +401,7 @@ class GameLoop:
                 self._bot_states[seat] = jnp.zeros(2)
             else:
                 self._bot_states[seat] = self._bot_for(name).init_state(sub)
+        self._record(lambda rec: rec.round_started(self._round_no, self._selectors, self._state))
         self._phase = "running"
         self._round_score = _ZERO
         self._last_ended_by = RUNNING
@@ -362,6 +431,7 @@ class GameLoop:
         state, scores = game.step(self._state, actions, self._params, self._rules)
         self._state = state
         self._decisions += 1
+        self._record(lambda rec: rec.decision(self._round_no, state, actions))
         ended = int(np.asarray(state.ended_by))
         if ended == RUNNING:
             self._publish(self._frame(state, _ZERO, "running", RUNNING, _ZERO))
@@ -370,6 +440,7 @@ class GameLoop:
 
     def _finish_round(self, state: GameState, scores: Array, ended: int) -> None:
         """The terminal frame, then the intermission frame that holds its score."""
+        self._record(lambda rec: rec.round_ended(self._round_no, state, scores, ended))
         final = (float(scores[0]), float(scores[1]))
         self._round_score = final
         self._last_ended_by = ended
@@ -402,7 +473,24 @@ class GameLoop:
             round_score=round_score,
             paused=self._paused,
             speed=self._speed,
+            limit_s=self.limit_s,
         )
+
+    def _record(self, write: Callable[[RoundObserver], None]) -> None:
+        """Run one recorder hook. A failed write stops the recording, and the game plays on.
+
+        The failure is logged and kept for ``recording_error``, so the arcade can say that the
+        session is no longer being logged.
+        """
+        recorder = self._recorder
+        if recorder is None:
+            return
+        try:
+            write(recorder)
+        except Exception as err:
+            logger.exception("the session is no longer being logged; the game goes on")
+            self._recorder = None
+            self._recording_error = f"{type(err).__name__}: {err}"
 
     def _publish(self, frame: dict[str, Any]) -> None:
         """Fan a frame out to every subscriber. A full queue drops its oldest frame, which

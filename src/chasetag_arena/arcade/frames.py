@@ -92,6 +92,7 @@ def state_to_frame(
     round_score: Sequence[float] | np.ndarray,
     paused: bool,
     speed: float,
+    limit_s: int = 60,
 ) -> dict[str, Any]:
     """Build the frame for ``state``.
 
@@ -154,6 +155,7 @@ def state_to_frame(
         "selectors": _selectors(selectors, body_label),
         "paused": paused,
         "speed": float(speed),
+        "limit_s": int(limit_s),
     }
 
 

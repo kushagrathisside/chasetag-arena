@@ -33,10 +33,11 @@ A round ends in exactly one of three ways.
 |---|---|---|
 | **Tag** | The two bodies come within 0.5 m of each other, measured from the pelvis. | The chaser has caught the runner. |
 | **Fall** | A body's pelvis drops below 0.6 m. A standing body's pelvis is about 0.95 m high. | The body has fallen, and nobody scores. |
-| **Time-out** | 20 s of game time pass with no tag and no fall. | The runner has survived. |
+| **Time-out** | The round limit passes with no tag and no fall. The limit is 60 s of game time by default, or 180, 300 or 600 s when chosen. | The runner has survived. |
 
-The round clock counts game time, not wall-clock time. At the normal speed, a round takes about 20 s
-to play. A round set to 4× speed takes about 5 s of wall-clock time, but its game time is still 20 s.
+The round clock counts game time, not wall-clock time. At the normal speed, a round takes about as
+long as its game time, which is at most the round limit. A round set to 4× speed takes about a quarter
+of that in wall-clock time, but its game time is the same.
 
 ![The round lifecycle: running, ended by a tag, a fall or a time-out, then intermission](diagrams/round-lifecycle.svg)
 
@@ -48,19 +49,19 @@ Each round gives each seat a score between 0 and 1. The score depends on how the
 
 | Ending | Chaser's score | Runner's score | Total |
 |---|---|---|---|
-| Tag at time *t* | 1 − *t*/20 | *t*/20 | 1 |
+| Tag at time *t* | 1 − *t*/*T* | *t*/*T* | 1 |
 | Fall | 0 | 0 | 0 |
 | Time-out | 0 | 1 | 1 |
 
-Here *t* is the game time of the tag, in seconds, from 0 to 20.
+Here *t* is the game time of the tag, in seconds, and *T* is the round limit: 60 s by default.
 
 ### Worked examples
 
 | Round | Result | Chaser | Runner |
 |---|---|---|---|
-| A | Tagged at 5 s | 0.75 | 0.25 |
+| A | Tagged at 5 s | 0.92 | 0.08 |
 | B | Tagged at 15 s | 0.25 | 0.75 |
-| C | Survived 20 s | 0.00 | 1.00 |
+| C | Survived the round limit | 0.00 | 1.00 |
 | D | Fell at 8 s | 0.00 | 0.00 |
 
 Two things follow from these numbers:
@@ -68,7 +69,7 @@ Two things follow from these numbers:
 - On a tag or a time-out, the two scores add up to 1. A fall is the only case where neither seat
   scores.
 - A chaser that tags early scores more. A runner that is tagged late scores more, and a runner that
-  survives the full 20 s scores 1, the most a runner can get.
+  survives the full round limit scores 1, the most a runner can get.
 
 ### The match
 

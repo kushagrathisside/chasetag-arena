@@ -110,6 +110,8 @@ class _Handler(BaseHTTPRequestHandler):
             self._stream_events()
         elif path == "/planner":
             self._send_json(200, self._planner_info())
+        elif path == "/ledger":
+            self._send_json(200, self._ledger_info())
         elif path == "/control":
             self._send_json(405, {"error": "use POST"}, allow="POST")
         else:
@@ -121,6 +123,11 @@ class _Handler(BaseHTTPRequestHandler):
         if planner is None:
             return {"loaded": False}
         return {"loaded": True, "name": planner.name, "file": planner.file}
+
+    def _ledger_info(self) -> dict[str, Any]:
+        """Whether this session is being written to the research store, and why it may not be."""
+        loop = self._arcade.loop
+        return {"recording": loop.recording_active, "error": loop.recording_error}
 
     def do_POST(self) -> None:
         if _route(self.path) == "/control":
@@ -148,10 +155,10 @@ class _Handler(BaseHTTPRequestHandler):
             return
         try:
             control = parse_control(obj)
+            self._arcade.loop.submit(control)
         except ValueError as exc:
             self._send_json(400, {"error": str(exc)})
             return
-        self._arcade.loop.submit(control)
         self._send_json(202, {"accepted": True})
 
     def _declared_length(self) -> int | None:

@@ -28,6 +28,8 @@
     step: $("step"),
     restart: $("restart"),
     speed: $("speed"),
+    timeLimit: $("time-limit"),
+    limitPending: $("limit-pending"),
     canvas: $("arena"),
     roundTitle: $("round-title"),
     phase: $("phase"),
@@ -59,6 +61,7 @@
     latest: null,
     echo: null, // the selectors the server last reported, as [seat0, seat1]
     pending: [null, null], // selectors sent but not yet echoed
+    pendingLimit: null, // a round limit sent but not yet started by a round
     paused: false, // the server's pause, from the newest frame; this page's Pause, Play or Step sets it first
     trails: null,
     flash: null,
@@ -157,6 +160,7 @@
     app.latest = frame;
     app.paused = frame.paused;
     reconcileSpeed(frame.speed);
+    reconcileLimit(frame.limit_s);
 
     if (frame.phase === "intermission") {
       const started = !prev || prev.round !== frame.round || prev.phase !== "intermission";
@@ -213,6 +217,32 @@
     const value = String(speed);
     const known = Array.from(els.speed.options).some((option) => option.value === value);
     if (known && els.speed.value !== value) els.speed.value = value;
+  }
+
+  // The round limit waits for the next round, like a selector. The select keeps the limit the
+  // viewer chose until a round starts with it, or the server refuses it.
+  function reconcileLimit(limit) {
+    if (app.pendingLimit !== null) {
+      if (app.pendingLimit !== limit) return;
+      app.pendingLimit = null;
+      els.limitPending.hidden = true;
+    }
+    const value = String(limit);
+    const known = Array.from(els.timeLimit.options).some((option) => option.value === value);
+    if (known && els.timeLimit.value !== value) els.timeLimit.value = value;
+  }
+
+  function onLimit(value) {
+    const limit = Number(value);
+    app.pendingLimit = limit;
+    els.limitPending.hidden = false;
+    send({ kind: "limit", value: limit }).then((ok) => {
+      // A limit the server refused would stay pending for a round that never starts with it.
+      if (ok || app.pendingLimit !== limit) return;
+      app.pendingLimit = null;
+      els.limitPending.hidden = true;
+      if (app.latest) reconcileLimit(app.latest.limit_s);
+    });
   }
 
   function formatScore(v) {
@@ -491,6 +521,10 @@
     els.restart.addEventListener("click", restart);
     els.speed.addEventListener("change", (e) => {
       setSpeed(e.target.value);
+      e.target.blur();
+    });
+    els.timeLimit.addEventListener("change", (e) => {
+      onLimit(e.target.value);
       e.target.blur();
     });
     els.helpToggle.addEventListener("click", () => {

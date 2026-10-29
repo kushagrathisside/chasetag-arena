@@ -36,7 +36,7 @@ Work through these steps. Each step says what you should see.
 4. **Drive.** Press the arrow keys to move your body. Up moves it toward the top of the arena, and
    right moves it toward the right side.
 5. **Watch the round end.** The round ends when one body tags the other, when a body falls, or when
-   20 s of game time pass. The round panel says which one happened.
+   the round limit passes (60 s of game time by default). The round panel says which one happened.
 6. **Read the score.** The round score shows what each seat earned in that round. The match totals
    below it add up every round since the game started or since you pressed **Restart**.
 7. **Play the next round.** After a short pause of 1.5 s, the next round starts, and the roles swap.
@@ -63,6 +63,10 @@ When you are done, press Ctrl+C in the terminal.
 | `--port N` | `8765` | The port to listen on. `0` picks a free port and prints it. |
 | `--no-browser` | off | Print the address without opening a browser. |
 | `--planner FILE` | none | A planner file for the planner seat. Without it, the planner seat plays the fallback bot. |
+| `--time-limit SECONDS` | `60` | The longest a round may run: 60, 180, 300 or 600 game seconds. |
+| `--store DIR` | none | The research store folder. Needed with `--participant`. See [research logging](research-logging.md). |
+| `--migration FILE` | the `CHASETAG_LEDGER_MIGRATION` variable | The ledger migration file. Needed with `--store`. |
+| `--participant PSEUDONYM` | none | Log this session for the participant with this pseudonym. Needs `--store`. |
 | `--static-dir DIR` | the copy in the package | A folder of page files to serve in place of the built-in page. |
 
 For example, to listen on port 9000 without opening a browser:

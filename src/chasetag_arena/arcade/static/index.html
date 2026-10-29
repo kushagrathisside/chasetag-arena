@@ -71,6 +71,16 @@
         <option value="4">4×</option>
       </select>
     </div>
+    <div class="field">
+      <label for="time-limit">Round limit</label>
+      <select id="time-limit">
+        <option value="60" selected>1 min</option>
+        <option value="180">3 min</option>
+        <option value="300">5 min</option>
+        <option value="600">10 min</option>
+      </select>
+      <span class="pending" id="limit-pending" hidden>Applies next round</span>
+    </div>
   </section>
 
   <main class="layout">

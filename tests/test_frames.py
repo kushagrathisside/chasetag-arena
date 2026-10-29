@@ -59,6 +59,7 @@ def test_contract_keys_and_types_are_present() -> None:
         "selectors",
         "paused",
         "speed",
+        "limit_s",
     }
     assert isinstance(frame["seq"], int)
     assert isinstance(frame["round"], int)

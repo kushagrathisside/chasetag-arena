@@ -39,7 +39,7 @@ order:
 | What | Value |
 |---|---|
 | One decision | 0.1 s of game time. At 1× speed, that is 10 decisions a second. |
-| One round | At most 200 decisions, which is 20 s of game time. |
+| One round | At most 600 decisions, which is the round limit: 60 s of game time by default. |
 | Intermission | 1.5 s of wall-clock time. |
 | Keyboard command, sent by the page | Re-sent every 0.1 s while a key is held. |
 | Keyboard command, held by the server | Expires 0.25 s after the last message, so a lost key release cannot keep a body moving. |

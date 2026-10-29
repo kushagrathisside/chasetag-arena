@@ -7,7 +7,7 @@ This page lists what the game does today and what is planned. A planned item is 
 | Area | What works |
 |---|---|
 | **Playing** | Two seats, each a keyboard, a bot or a planner. Pause, Step, Restart and Speed. |
-| **Rules** | Tags, falls, the 20 s clock, and the official scores for each round. |
+| **Rules** | Tags, falls, the round clock, and the official scores for each round. |
 | **Scores** | Round scores and match totals, with tags, falls and time-outs counted. |
 | **Bots** | Greedy, intercept, wander, idle and fallback. |
 | **Planners** | A planner file, given with `--planner`, plays a seat, after the server checks it. |

@@ -34,6 +34,7 @@ FRAME_KEYS = {
     "selectors",
     "paused",
     "speed",
+    "limit_s",
 }
 PHASES = {"running", "ended", "intermission"}
 

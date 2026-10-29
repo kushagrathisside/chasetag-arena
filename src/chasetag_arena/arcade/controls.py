@@ -1,9 +1,9 @@
 """Controls from the browser: parsing, and the held keyboard command.
 
 Discrete controls (pause, step, restart, speed) are queued and applied in order by the game
-thread. A selector change is held until the next round starts, so it cannot alter a round in
-progress. The keyboard command is a held velocity that expires, so a lost key release cannot
-keep a body moving.
+thread. A selector change and a time-limit change are held until the next round starts, so
+neither can alter a round in progress. The keyboard command is a held velocity that expires, so
+a lost key release cannot keep a body moving.
 """
 
 from __future__ import annotations
@@ -22,6 +22,9 @@ KEYBOARD_STALE_S: Final[float] = 0.25
 _MAX_KEY_COMPONENT: Final[float] = OFFICIAL.max_speed_mps
 _MAX_SPEED_MULTIPLIER: Final[float] = 8.0
 SELECTORS: Final[tuple[str, ...]] = ("keyboard", "planner", *BOTS)
+# The longest a round may run, in game seconds: one minute by default, or three, five or ten.
+TIME_LIMITS_S: Final[tuple[int, ...]] = (60, 180, 300, 600)
+DEFAULT_TIME_LIMIT_S: Final[int] = 60
 
 
 @dataclass(frozen=True)
@@ -67,6 +70,13 @@ class SpeedControl:
     value: float
 
 
+@dataclass(frozen=True)
+class TimeLimitControl:
+    """The longest a round may run, in game seconds. Applied at the next round start."""
+
+    value: int
+
+
 type Control = (
     SelectorControl
     | KeyboardControl
@@ -75,6 +85,7 @@ type Control = (
     | StepControl
     | RestartControl
     | SpeedControl
+    | TimeLimitControl
 )
 
 _FIELDS: Final[dict[str, tuple[str, ...]]] = {
@@ -85,6 +96,7 @@ _FIELDS: Final[dict[str, tuple[str, ...]]] = {
     "step": (),
     "restart": (),
     "speed": ("value",),
+    "limit": ("value",),
 }
 
 
@@ -140,6 +152,12 @@ def parse_control(obj: object) -> Control:
         if not 0.0 < value <= _MAX_SPEED_MULTIPLIER:
             raise ValueError(f"speed must be in (0, {_MAX_SPEED_MULTIPLIER}], got {value}")
         return SpeedControl(value=value)
+
+    if kind == "limit":
+        value = obj.get("value")
+        if isinstance(value, bool) or value not in TIME_LIMITS_S:
+            raise ValueError(f"time limit must be one of {TIME_LIMITS_S} seconds, got {value!r}")
+        return TimeLimitControl(value=int(value))
 
     if kind == "pause":
         return PauseControl()

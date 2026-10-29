@@ -104,7 +104,7 @@ A round goes through these phases, in this order.
 2. **Round over.** The round ends with a tag, a fall or a time-out, and the panel says which:
     - **Round over: tagged**: the chaser caught the runner.
     - **Round over: fell**: a body fell.
-    - **Round over: time out**: 20 s of game time passed.
+    - **Round over: time out**: the round limit passed, 60 s of game time by default.
 3. **Intermission.** The panel counts down **Next round in 1.5 s**. The round score stays on screen.
 4. **The next round starts.** Any changed seats take over, and the bodies return to their starts.
 
