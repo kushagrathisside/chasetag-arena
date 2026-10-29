@@ -36,7 +36,7 @@ from typing import Any
 
 MIGRATION = Path(__file__).resolve().parent / "migrations" / "0001_ledger.sql"
 SCHEMA_VERSION = 1
-REPOS = ("groundtag", "chasetag-arena", "myochallenge26")
+REPOS = ("groundtag", "chasetag-arena", "rl-experiment")
 GZIP_LEVEL = 6
 UNCOMPRESSED_FORMATS = frozenset({"mp4", "zip", "tgz"})
 
