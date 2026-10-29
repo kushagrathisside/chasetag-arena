@@ -15,7 +15,7 @@ browser, where you watch the rounds live and drive either body with your keyboar
 |---|---|
 | **Players** | Two seats. Each seat is played by you (keyboard), a scripted bot, or a trained planner. |
 | **Arena** | A 12 m × 12 m square with a fence. Bodies cannot leave it. |
-| **Round** | Up to the round limit: 1 minute by default, or 3, 5 or 10 minutes. It ends on a tag, a fall, or the clock. |
+| **Round** | Up to the round limit: 1 minute by default, or 20 seconds, 3, 5 or 10 minutes. It ends on a tag, a fall, or the clock. |
 | **Scoring** | Each round gives the chaser and the runner a score from 0 to 1. The match adds them up. |
 | **Runs on** | Your own computer, in a browser. No account, and no internet connection needed to play once installed. |
 | **Needs** | Python 3.12, the [uv](https://docs.astral.sh/uv/) tool, and a modern browser. |

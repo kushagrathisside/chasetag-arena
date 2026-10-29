@@ -29,8 +29,12 @@ class _Clock:
 
 def test_the_default_limit_is_one_minute() -> None:
     assert DEFAULT_TIME_LIMIT_S == 60
-    assert TIME_LIMITS_S == (60, 180, 300, 600)
+    assert TIME_LIMITS_S == (20, 60, 180, 300, 600)
     assert GameLoop(seed=1, selectors=("idle", "idle")).limit_s == 60
+
+
+def test_the_twenty_second_limit_is_the_official_rule_set() -> None:
+    assert rules_for_limit(20) == OFFICIAL
 
 
 def test_rules_for_a_limit_change_only_the_round_length() -> None:

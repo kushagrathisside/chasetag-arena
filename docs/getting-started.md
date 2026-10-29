@@ -63,7 +63,7 @@ When you are done, press Ctrl+C in the terminal.
 | `--port N` | `8765` | The port to listen on. `0` picks a free port and prints it. |
 | `--no-browser` | off | Print the address without opening a browser. |
 | `--planner FILE` | none | A planner file for the planner seat. Without it, the planner seat plays the fallback bot. |
-| `--time-limit SECONDS` | `60` | The longest a round may run: 60, 180, 300 or 600 game seconds. |
+| `--time-limit SECONDS` | `60` | The longest a round may run: 20, 60, 180, 300 or 600 game seconds. `20` is the official rule set that earlier results were recorded under. |
 | `--store DIR` | none | The research store folder. Needed with `--participant`. See [research logging](research-logging.md). |
 | `--migration FILE` | the `CHASETAG_LEDGER_MIGRATION` variable | The ledger migration file. Needed with `--store`. |
 | `--participant PSEUDONYM` | none | Log this session for the participant with this pseudonym. Needs `--store`. |

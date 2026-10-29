@@ -107,7 +107,7 @@ Each event's data is a single line of JSON. A frame looks like this:
 | `selectors` | object | `seat0` and `seat1` are the players now in each seat. `body` is `K/default`. |
 | `paused` | boolean | `true` while the game is paused. A viewer shows this flag, not a guess from the frames. |
 | `speed` | number | The speed multiplier now in force, as set by the `speed` control. |
-| `limit_s` | integer | The longest a round may run now, in game seconds: 60, 180, 300 or 600. |
+| `limit_s` | integer | The longest a round may run now, in game seconds: 20, 60, 180, 300 or 600. |
 
 A pause, a play or a speed change sends the current frame again at once, with the new `paused` or `speed`
 value, so a paused game still tells its viewers. That repeated frame has the same `round`, `t_event` and
@@ -135,7 +135,7 @@ Sends one control. The body is a JSON object, and its `kind` field names the con
 | `step` | `{"kind": "step"}` | Makes one decision while paused. |
 | `restart` | `{"kind": "restart"}` | Starts a new round and clears the match totals. |
 | `speed` | `{"kind": "speed", "value": 2}` | Sets the speed multiplier. `value` must be above 0 and at most 8. |
-| `limit` | `{"kind": "limit", "value": 180}` | Sets the longest a round may run, in game seconds. `value` is one of `60`, `180`, `300` or `600`. It applies at the next round start. A logged session refuses it, since its rounds are recorded under one length. |
+| `limit` | `{"kind": "limit", "value": 180}` | Sets the longest a round may run, in game seconds. `value` is one of `20`, `60`, `180`, `300` or `600`. It applies at the next round start. A logged session refuses it, since its rounds are recorded under one length. |
 
 `seat` is `0` or `1`. Numbers must be finite, and a boolean is not a number. A field that the kind does
 not take is an error, so a typo does not pass silently.

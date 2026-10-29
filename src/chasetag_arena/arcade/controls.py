@@ -22,8 +22,9 @@ KEYBOARD_STALE_S: Final[float] = 0.25
 _MAX_KEY_COMPONENT: Final[float] = OFFICIAL.max_speed_mps
 _MAX_SPEED_MULTIPLIER: Final[float] = 8.0
 SELECTORS: Final[tuple[str, ...]] = ("keyboard", "planner", *BOTS)
-# The longest a round may run, in game seconds: one minute by default, or three, five or ten.
-TIME_LIMITS_S: Final[tuple[int, ...]] = (60, 180, 300, 600)
+# The longest a round may run, in game seconds. 20 s is the official rule set the earlier results
+# were recorded under. One minute is the default, and 3, 5 or 10 minutes are the longer choices.
+TIME_LIMITS_S: Final[tuple[int, ...]] = (20, 60, 180, 300, 600)
 DEFAULT_TIME_LIMIT_S: Final[int] = 60
 
 

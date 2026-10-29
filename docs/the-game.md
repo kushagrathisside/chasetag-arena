@@ -33,7 +33,7 @@ A round ends in exactly one of three ways.
 |---|---|---|
 | **Tag** | The two bodies come within 0.5 m of each other, measured from the pelvis. | The chaser has caught the runner. |
 | **Fall** | A body's pelvis drops below 0.6 m. A standing body's pelvis is about 0.95 m high. | The body has fallen, and nobody scores. |
-| **Time-out** | The round limit passes with no tag and no fall. The limit is 60 s of game time by default, or 180, 300 or 600 s when chosen. | The runner has survived. |
+| **Time-out** | The round limit passes with no tag and no fall. The limit is 60 s of game time by default, or 20, 180, 300 or 600 s when chosen. | The runner has survived. |
 
 The round clock counts game time, not wall-clock time. At the normal speed, a round takes about as
 long as its game time, which is at most the round limit. A round set to 4× speed takes about a quarter
@@ -53,13 +53,13 @@ Each round gives each seat a score between 0 and 1. The score depends on how the
 | Fall | 0 | 0 | 0 |
 | Time-out | 0 | 1 | 1 |
 
-Here *t* is the game time of the tag, in seconds, and *T* is the round limit: 60 s by default.
+Here *t* is the game time of the tag, in seconds, and *T* is the round limit. The examples use *T* = 20 s, the official rule set. With the 60 s default, a tag at 5 s scores 0.92 for the chaser and 0.08 for the runner.
 
 ### Worked examples
 
 | Round | Result | Chaser | Runner |
 |---|---|---|---|
-| A | Tagged at 5 s | 0.92 | 0.08 |
+| A | Tagged at 5 s | 0.75 | 0.25 |
 | B | Tagged at 15 s | 0.25 | 0.75 |
 | C | Survived the round limit | 0.00 | 1.00 |
 | D | Fell at 8 s | 0.00 | 0.00 |

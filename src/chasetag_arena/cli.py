@@ -206,7 +206,10 @@ def build_parser() -> argparse.ArgumentParser:
         choices=TIME_LIMITS_S,
         default=DEFAULT_TIME_LIMIT_S,
         metavar="SECONDS",
-        help="the longest a round may run: 60, 180, 300 or 600 game seconds (default: %(default)s)",
+        help=(
+            "the longest a round may run: 20, 60, 180, 300 or 600 game seconds "
+            "(default: %(default)s)"
+        ),
     )
     _store_options(serve, required=False)
     serve.add_argument(
