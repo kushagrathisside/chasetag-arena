@@ -25,7 +25,8 @@ uv run chasetag-arena serve --planner planners/k-60s/planner.npz --time-limit 60
 ```
 
 Then set a seat to **planner** on the page. A change applies at the next round. See
-[Planners](planners.md) for what a planner sees and does.
+[Planners](planners.md) for what a planner sees and does, and [Training planners](training.md) to make
+your own.
 
 ## Contribute
 

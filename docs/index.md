@@ -47,6 +47,8 @@ players that choose each body's moves.
 - **Watch two bots play**, for example greedy against wander, to see how the rules work.
 - **Play yourself** with the arrow keys against any bot.
 - **Load a planner** with `--planner FILE` and watch it play one seat.
+- **Train your own planner** with the tools in the repository. See [Training planners](training.md).
+- **Record your own games**, if you choose to, and share them. See [Community and data](community.md#contribute-your-games).
 - **Pause, step, restart and change the speed** to study a round closely.
 - **Read the scores** for the round and for the whole match.
 
@@ -57,7 +59,10 @@ players that choose each body's moves.
 | Local server, browser page, game loop | Ready |
 | Keyboard, bot and planner seats | Ready |
 | Scores, match totals, pause, step, restart, speed | Ready |
-| Planner files from releases, with checksums | Planned |
+| Training tools: bot-game datasets, cloning, PPO training and a league | Ready |
+| Trained planners and a dataset, published on Hugging Face | Ready |
+| Opt-in recording of your own games, with a consent screen | Ready, with a draft consent text |
+| Downloading a planner inside the game, with a checksum check | Planned |
 | Saving rounds, comparing planners, sharing logs | Planned |
 | Desktop installer | Planned |
 
@@ -72,6 +77,7 @@ The [roadmap](roadmap.md) lists every planned item.
 | [The game](the-game.md) | The arena, the roles, the rules, and how each round is scored. |
 | [Playing](playing.md) | The screen, the seats, the controls and the keyboard. |
 | [Planners](planners.md) | What a planner is and how to load one. |
+| [Training planners](training.md) | Make a dataset of bot games, clone a starting planner, train it, and rank it in a league. |
 | [Community and data](community.md) | The ChaseTag Arena organization on Hugging Face: the dataset, published planners and how to contribute. |
 | [Troubleshooting](troubleshooting.md) | Common problems and how to fix them. |
 | [How it works](how-it-works.md) | The architecture, the timing, and why the browser never decides the rules. |
