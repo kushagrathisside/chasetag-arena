@@ -1,3 +1,5 @@
+![The chasetag-arena logo: two bodies chasing each other](assets/logo.png){ align=right width="96" }
+
 # chasetag-arena
 
 chasetag-arena is a game of one-on-one chase tag that runs on your own computer, and its source code is public. Two bodies share a fenced
