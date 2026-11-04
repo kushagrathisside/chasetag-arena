@@ -368,3 +368,51 @@ test("plannerOptionState enables the planner option only for a loaded, named pla
   });
   assert.deepEqual(logic.plannerOptionState(null), { disabled: true, text: "planner (not loaded)" });
 });
+
+test("contributionView shows nothing unless contributing is on", () => {
+  assert.deepEqual(logic.contributionView(null), { enabled: false });
+  assert.deepEqual(logic.contributionView({ enabled: false }), { enabled: false });
+  assert.deepEqual(logic.contributionView({}), { enabled: false });
+});
+
+test("contributionView says whether recording is on and how much is saved", () => {
+  const base = { enabled: true, consent: { status: "draft" }, error: null };
+  const off = logic.contributionView({ ...base, recording: false, games: 0, decisions: 0 });
+  assert.equal(off.enabled, true);
+  assert.equal(off.recording, false);
+  assert.equal(off.chip, "");
+  assert.equal(off.hasGames, false);
+  assert.equal(off.summary, "Recording is off. Nothing is saved on this computer.");
+
+  const on = logic.contributionView({ ...base, recording: true, games: 1, decisions: 80 });
+  assert.equal(on.chip, "Recording your games");
+  assert.equal(on.summary, "Recording is on. 1 game saved (80 decisions).");
+  assert.equal(on.hasGames, true);
+
+  const stopped = logic.contributionView({ ...base, recording: false, games: 3, decisions: 200 });
+  assert.equal(stopped.summary, "Recording is off. 3 games saved on this computer.");
+  assert.equal(stopped.hasGames, true);
+});
+
+test("contributionView flags a draft consent text and surfaces an error", () => {
+  const draft = logic.contributionView({ enabled: true, consent: { status: "draft" } });
+  assert.equal(draft.draft, true);
+  const final = logic.contributionView({ enabled: true, consent: { status: "final" } });
+  assert.equal(final.draft, false);
+  const failed = logic.contributionView({ enabled: true, error: "OSError: disk full" });
+  assert.equal(failed.error, "OSError: disk full");
+  assert.equal(logic.contributionView({ enabled: true, error: "" }).error, null);
+});
+
+test("contributionView ignores counts that are not whole numbers", () => {
+  const view = logic.contributionView({ enabled: true, recording: true, games: "5", decisions: -3 });
+  assert.equal(view.hasGames, false);
+  assert.equal(view.summary, "Recording is on. 0 games saved (0 decisions).");
+});
+
+test("canAgree needs an explicit confirmation", () => {
+  assert.equal(logic.canAgree(true), true);
+  assert.equal(logic.canAgree(false), false);
+  assert.equal(logic.canAgree(undefined), false);
+  assert.equal(logic.canAgree("yes"), false);
+});

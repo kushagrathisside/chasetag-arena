@@ -17,6 +17,13 @@
       <span class="dot" aria-hidden="true"></span>
       <span id="connection-text">Reconnecting</span>
     </p>
+    <p class="record-chip" id="record-chip" role="status" aria-live="polite" hidden>
+      <span class="rec-dot" aria-hidden="true"></span>
+      <span id="record-chip-text"></span>
+    </p>
+    <button type="button" class="ghost" id="contribute-toggle" aria-haspopup="dialog" hidden>
+      Contribute games
+    </button>
     <button type="button" class="ghost" id="help-toggle" aria-expanded="false" aria-controls="help">
       Keyboard help
     </button>
@@ -126,6 +133,47 @@
       <li><kbd>1</kbd> to <kbd>4</kbd> set speed to 0.25×, 0.5×, 1× and 2×.</li>
     </ul>
   </section>
+
+  <dialog class="dialog" id="contribute-dialog" aria-labelledby="contribute-title">
+    <div class="dialog-body">
+      <h2 id="contribute-title">Contribute your games</h2>
+      <p class="banner" id="contribute-draft" hidden>
+        Draft consent text. It has not been reviewed yet. Please do not contribute real games until
+        the final text is released.
+      </p>
+
+      <div id="consent-panel">
+        <pre class="consent-text" id="consent-text" tabindex="0" aria-label="Consent text"></pre>
+        <label class="check">
+          <input type="checkbox" id="consent-age">
+          <span>I have read this, and I am 18 or older.</span>
+        </label>
+        <div class="dialog-buttons">
+          <button type="button" id="consent-agree" disabled>I agree, start recording</button>
+          <button type="button" class="ghost" id="consent-cancel">Not now</button>
+        </div>
+      </div>
+
+      <div id="active-panel" hidden>
+        <p id="contribute-summary" role="status" aria-live="polite"></p>
+        <p class="note" id="contribute-id"></p>
+        <p class="note" id="contribute-folder"></p>
+        <div class="dialog-buttons">
+          <a class="button-link" id="contribute-review" href="/contribute/review" target="_blank"
+             rel="noopener">Review recorded games</a>
+          <button type="button" id="contribute-export">Export a package</button>
+          <button type="button" id="contribute-stop">Stop recording</button>
+          <button type="button" id="contribute-withdraw">Withdraw and delete everything</button>
+        </div>
+        <p id="export-result" role="status" aria-live="polite" hidden></p>
+      </div>
+
+      <p class="error-text" id="contribute-error" role="alert" hidden></p>
+      <div class="dialog-buttons dialog-close">
+        <button type="button" class="ghost" id="contribute-close">Close</button>
+      </div>
+    </div>
+  </dialog>
 
   <noscript>
     <p class="note">This page needs JavaScript to draw the arena.</p>

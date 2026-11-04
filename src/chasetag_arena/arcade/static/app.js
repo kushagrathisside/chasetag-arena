@@ -21,6 +21,26 @@
     connectionText: $("connection-text"),
     helpToggle: $("help-toggle"),
     help: $("help"),
+    contributeToggle: $("contribute-toggle"),
+    recordChip: $("record-chip"),
+    recordChipText: $("record-chip-text"),
+    dialog: $("contribute-dialog"),
+    draft: $("contribute-draft"),
+    consentPanel: $("consent-panel"),
+    consentText: $("consent-text"),
+    consentAge: $("consent-age"),
+    consentAgree: $("consent-agree"),
+    consentCancel: $("consent-cancel"),
+    activePanel: $("active-panel"),
+    contributeSummary: $("contribute-summary"),
+    contributeId: $("contribute-id"),
+    contributeFolder: $("contribute-folder"),
+    contributeExport: $("contribute-export"),
+    contributeStop: $("contribute-stop"),
+    contributeWithdraw: $("contribute-withdraw"),
+    exportResult: $("export-result"),
+    contributeError: $("contribute-error"),
+    contributeClose: $("contribute-close"),
     selects: [$("seat0-select"), $("seat1-select")],
     pending: [$("seat0-pending"), $("seat1-pending")],
     bodyNote: $("body-note"),
@@ -67,6 +87,7 @@
     flash: null,
     intermissionSince: null, // page time when the intermission frame arrived
     palette: null,
+    contribution: null, // the server's last /contribute answer
     pressed: new Set(),
     keyTimer: null,
     canvasCss: -1,
@@ -375,6 +396,7 @@
 
   function onKeyDown(e) {
     if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (els.dialog.open) return; // the consent dialog has the keyboard
     const tag = e.target && e.target.tagName;
     if (tag === "SELECT" || tag === "INPUT" || tag === "TEXTAREA") return;
     if (hasOwn(L.ARROWS, e.key)) {
@@ -503,6 +525,140 @@
     new ResizeObserver(redraw).observe(els.canvas.parentElement);
   }
 
+  // --- contributing --------------------------------------------------------------------
+
+  // Opt-in recording of the player's own keyboard games. The server answers `enabled: false`
+  // unless it was started with --contribute, and then none of this is shown. Every action that
+  // changes what is recorded carries a header that another web page cannot add on its own.
+  const CONTRIBUTE_POLL_MS = 5000;
+  const CONTRIBUTE_HEADERS = {
+    "Content-Type": "application/json",
+    "X-Requested-With": "chasetag-arena",
+  };
+
+  function showContributeError(message) {
+    els.contributeError.hidden = !message;
+    els.contributeError.textContent = message || "";
+  }
+
+  function applyContribution(info) {
+    app.contribution = info;
+    const view = L.contributionView(info);
+    els.contributeToggle.hidden = !view.enabled;
+    els.recordChip.hidden = !(view.enabled && view.recording);
+    els.recordChipText.textContent = view.chip || "";
+    if (!view.enabled) return;
+    els.draft.hidden = !view.draft;
+    els.consentText.textContent = info.consent.text;
+    els.consentPanel.hidden = view.recording;
+    els.activePanel.hidden = !(view.recording || view.hasGames);
+    els.consentAgree.textContent = view.hasGames ? "I agree, start recording again" : "I agree, start recording";
+    els.contributeSummary.textContent = view.summary;
+    els.contributeId.textContent = info.contribution_id ? `Contribution ID: ${info.contribution_id}` : "";
+    els.contributeFolder.textContent = info.folder ? `Saved in: ${info.folder}` : "";
+    els.contributeExport.disabled = !view.hasGames;
+    els.contributeStop.hidden = !view.recording;
+    if (view.error) showContributeError(view.error);
+  }
+
+  function loadContribution() {
+    fetch("/contribute", { cache: "no-store" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then(applyContribution)
+      .catch(() => applyContribution(null));
+  }
+
+  // Resolves to { ok, body }. A refused or failed request carries its message in body.error.
+  function contribute(action, extra) {
+    return fetch("/contribute", {
+      method: "POST",
+      headers: CONTRIBUTE_HEADERS,
+      body: JSON.stringify(Object.assign({ action }, extra)),
+    })
+      .then((res) => res.json().then((body) => ({ ok: res.ok, body })))
+      .catch(() => ({ ok: false, body: { error: "Could not reach the game." } }));
+  }
+
+  function afterContribute(result) {
+    if (result.ok) {
+      showContributeError("");
+      applyContribution(result.body);
+    } else {
+      showContributeError(result.body.error || "That did not work.");
+    }
+    return result;
+  }
+
+  function openContribute() {
+    releaseKeys();
+    showContributeError("");
+    els.exportResult.hidden = true;
+    els.consentAge.checked = false;
+    els.consentAgree.disabled = true;
+    loadContribution();
+    if (typeof els.dialog.showModal === "function") els.dialog.showModal();
+    else els.dialog.setAttribute("open", "");
+  }
+
+  function closeContribute() {
+    if (typeof els.dialog.close === "function") els.dialog.close();
+    else els.dialog.removeAttribute("open");
+  }
+
+  function onExport() {
+    contribute("export").then((result) => {
+      afterContribute(result);
+      if (!result.ok) return;
+      const b = result.body;
+      els.exportResult.hidden = false;
+      els.exportResult.textContent = `Saved ${b.games} games in ${b.path}. `;
+      const link = document.createElement("a");
+      link.href = "/contribute/package";
+      link.download = b.file;
+      link.textContent = "Download the package";
+      els.exportResult.appendChild(link);
+      els.exportResult.appendChild(document.createTextNode("."));
+      if (b.consent_status === "draft") {
+        els.exportResult.appendChild(
+          document.createTextNode(
+            " It was recorded under a draft consent text, so it will not be accepted yet.",
+          ),
+        );
+      }
+    });
+  }
+
+  function onWithdraw() {
+    const sure = window.confirm(
+      "Delete everything recorded and exported on this computer? Games you have already shared cannot be recalled by this.",
+    );
+    if (!sure) return;
+    contribute("withdraw").then((result) => {
+      afterContribute(result);
+      els.exportResult.hidden = true;
+    });
+  }
+
+  function initContribute() {
+    els.contributeToggle.addEventListener("click", openContribute);
+    els.contributeClose.addEventListener("click", closeContribute);
+    els.consentCancel.addEventListener("click", closeContribute);
+    els.consentAge.addEventListener("change", () => {
+      els.consentAgree.disabled = !L.canAgree(els.consentAge.checked);
+    });
+    els.consentAgree.addEventListener("click", () => {
+      if (!L.canAgree(els.consentAge.checked) || !app.contribution) return;
+      contribute("consent", { version: app.contribution.consent.version }).then(afterContribute);
+    });
+    els.contributeStop.addEventListener("click", () => contribute("stop").then(afterContribute));
+    els.contributeExport.addEventListener("click", onExport);
+    els.contributeWithdraw.addEventListener("click", onWithdraw);
+    loadContribution();
+    setInterval(() => {
+      if (app.contribution && app.contribution.enabled) loadContribution();
+    }, CONTRIBUTE_POLL_MS);
+  }
+
   // --- start ---------------------------------------------------------------------------
 
   function init() {
@@ -555,6 +711,7 @@
     refreshPalette();
     watchSize();
     connect();
+    initContribute();
     requestAnimationFrame(frameLoop);
   }
 

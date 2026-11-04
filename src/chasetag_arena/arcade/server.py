@@ -21,6 +21,7 @@ from chasetag_arena import __version__
 from chasetag_arena.arcade.controls import parse_control
 from chasetag_arena.arcade.frames import encode_frame
 from chasetag_arena.arcade.game_loop import GameLoop
+from chasetag_arena.contribute import Contribution, ContributionError
 
 MAX_BODY_BYTES: Final[int] = 4 * 1024
 # An oversized body is read and discarded up to this many bytes, so the client receives the
@@ -39,6 +40,12 @@ _NOT_BUILT: Final[bytes] = (
 )
 _TEXT: Final[str] = "text/plain; charset=utf-8"
 _JSON: Final[str] = "application/json; charset=utf-8"
+# The contribution actions change what is recorded and shared, so a web page on another site
+# must not be able to trigger them. They need this header, which a cross-site request cannot add
+# without a preflight, and a Host and Origin that name this server.
+_CONTRIBUTE_HEADER: Final[str] = "chasetag-arena"
+_CONTRIBUTE_KEYS: Final[frozenset[str]] = frozenset({"action", "version"})
+_FAILED: Final[object] = object()  # a request body that was refused; the reply is already sent
 
 
 def _reject_constant(name: str) -> NoReturn:
@@ -112,6 +119,8 @@ class _Handler(BaseHTTPRequestHandler):
             self._send_json(200, self._planner_info())
         elif path == "/ledger":
             self._send_json(200, self._ledger_info())
+        elif path.startswith("/contribute"):
+            self._get_contribute(path)
         elif path == "/control":
             self._send_json(405, {"error": "use POST"}, allow="POST")
         else:
@@ -130,28 +139,37 @@ class _Handler(BaseHTTPRequestHandler):
         return {"recording": loop.recording_active, "error": loop.recording_error}
 
     def do_POST(self) -> None:
-        if _route(self.path) == "/control":
+        route = _route(self.path)
+        if route == "/control":
             self._post_control()
+        elif route == "/contribute":
+            self._post_contribute()
         else:
             self._discard_body()
             self._send_json(404, {"error": "not found"})
 
     # --- /control ----------------------------------------------------------------------
 
-    def _post_control(self) -> None:
+    def _read_json(self) -> Any:
+        """The request body as JSON, or ``_FAILED`` after sending the matching error reply."""
         length = self._declared_length()
         if length is None:
             self._send_json(411, {"error": "Content-Length is required"})
-            return
+            return _FAILED
         if length > MAX_BODY_BYTES:
             self._discard_body(length)
             self._send_json(413, {"error": f"body must be at most {MAX_BODY_BYTES} bytes"})
-            return
+            return _FAILED
         body = self.rfile.read(length)
         try:
-            obj = json.loads(body, parse_constant=_reject_constant)
+            return json.loads(body, parse_constant=_reject_constant)
         except (ValueError, RecursionError):
             self._send_json(400, {"error": "body is not valid JSON"})
+            return _FAILED
+
+    def _post_control(self) -> None:
+        obj = self._read_json()
+        if obj is _FAILED:
             return
         try:
             control = parse_control(obj)
@@ -160,6 +178,87 @@ class _Handler(BaseHTTPRequestHandler):
             self._send_json(400, {"error": str(exc)})
             return
         self._send_json(202, {"accepted": True})
+
+    # --- /contribute -------------------------------------------------------------------
+
+    def _from_this_server(self) -> bool:
+        """Whether the Host and Origin headers name this server, which stops cross-site and
+        DNS-rebinding requests."""
+        port = self._arcade.port
+        allowed = {f"127.0.0.1:{port}", f"localhost:{port}", f"[::1]:{port}"}
+        host = self.headers.get("Host", "")
+        origin = self.headers.get("Origin")
+        return host in allowed and (origin is None or origin == f"http://{host}")
+
+    def _get_contribute(self, path: str) -> None:
+        contribution = self._arcade.contribution
+        if contribution is None:
+            if path == "/contribute":
+                self._send_json(200, {"enabled": False})
+            else:
+                self._send(404, b"not found\n", _TEXT)
+            return
+        if not self._from_this_server():
+            self._send_json(403, {"error": "this request does not come from this page"})
+            return
+        try:
+            if path == "/contribute":
+                self._send_json(200, contribution.status())
+            elif path == "/contribute/review":
+                self._send(
+                    200,
+                    contribution.review_text(),
+                    _TEXT,
+                    headers={"Content-Disposition": 'inline; filename="games.jsonl"'},
+                )
+            elif path == "/contribute/package":
+                name, data = contribution.package_bytes()
+                self._send(
+                    200,
+                    data,
+                    "application/zip",
+                    headers={"Content-Disposition": f'attachment; filename="{name}"'},
+                )
+            else:
+                self._send(404, b"not found\n", _TEXT)
+        except ContributionError as exc:
+            self._send_json(409, {"error": str(exc)})
+
+    def _post_contribute(self) -> None:
+        contribution = self._arcade.contribution
+        if contribution is None:
+            self._discard_body()
+            self._send_json(404, {"error": "contributing is not turned on"})
+            return
+        if (
+            not self._from_this_server()
+            or self.headers.get("X-Requested-With") != _CONTRIBUTE_HEADER
+        ):
+            self._discard_body()
+            self._send_json(403, {"error": "this request does not come from this page"})
+            return
+        obj = self._read_json()
+        if obj is _FAILED:
+            return
+        if not isinstance(obj, dict) or not set(obj) <= _CONTRIBUTE_KEYS:
+            self._send_json(
+                400, {"error": "expected an object with action and, to consent, version"}
+            )
+            return
+        action = obj.get("action")
+        try:
+            if action == "consent":
+                self._send_json(200, contribution.grant(str(obj.get("version", ""))))
+            elif action == "stop":
+                self._send_json(200, contribution.stop())
+            elif action == "withdraw":
+                self._send_json(200, contribution.withdraw())
+            elif action == "export":
+                self._send_json(200, contribution.export())
+            else:
+                self._send_json(400, {"error": "action must be consent, stop, withdraw or export"})
+        except ContributionError as exc:
+            self._send_json(409, {"error": str(exc)})
 
     def _declared_length(self) -> int | None:
         """The Content-Length header as a non-negative int, or None when it is absent or bad."""
@@ -259,6 +358,7 @@ class _Handler(BaseHTTPRequestHandler):
         *,
         no_store: bool = True,
         allow: str | None = None,
+        headers: dict[str, str] | None = None,
     ) -> None:
         self.send_response(status)
         self.send_header("Content-Type", content_type)
@@ -267,6 +367,8 @@ class _Handler(BaseHTTPRequestHandler):
             self.send_header("Cache-Control", "no-store")
         if allow is not None:
             self.send_header("Allow", allow)
+        for name, value in (headers or {}).items():
+            self.send_header(name, value)
         self.end_headers()
         self.wfile.write(body)
 
@@ -325,9 +427,11 @@ class ArcadeServer:
         host: str = "127.0.0.1",
         port: int = 8765,
         static_dir: Path | None = None,
+        contribution: Contribution | None = None,
     ) -> None:
         self.loop = loop
         self.static_dir = static_dir
+        self.contribution = contribution
         self._stopping = threading.Event()
         self._lock = threading.Lock()  # guards _serving against a concurrent shutdown
         self._serving = False

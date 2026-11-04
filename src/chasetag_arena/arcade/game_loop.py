@@ -223,13 +223,25 @@ class GameLoop:
 
     @property
     def recording_active(self) -> bool:
-        """Whether rounds are being written to the store. False once a write has failed."""
-        return self._recorder is not None
+        """Whether rounds are being written to the research store. False once a write has failed.
+
+        A recorder that is not the research ledger, such as the opt-in contribution recorder,
+        reports its own state elsewhere, so it does not count here.
+        """
+        return self._recorder is not None and getattr(self._recorder, "is_research_ledger", True)
 
     @property
     def recording_error(self) -> str | None:
         """The failure that stopped the recording, or None while nothing has failed."""
         return self._recording_error
+
+    def _locks_seats(self) -> bool:
+        """Whether the recorder needs the seats and the time limit to stay fixed.
+
+        A logged research session does. A recorder that only watches, and says so with
+        ``locks_seats = False``, leaves the player free to change them.
+        """
+        return self._recorder is not None and getattr(self._recorder, "locks_seats", True)
 
     # --- thread-safe entry points ------------------------------------------------------
 
@@ -238,12 +250,12 @@ class GameLoop:
         next round. A logged session refuses both changes that would alter its record."""
         if isinstance(control, SelectorControl):
             with self._lock:
-                if self._recorder is not None:
+                if self._locks_seats():
                     _refuse_unlogged_seat(control)
                 self._pending[control.seat] = control.value
         elif isinstance(control, TimeLimitControl):
             with self._lock:
-                if self._recorder is not None:
+                if self._locks_seats():
                     raise ValueError("in a logged session the time limit is fixed")
                 self._pending_limit = control.value
         elif isinstance(control, KeyboardControl):

@@ -234,6 +234,38 @@
   }
 
   /**
+   * What the contribute dialog and its header chip show, from the server's `/contribute` answer.
+   * `enabled` is false when the server was not started with contributing on, or when the answer
+   * is missing, so the page then shows nothing at all.
+   */
+  function contributionView(info) {
+    if (info === null || typeof info !== "object" || info.enabled !== true) {
+      return { enabled: false };
+    }
+    const games = Number.isInteger(info.games) && info.games > 0 ? info.games : 0;
+    const decisions = Number.isInteger(info.decisions) && info.decisions > 0 ? info.decisions : 0;
+    const recording = info.recording === true;
+    const noun = games === 1 ? "1 game" : `${games} games`;
+    let summary = "Recording is off. Nothing is saved on this computer.";
+    if (recording) summary = `Recording is on. ${noun} saved (${decisions} decisions).`;
+    else if (games > 0) summary = `Recording is off. ${noun} saved on this computer.`;
+    return {
+      enabled: true,
+      recording,
+      draft: info.consent !== null && typeof info.consent === "object" && info.consent.status === "draft",
+      hasGames: games > 0,
+      chip: recording ? "Recording your games" : "",
+      summary,
+      error: typeof info.error === "string" && info.error !== "" ? info.error : null,
+    };
+  }
+
+  /** Whether the consent button may be pressed: the player must confirm that they read the text. */
+  function canAgree(confirmed) {
+    return confirmed === true;
+  }
+
+  /**
    * The status lines for a frame, from the server's own `paused` flag. `sinceIntermissionS` is
    * the time since the intermission frame arrived, and only matters in that phase.
    */
@@ -378,6 +410,8 @@
     formatSeconds,
     describePhase,
     plannerOptionState,
+    contributionView,
+    canAgree,
     arenaSidePx,
     ARENA_MIN_PX,
     SPEED_KEYS,

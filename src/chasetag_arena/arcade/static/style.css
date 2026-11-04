@@ -422,3 +422,127 @@ noscript p {
     animation: none !important;
   }
 }
+
+/* --- contributing ------------------------------------------------------------------- */
+
+.record-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text);
+}
+
+.record-chip[hidden],
+.dialog [hidden] {
+  display: none;
+}
+
+.rec-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--status-off);
+}
+
+.dialog {
+  max-width: min(42rem, calc(100vw - 32px));
+  width: 100%;
+  padding: 0;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.dialog::backdrop {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.dialog-body {
+  padding: 18px 20px;
+}
+
+.dialog h2 {
+  margin: 0 0 10px;
+}
+
+.banner {
+  margin: 0 0 12px;
+  padding: 8px 10px;
+  color: var(--pending-text);
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.consent-text {
+  max-height: 40vh;
+  overflow: auto;
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  white-space: pre-wrap;
+  font: inherit;
+  line-height: 1.5;
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.consent-text:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.check {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.dialog-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.dialog-close {
+  justify-content: flex-end;
+  margin-top: 14px;
+}
+
+.button-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 6px 10px;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  text-decoration: none;
+}
+
+.button-link:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.error-text {
+  margin: 10px 0 0;
+  color: var(--status-off);
+  font-weight: 600;
+}
+
+.dialog a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.dialog .button-link {
+  text-decoration: none;
+}

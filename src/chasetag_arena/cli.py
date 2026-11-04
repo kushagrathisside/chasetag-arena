@@ -25,6 +25,7 @@ from chasetag_arena import recording
 from chasetag_arena.arcade.controls import DEFAULT_TIME_LIMIT_S, TIME_LIMITS_S
 from chasetag_arena.arcade.game_loop import GameLoop, rules_for_limit
 from chasetag_arena.arcade.server import ArcadeServer
+from chasetag_arena.contribute import CONSENT_STATUS, DEFAULT_DIR, Contribution
 from chasetag_arena.planner import PlannerError, load_planner
 
 DEFAULT_HOST: Final[str] = "127.0.0.1"
@@ -36,6 +37,7 @@ _THREAD_JOIN_S: Final[float] = 5.0
 MIGRATION_ENV: Final[str] = "CHASETAG_LEDGER_MIGRATION"
 # A logged session has the participant at the keyboard, on seat 0, and a bot on seat 1.
 LOGGED_SELECTORS: Final[tuple[str, str]] = ("keyboard", "greedy")
+LOOPBACK_HOSTS: Final[frozenset[str]] = frozenset({"127.0.0.1", "localhost", "::1"})
 ENROL_LABEL: Final[str] = "play-logs-v1"
 
 
@@ -50,6 +52,8 @@ class ServeOptions:
     migration: Path | None = None
     participant: str | None = None
     time_limit_s: int = DEFAULT_TIME_LIMIT_S
+    contribute: bool = False
+    contribute_dir: Path | None = None
 
 
 @dataclass
@@ -61,6 +65,7 @@ class Serving:
     server: ArcadeServer
     thread: threading.Thread
     session: recording.Recording | None = None
+    contribution: Contribution | None = None
 
     def close(self) -> None:
         """Stop HTTP first, so no viewer can subscribe, then stop the game thread.
@@ -71,6 +76,8 @@ class Serving:
         self.server.shutdown()
         self.thread.join(_THREAD_JOIN_S)
         self.loop.stop()
+        if self.contribution is not None:
+            self.contribution.stop()  # a round in progress is never written half done
         if self.session is not None and self.loop.recording_error is None:
             self.session.finish()
 
@@ -100,12 +107,17 @@ def start_serving(options: ServeOptions) -> Serving:
     use fails without leaving a thread behind.
     """
     planner = None if options.planner is None else load_planner(options.planner)
+    if options.contribute and options.participant is not None:
+        raise ValueError("--contribute and --participant are separate ways to log; use one")
+    if options.contribute and options.host not in LOOPBACK_HOSTS:
+        raise ValueError("--contribute only works on this computer: use a loopback --host")
     seed = secrets.randbits(31)
     session = None if options.participant is None else _start_session(options, seed)
+    contribution = (
+        Contribution(options.contribute_dir or DEFAULT_DIR) if options.contribute else None
+    )
     rules = rules_for_limit(options.time_limit_s)
-    if session is None:
-        loop = GameLoop(seed=seed, planner=planner, rules=rules)
-    else:
+    if session is not None:
         loop = GameLoop(
             seed=seed,
             selectors=LOGGED_SELECTORS,
@@ -113,9 +125,20 @@ def start_serving(options: ServeOptions) -> Serving:
             rules=rules,
             recorder=session,
         )
+    elif contribution is not None:
+        loop = GameLoop(
+            seed=seed,
+            selectors=("keyboard", "greedy"),
+            planner=planner,
+            rules=rules,
+            recorder=contribution,
+        )
+        contribution.bind(lambda: loop.limit_s)
+    else:
+        loop = GameLoop(seed=seed, planner=planner, rules=rules)
     static_dir = PACKAGE_STATIC_DIR if options.static_dir is None else options.static_dir
     try:
-        server = ArcadeServer(loop, options.host, options.port, static_dir)
+        server = ArcadeServer(loop, options.host, options.port, static_dir, contribution)
     except OSError:
         if session is not None:
             session.finish()
@@ -126,9 +149,23 @@ def start_serving(options: ServeOptions) -> Serving:
     print(f"chasetag-arena: serving at {server.url} (Ctrl+C to stop)", flush=True)
     if session is not None:
         print("chasetag-arena: this session is being logged to the research store", flush=True)
+    if contribution is not None:
+        print(
+            "chasetag-arena: contributing is on. Nothing is recorded until you accept the consent "
+            f"screen in the page. Games are saved in {contribution.root}",
+            flush=True,
+        )
+        if CONSENT_STATUS == "draft":
+            print(
+                "chasetag-arena: the consent text is a draft. Please do not contribute real "
+                "games until the final text is released.",
+                flush=True,
+            )
     if options.open_browser:
         webbrowser.open(server.url)
-    return Serving(loop=loop, server=server, thread=thread, session=session)
+    return Serving(
+        loop=loop, server=server, thread=thread, session=session, contribution=contribution
+    )
 
 
 def enrol(store: Path, migration: Path, consent_text: Path, label: str) -> str:
@@ -218,6 +255,21 @@ def build_parser() -> argparse.ArgumentParser:
         metavar="PSEUDONYM",
         help="log this session for the participant with this pseudonym (needs --store)",
     )
+    serve.add_argument(
+        "--contribute",
+        action="store_true",
+        help=(
+            "let a player opt in to recording their keyboard games on this computer, to share "
+            "later (nothing is recorded until they accept the consent screen)"
+        ),
+    )
+    serve.add_argument(
+        "--contribute-dir",
+        type=Path,
+        default=None,
+        metavar="DIR",
+        help=f"where --contribute saves games (default: {DEFAULT_DIR})",
+    )
     enrol_cmd = commands.add_parser("enrol", help="add a participant with research consent")
     _store_options(enrol_cmd, required=True)
     enrol_cmd.add_argument(
@@ -259,6 +311,12 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if (args.participant is None) != (args.store is None):
         parser.error("--store and --participant are given together, to log a session")
+    if args.contribute and args.participant is not None:
+        parser.error("--contribute and --participant are separate ways to log; use one")
+    if args.contribute and args.host not in LOOPBACK_HOSTS:
+        parser.error("--contribute only works on this computer: use a loopback --host")
+    if args.contribute_dir is not None and not args.contribute:
+        parser.error("--contribute-dir needs --contribute")
     migration = args.migration
     if args.participant is not None:
         migration = args.migration or _env_migration()
@@ -274,6 +332,8 @@ def main(argv: list[str] | None = None) -> int:
         migration=migration,
         participant=args.participant,
         time_limit_s=args.time_limit,
+        contribute=args.contribute,
+        contribute_dir=args.contribute_dir,
     )
     try:
         serving = start_serving(options)
