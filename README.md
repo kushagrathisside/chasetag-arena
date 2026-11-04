@@ -28,6 +28,21 @@ through your first game.
 - Pause, step, restart, and change the speed.
 - Round and match scores, with tags, falls and time-outs counted.
 - Load a planner file with `--planner FILE` and watch it play a seat.
+- Opt in, with `--contribute`, to record your own keyboard games on your computer and share them.
+  Nothing is recorded until you accept a consent screen.
+
+## Community and data
+
+The data, trained planners and demos of chasetag-arena are shared by the **ChaseTag Arena**
+organization on Hugging Face: <https://huggingface.co/chasetag-arena>.
+
+- **Dataset:** [chasetag-arena-bot-episodes](https://huggingface.co/datasets/chasetag-arena/chasetag-arena-bot-episodes)
+  holds 480,000 games between five scripted bots, in 24 seat pairings at 20 s and 60 s rounds.
+- **Planners:** trained planners that you can load with `--planner FILE`, each with a model card.
+
+Everyone who plays the game or builds on it is welcome to share data, models and results there. See
+[Community and data](https://kushagrathisside.github.io/chasetag-arena/community/) in the
+documentation.
 
 ## Development
 

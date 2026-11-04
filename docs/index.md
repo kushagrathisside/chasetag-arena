@@ -70,6 +70,7 @@ The [roadmap](roadmap.md) lists every planned item.
 | [The game](the-game.md) | The arena, the roles, the rules, and how each round is scored. |
 | [Playing](playing.md) | The screen, the seats, the controls and the keyboard. |
 | [Planners](planners.md) | What a planner is and how to load one. |
+| [Community and data](community.md) | The ChaseTag Arena organization on Hugging Face: the dataset, published planners and how to contribute. |
 | [Troubleshooting](troubleshooting.md) | Common problems and how to fix them. |
 | [How it works](how-it-works.md) | The architecture, the timing, and why the browser never decides the rules. |
 | [API](api.md) | The HTTP endpoints, the frame format and the control messages. |

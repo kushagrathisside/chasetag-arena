@@ -86,8 +86,9 @@ You do not need to edit the file. The server reads it, and nothing is written ba
 
 ## Where planner files come from
 
-The game does not yet download planner files. Releases with checksums are on the
-[roadmap](roadmap.md). Until then, you load a file that you already have, by its path.
+The game does not download planner files by itself. Trained planners are published by the ChaseTag
+Arena organization on Hugging Face, each with a model card. Download one and load it by its path.
+[Community and data](community.md) shows how. Releases with checksums are on the [roadmap](roadmap.md).
 
 ## Troubleshooting
 

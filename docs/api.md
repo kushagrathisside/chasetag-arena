@@ -165,3 +165,57 @@ Other responses:
 
 A `202` means the server took the control. It does not mean the game has applied it yet. The change
 shows in the next frame.
+
+## `GET /contribute`
+
+Says whether the opt-in contribution mode is on, and its state. See
+[Community and data](community.md#contribute-your-games). Without `--contribute` the answer is
+`{"enabled": false}`, and the other `/contribute` endpoints answer `404`.
+
+```json
+{
+  "enabled": true,
+  "consent": {"status": "draft", "version": "a1b2c3d4e5f6", "text": "..."},
+  "recording": false,
+  "contribution_id": null,
+  "games": 0,
+  "decisions": 0,
+  "error": null,
+  "folder": "/home/you/.local/share/chasetag-arena/contributions"
+}
+```
+
+| Field | Meaning |
+|---|---|
+| `consent.status` | `draft` until the consent text has been reviewed, then `final`. |
+| `consent.version` | A short hash of the text. Consent only counts for the version the player was shown. |
+| `recording` | `true` while games are being recorded, after the player agreed and until they stop. |
+| `contribution_id` | The random ID in the player's files, or `null` before consent. |
+| `games`, `decisions` | What is saved on this computer. |
+| `error` | Why recording stopped, if a write failed. |
+
+## `GET /contribute/review`
+
+The recorded games exactly as they would be shared, as JSON Lines text. `409` if nothing has been
+recorded.
+
+## `GET /contribute/package`
+
+The most recently exported package, as a zip. `409` if none has been exported.
+
+## `POST /contribute`
+
+Changes what is recorded. The body is a JSON object with an `action`:
+
+| Action | Body | Effect |
+|---|---|---|
+| `consent` | `{"action": "consent", "version": "a1b2c3d4e5f6"}` | Starts recording, from the next round. `409` if `version` is not the current consent version. |
+| `stop` | `{"action": "stop"}` | Stops recording and keeps what was saved. A round in progress is dropped. |
+| `export` | `{"action": "export"}` | Writes a package and describes it. `409` if no game has been recorded. |
+| `withdraw` | `{"action": "withdraw"}` | Stops recording and deletes the games, the consent record and the packages. |
+
+These requests must come from the page itself. Each `POST` needs the header
+`X-Requested-With: chasetag-arena`, and every `/contribute` request needs a `Host` and, if present, an
+`Origin` that name this server. Anything else gets `403`, so a web page on another site cannot start
+recording. Other errors: `400` for a body that is not an object with a known `action`, `411` and
+`413` as for `/control`.

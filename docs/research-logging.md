@@ -63,7 +63,11 @@ It exits with `0` when every check passes.
 
 ## Not built yet
 
-- A consent screen in the browser. Consent is recorded with the `enrol` command only.
+This page describes the research store. A separate, opt-in way to record your own games, with a
+consent screen in the browser, is described in [Community and data](community.md#contribute-your-games).
+It does not use the research store.
+
+- A consent screen in the browser for the research store. Consent is recorded with the `enrol` command only.
 - A way for a participant to upload their play log. The store checks an uploaded play log against
   its own record, so the arcade must give the participant the log it produced.
 - Logging for planner seats. A planner's policy is not recorded yet.
