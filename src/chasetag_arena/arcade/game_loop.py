@@ -42,7 +42,7 @@ from chasetag_arena.arcade.frames import Phase, state_to_frame
 from chasetag_arena.core import game
 from chasetag_arena.core.families.base import BodyParams
 from chasetag_arena.core.families.kinematic import default_params
-from chasetag_arena.core.spec.features import encode_v1
+from chasetag_arena.core.spec.features import encode_v1, encode_v2
 from chasetag_arena.core.spec.frames import to_heading_frame
 from chasetag_arena.core.spec.rules import OFFICIAL, Rules
 from chasetag_arena.core.state import FALL, RUNNING, TAG, TIMEOUT, GameState
@@ -407,6 +407,12 @@ class GameLoop:
         self._last_ended_by = RUNNING
         self._publish(self._frame(self._state, _ZERO, "running", RUNNING, _ZERO))
 
+    def _observe(self, state: GameState, seat: int, name: str) -> Array:
+        """The features a seat's player reads: spec v2 for a planner that asks for it, else v1."""
+        if name == "planner" and self._planner is not None and self._planner.feature_spec == 2:
+            return encode_v2(state, seat, self._rules)
+        return encode_v1(state, seat, self._rules)
+
     def _choose_actions(self, state: GameState, now: float) -> Array:
         """Raw (2, 2) actions for both seats, from each seat's selector."""
         rows: list[Array] = []
@@ -418,7 +424,7 @@ class GameLoop:
                 cmd_h = to_heading_frame(jnp.array([vx, vy]), state.bodies.heading[seat])
                 rows.append(raw_for_command(cmd_h, OFFICIAL.max_speed_mps))
                 continue
-            obs = encode_v1(state, seat, self._rules)
+            obs = self._observe(state, seat, name)
             self._bot_keys[seat], sub = jax.random.split(self._bot_keys[seat])
             bot = self._bot_for(name)
             raw, self._bot_states[seat] = bot.act(obs, sub, self._bot_states[seat])

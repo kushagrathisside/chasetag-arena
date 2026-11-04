@@ -18,18 +18,24 @@ Parts = tuple[dict[str, np.ndarray], dict[str, Any]]
 def planner_parts() -> Callable[..., Parts]:
     """Build the arrays and the meta record of a planner, in chasetag's layout.
 
-    The network reads 17 features and has the layer sizes given, ending in a planar command.
+    The network has the layer sizes given, ending in a planar command, and reads 17 features
+    unless the first size says otherwise. ``feature_spec`` adds that entry to the meta record.
     """
 
-    def make(sizes: tuple[int, ...] = (17, 8, 2), activation: str = "tanh", seed: int = 0) -> Parts:
+    def make(
+        sizes: tuple[int, ...] = (17, 8, 2),
+        activation: str = "tanh",
+        seed: int = 0,
+        feature_spec: int | None = None,
+    ) -> Parts:
         rng = np.random.default_rng(seed)
         arrays: dict[str, np.ndarray] = {}
         for i, (fan_in, fan_out) in enumerate(itertools.pairwise(sizes)):
             # chasetag stores each matrix as (out, in).
             arrays[f"net/w{i}"] = rng.normal(0.0, 0.5, size=(fan_out, fan_in))
             arrays[f"net/b{i}"] = rng.normal(0.0, 0.1, size=fan_out)
-        arrays["net/obs_mean"] = rng.normal(0.0, 0.5, size=17)
-        arrays["net/obs_var"] = rng.uniform(0.5, 2.0, size=17)
+        arrays["net/obs_mean"] = rng.normal(0.0, 0.5, size=sizes[0])
+        arrays["net/obs_var"] = rng.uniform(0.5, 2.0, size=sizes[0])
         arrays["net/log_std"] = np.full(2, -0.7)
         meta: dict[str, Any] = {
             "name": "test-planner",
@@ -40,6 +46,8 @@ def planner_parts() -> Callable[..., Parts]:
             "max_speed_mps": 1.5,
             "extra": {},
         }
+        if feature_spec is not None:
+            meta["feature_spec"] = feature_spec
         return arrays, meta
 
     return make
