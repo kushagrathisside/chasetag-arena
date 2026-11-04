@@ -49,3 +49,25 @@ def test_a_zip_holds_its_header_and_every_game(tmp_path) -> None:
         assert all(len(row) == len(dataset.COLUMNS) for row in game["frames"])
         assert game["frames"][-1][0] <= 2000
     assert entry["decisions"] == sum(g["decisions"] for g in games)
+
+
+def test_archive_seeds_count_the_excluded_pairing() -> None:
+    # Idle against idle is the 19th of the 25 ordered pairs. Leaving it out must not move the seed
+    # of any later pairing, so that the same command still makes the same archives.
+    assert dataset.seed_index(("greedy", "greedy")) == 0
+    assert dataset.seed_index(("idle", "idle")) == 18
+    assert dataset.seed_index(("idle", "fallback")) == 19
+    assert dataset.seed_index(("fallback", "fallback")) == 24
+    seeds = [dataset.seed_index(p) for p in dataset.pairings()]
+    assert len(set(seeds)) == len(seeds) == 24
+    assert 18 not in seeds
+
+
+def test_the_manifest_records_each_archives_seed(tmp_path) -> None:
+    entries = dataset.build(tmp_path, 2, (20,), 2, 100, log=lambda *a: None)
+    assert len(entries) == 24
+    by_pair = {(e["seat0_bot"], e["seat1_bot"]): e["seed"] for e in entries}
+    assert by_pair[("greedy", "greedy")] == 100
+    assert by_pair[("idle", "fallback")] == 119
+    manifest = json.loads((tmp_path / "manifest.json").read_text())
+    assert [f["seed"] for f in manifest["files"]] == [e["seed"] for e in entries]

@@ -70,6 +70,16 @@ def pairings() -> list[tuple[str, str]]:
     return [p for p in itertools.product(BOT_NAMES, BOT_NAMES) if p not in EXCLUDED_PAIRINGS]
 
 
+def seed_index(pair: tuple[str, str]) -> int:
+    """A pairing's place among all 25 ordered pairs, excluded ones included.
+
+    The archive's seed is the run's seed plus this index. Counting the excluded pairs keeps every
+    archive's seed the same as when the pairing list had no exclusions, so the same command still
+    makes the same archives.
+    """
+    return list(itertools.product(BOT_NAMES, BOT_NAMES)).index(pair)
+
+
 def zip_name(limit_s: int, seat0: str, seat1: str) -> str:
     return f"limit{limit_s:03d}s__seat0-{seat0}__seat1-{seat1}.zip"
 
@@ -256,13 +266,14 @@ def build(
     params = default_params()
     entries: list[dict[str, Any]] = []
     for limit_s in limits:
-        for k, (seat0, seat1) in enumerate(pairings()):
+        for seat0, seat1 in pairings():
             path = out / zip_name(limit_s, seat0, seat1)
+            file_seed = seed + seed_index((seat0, seat1))
             if is_complete(path, episodes):
                 log(f"skip {path.name} (complete)")
             else:
                 log(f"write {path.name}")
-                write_zip(path, params, limit_s, seat0, seat1, episodes, chunk, seed + k, log)
+                write_zip(path, params, limit_s, seat0, seat1, episodes, chunk, file_seed, log)
             entries.append(
                 {
                     "file": path.name,
@@ -270,6 +281,7 @@ def build(
                     "seat0_bot": seat0,
                     "seat1_bot": seat1,
                     "episodes": episodes,
+                    "seed": file_seed,
                     "bytes": path.stat().st_size,
                     "sha256": _sha256(path),
                 }
