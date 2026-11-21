@@ -4,7 +4,8 @@ A **planner** is a player that has learned how to play. It is a neural network s
 Once a second planner is loaded, the **planner** choice in a seat's list plays that body.
 
 Planners are the way to see what a learned player does in the arena. Each planner file was made by
-training, and training happens outside the game. The game only loads and runs a finished file.
+training, which happens outside the game (see [Training planners](training.md)). The game only loads
+and runs a finished file.
 
 ## What a planner sees and does
 
@@ -87,8 +88,9 @@ You do not need to edit the file. The server reads it, and nothing is written ba
 
 ## Where planner files come from
 
-The game does not yet download planner files. Releases with checksums are on the
-[roadmap](roadmap.md). Until then, you load a file that you already have, by its path.
+The game does not download planner files by itself. Trained planners are published by the ChaseTag
+Arena organization on Hugging Face, each with a model card. Download one and load it by its path.
+[Community and data](community.md) shows how. Releases with checksums are on the [roadmap](roadmap.md).
 
 ## Troubleshooting
 

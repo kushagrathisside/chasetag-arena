@@ -18,6 +18,7 @@ and the game applies it on its own thread, so the rules are never decided in the
 | **Connection** | Top right | **Connected**, **Reconnecting** or **Offline**. |
 | **Round panel** | Middle right | The round number, the phase, the round score and the match totals. |
 | **Keyboard help** | Top right | Opens the list of keys. |
+| **Contribute games** | Top right, only with `--contribute` | Opens the consent screen, and the controls for your recorded games. |
 
 ### Reading the arena
 
@@ -120,6 +121,15 @@ While the page is waiting for its first frame, the panel says **Waiting**.
 
 When the server stops, the game stops with it. Start the server again, and the page reconnects and
 shows the game from its new start.
+
+## Contribute games
+
+This is off unless the server was started with `--contribute`. Then a **Contribute games** button
+appears at the top. It opens a consent screen, and nothing is recorded until you agree. While
+recording is on, **Recording your games** shows at the top of the page. The same dialog lets you review
+what was recorded, stop, export a package, or withdraw and delete everything. Only rounds where you
+play one seat with the keyboard are recorded. See
+[Community and data](community.md#contribute-your-games) for what is recorded and what is not.
 
 ## Help on the page
 

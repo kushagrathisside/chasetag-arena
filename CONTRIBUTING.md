@@ -3,13 +3,12 @@
 Bug reports, documentation fixes and tests are welcome. For a larger change, open an issue first, so
 that the approach can be agreed before you write the code.
 
-## Before your first contribution
+## Where to contribute
 
-Every contributor accepts the [Contributor Licence Agreement](CLA.md) before a contribution is merged.
-The agreement lets the maintainer distribute the project, including under the commercial licence that the
-README mentions. You keep the copyright in your work.
-
-The sign-up method is [to be set up before outside contributions are merged].
+- **Code, tests and documentation** go here, as pull requests to this repository.
+- **Data, trained planners and results** go to the ChaseTag Arena organization on Hugging Face,
+  <https://huggingface.co/chasetag-arena>. Its contribution guide explains what each contribution
+  needs and how it is reviewed.
 
 ## Files that are not edited here
 
@@ -58,5 +57,6 @@ record, into an issue or a pull request.
 
 ## Licence
 
-The project is licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE). Contributions are
-accepted under that licence and under the [CLA](CLA.md).
+The project is licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE), and contributions to
+this repository are accepted under that licence. Data and models shared in the Hugging Face organization
+are accepted under the licence of the repository they go to, which its card states.

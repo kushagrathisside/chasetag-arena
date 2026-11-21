@@ -44,6 +44,18 @@ run. Each message is printed as `chasetag-arena: ` followed by the reason.
 
 See [planners](planners.md) for what each check means.
 
+## Contributing games
+
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| There is no **Contribute games** button | The server was not started with contributing on. | Start it with `uv run chasetag-arena serve --contribute`. |
+| The server stops with `--contribute only works on this computer` | The `--host` is not a loopback address. | Leave `--host` at its default, `127.0.0.1`, or use `localhost`. |
+| The dialog says `this request does not come from this page` | The page was opened through another address or name. | Open the address that the terminal printed, such as `http://127.0.0.1:8765/`. |
+| The dialog says `the consent text has changed; please read it again` | The page was open from before the server was restarted. | Reload the page, and read the consent text again. |
+| `Export a package` is greyed out, or says `record at least one game before exporting` | No game has been recorded yet. | Agree to the consent screen, then play a round with the keyboard seat. Recording starts at the next round. |
+| Rounds are played but not counted | Recording needs exactly one keyboard seat, and a page must be open, since a game with no page open waits. | Set one seat to keyboard and the other to a bot, and keep the page open. |
+| The dialog shows an error and recording stops | A write to the folder failed, for example because the disk is full. | Free some space, check that you can write to the folder shown in the dialog, and agree again. |
+
 ## Games that look wrong
 
 | Symptom | Likely cause | Fix |
