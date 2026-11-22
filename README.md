@@ -90,13 +90,20 @@ layout in more detail, the diagrams, the screenshots and the release process.
 
 ## Contributing
 
-Contributions are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) first. Contributions are accepted
-under the project licence and the [Contributor Licence Agreement](CLA.md), which is a draft under
-review.
+Contributions are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) first. By opening a pull request you
+agree that your contribution is licensed under the project licence below. You keep the copyright in
+your work.
 
 ## Licence
 
-Licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE). You may use, change and share the
-game for any noncommercial purpose. Commercial use needs a separate licence from the author. The
+The code is licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE). You may use, change and
+share the game for any noncommercial purpose, such as learning, teaching, research and personal
+projects. Commercial use is not allowed. The project is meant for learning and research.
+
+This is a source-available licence, not an open-source licence in the sense of the
+[Open Source Definition](https://opensource.org/osd), because it limits commercial use.
+
+Data and trained planners published on Hugging Face are licensed under
+[CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/), unless their card says otherwise. The
 [licence page](https://kushagrathisside.github.io/chasetag-arena/license/) explains the terms in plain
 language.

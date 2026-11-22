@@ -136,3 +136,9 @@ DevTools port. Stop the server when you are done.
 1. Run the tests, the lint and the strict docs build.
 2. Describe what changed and why, and say how you checked it.
 3. For a change to the page, attach a screenshot of the result.
+
+## The license of your contribution
+
+By opening a pull request you agree that your contribution is licensed under the project's
+[license](license.md), the PolyForm Noncommercial License 1.0.0. You keep your copyright. There is no
+separate agreement to sign.

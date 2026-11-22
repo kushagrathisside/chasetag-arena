@@ -46,6 +46,13 @@ record, into an issue or a pull request.
 
 ## Licence
 
-The project is licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE), and contributions to
-this repository are accepted under that licence. Data and models shared in the Hugging Face organization
-are accepted under the licence of the repository they go to, which its card states.
+The code is licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE). It is a
+source-available licence, not an open-source one, because it does not allow commercial use.
+
+By opening a pull request you agree that your contribution is licensed under the same licence. You keep
+the copyright in your work, and you confirm that you wrote it, or that you have the right to share it
+under this licence. There is no separate agreement to sign.
+
+Data and trained planners shared in the Hugging Face organization are licensed under
+[CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/), unless the card of the repository they go
+to says otherwise.
