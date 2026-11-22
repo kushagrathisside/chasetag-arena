@@ -34,6 +34,23 @@ Example:
 curl http://127.0.0.1:8765/planner
 ```
 
+## `GET /bodies`
+
+Lists the bodies a game can be played with, and says which one is in use.
+
+```json
+{
+  "bodies": [
+    {"name": "default", "label": "K/default", "family": "K", "summary": "A person-like walker: ..."}
+  ],
+  "current": "K/default",
+  "locked": false
+}
+```
+
+`locked` is `true` while games are being recorded, because a recorded session keeps one body. The page
+reads this list each time it connects, so a body added to the registry shows up without a page change.
+
 ## `GET /ledger`
 
 Says whether this session is being written to the research store, and why it is not when it is not.
@@ -135,6 +152,7 @@ Sends one control. The body is a JSON object, and its `kind` field names the con
 | `step` | `{"kind": "step"}` | Makes one decision while paused. |
 | `restart` | `{"kind": "restart"}` | Starts a new round and clears the match totals. |
 | `speed` | `{"kind": "speed", "value": 2}` | Sets the speed multiplier. `value` must be above 0 and at most 8. |
+| `body` | `{"kind": "body", "value": "dodger"}` | Sets the body both seats play with. `value` is a body name from [`GET /bodies`](#get-bodies). It applies at the next round start. A session that records games refuses it, since its rounds are recorded under one body. |
 | `limit` | `{"kind": "limit", "value": 180}` | Sets the longest a round may run, in game seconds. `value` is one of `20`, `60`, `180`, `300` or `600`. It applies at the next round start. A logged session refuses it, since its rounds are recorded under one length. |
 
 `seat` is `0` or `1`. Numbers must be finite, and a boolean is not a number. A field that the kind does

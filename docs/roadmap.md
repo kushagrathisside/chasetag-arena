@@ -9,6 +9,7 @@ This page lists what the game does today and what is planned. A planned item is 
 | **Playing** | Two seats, each a keyboard, a bot or a planner. Pause, Step, Restart and Speed. |
 | **Rules** | Tags, falls, the round clock, and the official scores for each round. |
 | **Scores** | Round scores and match totals, with tags, falls and time-outs counted. |
+| **Bodies** | Seven bodies with different physics, chosen in the page or with `--body`. See [Bodies](bodies.md). |
 | **Bots** | Greedy, intercept, wander, idle and fallback. |
 | **Planners** | A planner file, given with `--planner`, plays a seat, after the server checks it. |
 | **Page** | The arena, the controls, the keyboard, the connection status, and a layout for phones. |
@@ -28,7 +29,8 @@ This page lists what the game does today and what is planned. A planned item is 
 | **Preferences** | Pick the better of two rounds, to help judge which player is better. |
 | **Sharing logs** | Send your recorded games to the project from inside the game, with a privacy notice first. Today, you export a package and contribute it by pull request, once the consent text is final. |
 | **Desktop installer** | Install the game with one download, with no terminal needed. |
-| **More bodies** | Bodies with more detail than the default one. |
+| **Different bodies per seat** | Let each seat play with its own body. Today both seats share one body. |
+| **Planners that know their body** | A planner file that records the body it was trained for, and a warning when it is used with another. |
 
 Items may change or move as the project develops. Check the
 [project's GitHub page](https://github.com/kushagrathisside/chasetag-arena) for the latest status.

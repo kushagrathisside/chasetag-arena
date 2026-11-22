@@ -59,9 +59,9 @@
     <div class="field">
       <label for="body-select">Body</label>
       <select id="body-select" disabled>
-        <option value="K/default" selected>K/default</option>
+        <option value="default" selected>K/default</option>
       </select>
-      <span class="note" id="body-note">Body: K/default</span>
+      <span class="pending" id="body-pending" hidden>Applies next round</span>
     </div>
     <div class="buttons" role="group" aria-label="Playback">
       <button type="button" id="play-toggle">Pause</button>
@@ -89,6 +89,7 @@
       </select>
       <span class="pending" id="limit-pending" hidden>Applies next round</span>
     </div>
+    <p class="note body-note" id="body-note" aria-live="polite">Body: K/default</p>
   </section>
 
   <main class="layout">
