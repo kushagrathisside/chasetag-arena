@@ -33,6 +33,7 @@ KEEPALIVE_S: Final[float] = 15.0
 # How often an event-stream handler checks for shutdown while it waits for a frame.
 _POLL_S: Final[float] = 0.25
 _SHUTDOWN_WAIT_S: Final[float] = 5.0
+_LOOPBACK_HOSTS: Final[frozenset[str]] = frozenset({"127.0.0.1", "localhost", "::1"})
 _SOCKET_TIMEOUT_S: Final[float] = 30.0
 _SERVER_NAME: Final[str] = "chasetag-arena"
 _NOT_BUILT: Final[bytes] = (
@@ -156,6 +157,8 @@ class _Handler(BaseHTTPRequestHandler):
             self._post_control()
         elif route == "/contribute":
             self._post_contribute()
+        elif route == "/quit":
+            self._post_quit()
         else:
             self._discard_body()
             self._send_json(404, {"error": "not found"})
@@ -190,6 +193,30 @@ class _Handler(BaseHTTPRequestHandler):
             self._send_json(400, {"error": str(exc)})
             return
         self._send_json(202, {"accepted": True})
+
+    # --- /quit -------------------------------------------------------------------------
+
+    def _post_quit(self) -> None:
+        """Stop the server, for the Quit button. It answers first, and then stops.
+
+        It takes the same guards as ``/contribute`` (a Host and Origin that name this server, and
+        a custom header that a cross-site form cannot send). It also refuses unless the server
+        listens on this computer only, since nobody else may stop it.
+        """
+        self._discard_body()
+        if (
+            not self._from_this_server()
+            or self.headers.get("X-Requested-With") != _CONTRIBUTE_HEADER
+        ):
+            self._send_json(403, {"error": "this request does not come from this page"})
+            return
+        if self._arcade.host not in _LOOPBACK_HOSTS:
+            self._send_json(
+                403, {"error": "the page can stop the server only on a loopback address"}
+            )
+            return
+        self._send_json(202, {"stopping": True})
+        self._arcade.request_stop()
 
     # --- /contribute -------------------------------------------------------------------
 
@@ -476,6 +503,11 @@ class ArcadeServer:
         finally:
             with self._lock:
                 self._serving = False
+
+    def request_stop(self) -> None:
+        """Stop serving from a handler thread. The stop runs on its own thread, so the handler
+        can finish its reply first. The thread that called ``serve_forever`` then returns."""
+        threading.Thread(target=self.shutdown, name="chasetag_arena-stop", daemon=True).start()
 
     def shutdown(self) -> None:
         """Stop serving and end every open stream. Call from a thread other than the one in
