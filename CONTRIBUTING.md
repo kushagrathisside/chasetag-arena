@@ -10,17 +10,6 @@ that the approach can be agreed before you write the code.
   <https://huggingface.co/chasetag-arena>. Its contribution guide explains what each contribution
   needs and how it is reviewed.
 
-## Files that are not edited here
-
-The simulator core and the bots are copies from the groundtag research repository. They are listed, with
-their hashes, in [vendor/SYNC.md](vendor/SYNC.md). `tests/test_vendor.py` fails when a copy changes. Do not
-edit these files:
-
-- `src/chasetag_arena/core/`
-- `src/chasetag_arena/agents/bots.py`
-
-If you find a fault in them, open an issue. The maintainer makes the change in the research repository.
-
 ## Setting up
 
 ```bash

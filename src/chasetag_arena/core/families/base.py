@@ -21,8 +21,8 @@ import jax
 import jax.numpy as jnp
 from jax import Array
 
-from chasetag_arena.core.state import BodyState
 from chasetag_arena.core.spec.rules import Rules
+from chasetag_arena.core.state import BodyState
 
 
 class BodyModel(Protocol):

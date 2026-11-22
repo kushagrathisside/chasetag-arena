@@ -36,9 +36,6 @@ packages = ["src/chasetag_arena"]
 line-length = 100
 target-version = "py312"
 src = ["src", "tests"]
-# Vendored files stay byte-identical to groundtag apart from the import rewrite, so the
-# hash guard in tests/test_vendor.py holds. Only scripts/sync_core.py changes them.
-extend-exclude = ["src/chasetag_arena/core", "src/chasetag_arena/agents/bots.py"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "SIM", "RUF"]

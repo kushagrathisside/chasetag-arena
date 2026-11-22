@@ -31,8 +31,8 @@ from chasetag_arena.core.families.base import (
     rest_state,
     wrap_angle,
 )
-from chasetag_arena.core.state import BodyState
 from chasetag_arena.core.spec.rules import Rules
+from chasetag_arena.core.state import BodyState
 
 
 @dataclass(frozen=True)

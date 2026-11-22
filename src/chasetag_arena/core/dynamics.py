@@ -13,8 +13,8 @@ import jax
 import jax.numpy as jnp
 from jax import Array, lax
 
-from chasetag_arena.core.state import FALL, RUNNING, TAG, BodyState
 from chasetag_arena.core.spec.rules import Rules
+from chasetag_arena.core.state import FALL, RUNNING, TAG, BodyState
 
 # Standard normal draws per seat per substep: two for tracking, one for height.
 NOISE_DIM = 3

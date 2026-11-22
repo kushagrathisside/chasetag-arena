@@ -78,8 +78,8 @@ The Python package is in `src/chasetag_arena/`:
 
 | Path | Contents |
 |---|---|
-| `core/` | The two-seat simulator. Copied from the research repository and checked by a hash test. See [`vendor/SYNC.md`](vendor/SYNC.md). |
-| `agents/` | The scripted bots. Also copied, and checked the same way. |
+| `core/` | The two-seat simulator and the body models. |
+| `agents/` | The scripted bots. |
 | `arcade/` | The game loop, the HTTP server and the browser page. |
 | `planner.py` | Loads and checks planner files. |
 | `recording.py`, `ledger_writer.py`, `mock_player.py` | Research logging and its checks. |
