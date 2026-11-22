@@ -10,7 +10,7 @@ round to round, so each seat plays both parts.
 |---|---|
 | Shape | A square with a fence on each side |
 | Size | 12 m × 12 m. The fence lines run from -6 m to 6 m on both axes. |
-| Bodies | Two. Seat A is blue, and seat B is orange. |
+| Bodies | Two. Seat A is blue, and seat B is orange. Both play with the same [body](bodies.md). |
 | Starting gap | The bodies start 2 m apart. |
 | Who chases | Chosen at random for each round. |
 | Speed limit | 1.5 m/s for each body. |

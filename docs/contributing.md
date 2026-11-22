@@ -40,12 +40,11 @@ scripts/                 screenshots, diagram export, and the core sync tool
 docs/                    this site, its diagrams and screenshots
 ```
 
-### The copied files
+### The simulator and the bots
 
-`src/chasetag_arena/core/` and `src/chasetag_arena/agents/bots.py` are copied from the author's
-research repository. Do not edit them here. A test fails when a copied file changes, and the change
-belongs upstream. The maintainer brings updates in with `scripts/sync_core.py`, which also records
-the upstream commit in `vendor/SYNC.md`.
+`src/chasetag_arena/core/` holds the simulator and the body models, and
+`src/chasetag_arena/agents/bots.py` holds the scripted bots. They are ordinary code in this
+repository, and you can change them. A change to the physics of a body needs a test.
 
 ## Tests
 
@@ -137,3 +136,9 @@ DevTools port. Stop the server when you are done.
 1. Run the tests, the lint and the strict docs build.
 2. Describe what changed and why, and say how you checked it.
 3. For a change to the page, attach a screenshot of the result.
+
+## The license of your contribution
+
+By opening a pull request you agree that your contribution is licensed under the project's
+[license](license.md), the PolyForm Noncommercial License 1.0.0. You keep your copyright. There is no
+separate agreement to sign.

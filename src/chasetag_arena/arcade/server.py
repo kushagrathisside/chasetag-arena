@@ -21,6 +21,7 @@ from chasetag_arena import __version__
 from chasetag_arena.arcade.controls import parse_control
 from chasetag_arena.arcade.frames import encode_frame
 from chasetag_arena.arcade.game_loop import GameLoop
+from chasetag_arena.bodies import body_names, get_body
 from chasetag_arena.contribute import Contribution, ContributionError
 
 MAX_BODY_BYTES: Final[int] = 4 * 1024
@@ -117,6 +118,8 @@ class _Handler(BaseHTTPRequestHandler):
             self._stream_events()
         elif path == "/planner":
             self._send_json(200, self._planner_info())
+        elif path == "/bodies":
+            self._send_json(200, self._bodies_info())
         elif path == "/ledger":
             self._send_json(200, self._ledger_info())
         elif path.startswith("/contribute"):
@@ -132,6 +135,15 @@ class _Handler(BaseHTTPRequestHandler):
         if planner is None:
             return {"loaded": False}
         return {"loaded": True, "name": planner.name, "file": planner.file}
+
+    def _bodies_info(self) -> dict[str, Any]:
+        """The bodies a game can be played with, and whether recording keeps the body fixed."""
+        loop = self._arcade.loop
+        bodies = [
+            {"name": spec.name, "label": spec.label, "family": spec.family, "summary": spec.summary}
+            for spec in (get_body(name) for name in body_names())
+        ]
+        return {"bodies": bodies, "current": loop.body.label, "locked": loop.body_locked}
 
     def _ledger_info(self) -> dict[str, Any]:
         """Whether this session is being written to the research store, and why it may not be."""

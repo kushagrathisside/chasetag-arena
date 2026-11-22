@@ -223,3 +223,69 @@ def test_a_meta_record_that_is_not_an_object_is_refused(
     path = save_planner(tmp_path / "p.npz", arrays, meta_bytes)
     with pytest.raises(PlannerError, match=message):
         load_planner(path)
+
+
+# --- feature spec v2: the 17 features plus the last two decision commands -----------------------
+
+
+def test_a_file_without_a_feature_spec_reads_spec_v1(planner_file: Path) -> None:
+    planner = load_planner(planner_file)
+    assert planner.feature_spec == 1
+
+
+def test_a_spec_v2_file_reads_twenty_one_features(
+    planner_parts: Callable[..., Parts], save_planner: Any, tmp_path: Path
+) -> None:
+    arrays, meta = planner_parts(sizes=(21, 8, 2), feature_spec=2)
+    planner = load_planner(save_planner(tmp_path / "v2.npz", arrays, meta))
+    assert planner.feature_spec == 2
+    action = planner.mean_action(np.linspace(-1.0, 1.0, 21))
+    assert action.shape == (2,)
+    assert np.all(np.isfinite(action))
+
+
+@pytest.mark.parametrize(
+    ("sizes", "feature_spec", "message"),
+    [
+        pytest.param((17, 8, 2), 3, "feature spec 3", id="unknown-spec"),
+        pytest.param((17, 8, 2), 2, "net/w0 has shape", id="v2-with-v1-width"),
+        pytest.param((21, 8, 2), 1, "net/w0 has shape", id="v1-with-v2-width"),
+        pytest.param((17, 8, 2), True, "feature spec True", id="bool-spec"),
+    ],
+)
+def test_a_feature_spec_that_does_not_fit_the_network_is_refused(
+    planner_parts: Callable[..., Parts],
+    save_planner: Any,
+    tmp_path: Path,
+    sizes: tuple[int, ...],
+    feature_spec: Any,
+    message: str,
+) -> None:
+    arrays, meta = planner_parts(sizes=sizes, feature_spec=feature_spec)
+    path = save_planner(tmp_path / "p.npz", arrays, meta)
+    with pytest.raises(PlannerError, match=re.escape(message)):
+        load_planner(path)
+
+
+def test_the_normaliser_must_match_the_feature_spec(
+    planner_parts: Callable[..., Parts], save_planner: Any, tmp_path: Path
+) -> None:
+    arrays, meta = planner_parts(sizes=(21, 8, 2), feature_spec=2)
+    arrays["net/obs_mean"] = np.zeros(17)
+    path = save_planner(tmp_path / "p.npz", arrays, meta)
+    with pytest.raises(PlannerError, match=r"normaliser must hold 21 values, as spec v2 does"):
+        load_planner(path)
+
+
+def test_a_spec_v2_planner_plays_a_seat_with_the_v2_features(
+    planner_parts: Callable[..., Parts], save_planner: Any, tmp_path: Path
+) -> None:
+    from chasetag_arena.arcade.game_loop import GameLoop
+
+    arrays, meta = planner_parts(sizes=(21, 8, 2), feature_spec=2)
+    planner = load_planner(save_planner(tmp_path / "v2.npz", arrays, meta))
+    loop = GameLoop(seed=3, selectors=("planner", "greedy"), planner=planner)
+    for _ in range(25):
+        loop.decide()
+    assert loop.decisions >= 5
+    assert np.all(np.isfinite(np.asarray(loop.last_actions)))

@@ -87,5 +87,5 @@ The option only works on this computer: the server refuses `--contribute` on any
 
 Each repository's card states its license. Data and models are shared under
 [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/) unless a card says otherwise. The
-game and simulator are licensed under the PolyForm Noncommercial License 1.0.0. See
-[License](license.md).
+game and simulator are licensed under the PolyForm Noncommercial License 1.0.0. Neither license allows
+commercial use. See [License](license.md).

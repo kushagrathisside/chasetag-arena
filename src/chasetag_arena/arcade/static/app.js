@@ -44,6 +44,8 @@
     selects: [$("seat0-select"), $("seat1-select")],
     pending: [$("seat0-pending"), $("seat1-pending")],
     bodyNote: $("body-note"),
+    bodySelect: $("body-select"),
+    bodyPending: $("body-pending"),
     playToggle: $("play-toggle"),
     step: $("step"),
     restart: $("restart"),
@@ -82,6 +84,9 @@
     echo: null, // the selectors the server last reported, as [seat0, seat1]
     pending: [null, null], // selectors sent but not yet echoed
     pendingLimit: null, // a round limit sent but not yet started by a round
+    pendingBody: null, // a body name sent but not yet started by a round
+    bodies: [], // the bodies the server offers: {name, label, family, summary}
+    bodiesLocked: false, // true while recording keeps the body fixed
     paused: false, // the server's pause, from the newest frame; this page's Pause, Play or Step sets it first
     trails: null,
     flash: null,
@@ -124,12 +129,38 @@
       .catch(() => applyPlannerInfo(null));
   }
 
+  // The body list comes from the server, so a body added to the registry shows at once.
+  function applyBodies(info) {
+    if (!info || !Array.isArray(info.bodies)) return;
+    app.bodies = info.bodies;
+    app.bodiesLocked = Boolean(info.locked);
+    const select = els.bodySelect;
+    select.textContent = "";
+    for (const body of info.bodies) {
+      const option = document.createElement("option");
+      option.value = body.name;
+      option.textContent = body.label;
+      option.title = body.summary;
+      select.appendChild(option);
+    }
+    select.disabled = app.bodiesLocked;
+    if (app.latest) reconcileBody(app.latest.selectors.body);
+  }
+
+  function loadBodies() {
+    fetch("/bodies", { cache: "no-store" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then(applyBodies)
+      .catch(() => {});
+  }
+
   function connect() {
     app.retryTimer = null;
     app.session = freshSession();
     app.trails = null;
     app.flash = null;
     loadPlannerInfo();
+    loadBodies();
     const es = new EventSource("/events");
     app.es = es;
     es.onopen = () => {
@@ -203,7 +234,7 @@
     }
 
     reconcileSelectors([frame.selectors.seat0, frame.selectors.seat1]);
-    els.bodyNote.textContent = `Body: ${frame.selectors.body}`;
+    reconcileBody(frame.selectors.body);
     updateHud(frame);
   }
 
@@ -263,6 +294,33 @@
       app.pendingLimit = null;
       els.limitPending.hidden = true;
       if (app.latest) reconcileLimit(app.latest.limit_s);
+    });
+  }
+
+  // The body waits for the next round, like a selector and the round limit.
+  function reconcileBody(label) {
+    const current = app.bodies.find((body) => body.label === label);
+    if (app.pendingBody !== null) {
+      if (!current || current.name !== app.pendingBody) {
+        els.bodyNote.textContent = `Body: ${label}`;
+        return;
+      }
+      app.pendingBody = null;
+      els.bodyPending.hidden = true;
+    }
+    if (current && els.bodySelect.value !== current.name) els.bodySelect.value = current.name;
+    els.bodyNote.textContent = current ? `Body: ${label}. ${current.summary}` : `Body: ${label}`;
+  }
+
+  function onBody(name) {
+    app.pendingBody = name;
+    els.bodyPending.hidden = false;
+    send({ kind: "body", value: name }).then((ok) => {
+      // A body the server refused would stay pending for a round that never starts with it.
+      if (ok || app.pendingBody !== name) return;
+      app.pendingBody = null;
+      els.bodyPending.hidden = true;
+      if (app.latest) reconcileBody(app.latest.selectors.body);
     });
   }
 
@@ -678,6 +736,9 @@
     els.speed.addEventListener("change", (e) => {
       setSpeed(e.target.value);
       e.target.blur();
+    });
+    els.bodySelect.addEventListener("change", (e) => {
+      onBody(e.target.value);
     });
     els.timeLimit.addEventListener("change", (e) => {
       onLimit(e.target.value);

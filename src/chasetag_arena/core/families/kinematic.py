@@ -27,9 +27,9 @@ from chasetag_arena.core.families.base import (
     rest_state,
 )
 from chasetag_arena.core.hazard import kinematic_fall_probability
-from chasetag_arena.core.state import BodyState
 from chasetag_arena.core.spec.frames import to_heading_frame, to_world_frame
 from chasetag_arena.core.spec.rules import Rules
+from chasetag_arena.core.state import BodyState
 
 
 @dataclass(frozen=True)

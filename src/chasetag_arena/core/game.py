@@ -21,10 +21,10 @@ from jax import Array
 from chasetag_arena.core.arena import start_layout
 from chasetag_arena.core.dynamics import Noise, draw_noise, integrate_decision
 from chasetag_arena.core.families.base import BodyParams
-from chasetag_arena.core.state import FALL, RUNNING, TAG, TIMEOUT, GameState
 from chasetag_arena.core.spec.commands import CommandSpec, to_command
 from chasetag_arena.core.spec.features import FeatureSpec
 from chasetag_arena.core.spec.rules import OFFICIAL, Rules
+from chasetag_arena.core.state import FALL, RUNNING, TAG, TIMEOUT, GameState
 
 
 @partial(jax.jit, static_argnames=("rules",))

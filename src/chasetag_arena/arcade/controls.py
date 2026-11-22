@@ -1,8 +1,8 @@
 """Controls from the browser: parsing, and the held keyboard command.
 
 Discrete controls (pause, step, restart, speed) are queued and applied in order by the game
-thread. A selector change and a time-limit change are held until the next round starts, so
-neither can alter a round in progress. The keyboard command is a held velocity that expires, so
+thread. A selector, body or time-limit change is held until the next round starts, so
+none can alter a round in progress. The keyboard command is a held velocity that expires, so
 a lost key release cannot keep a body moving.
 """
 
@@ -14,6 +14,7 @@ from dataclasses import dataclass
 from typing import Final
 
 from chasetag_arena.agents.bots import BOTS
+from chasetag_arena.bodies import body_names
 from chasetag_arena.core.spec.rules import OFFICIAL
 
 # A held keyboard command older than this is treated as released.
@@ -78,8 +79,16 @@ class TimeLimitControl:
     value: int
 
 
+@dataclass(frozen=True)
+class BodyControl:
+    """The body both seats play with, by name. Applied at the next round start."""
+
+    value: str
+
+
 type Control = (
     SelectorControl
+    | BodyControl
     | KeyboardControl
     | PauseControl
     | PlayControl
@@ -98,6 +107,7 @@ _FIELDS: Final[dict[str, tuple[str, ...]]] = {
     "restart": (),
     "speed": ("value",),
     "limit": ("value",),
+    "body": ("value",),
 }
 
 
@@ -159,6 +169,12 @@ def parse_control(obj: object) -> Control:
         if isinstance(value, bool) or value not in TIME_LIMITS_S:
             raise ValueError(f"time limit must be one of {TIME_LIMITS_S} seconds, got {value!r}")
         return TimeLimitControl(value=int(value))
+
+    if kind == "body":
+        value = obj.get("value")
+        if not isinstance(value, str) or value not in body_names():
+            raise ValueError(f"body must be one of {body_names()}, got {value!r}")
+        return BodyControl(value=value)
 
     if kind == "pause":
         return PauseControl()

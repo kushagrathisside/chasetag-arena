@@ -3,7 +3,8 @@ name = "chasetag-arena"
 version = "0.1.0"
 description = "A grounded 2D chase-tag game: play against bots, the keyboard or trained planners"
 readme = "README.md"
-license = { text = "PolyForm-Noncommercial-1.0.0" }
+license = "PolyForm-Noncommercial-1.0.0"
+license-files = ["LICENSE"]
 requires-python = ">=3.12,<3.13"
 dependencies = [
     # Plain `jax` installs the CPU build of jaxlib. The CUDA plugins come only with the
@@ -36,9 +37,6 @@ packages = ["src/chasetag_arena"]
 line-length = 100
 target-version = "py312"
 src = ["src", "tests"]
-# Vendored files stay byte-identical to groundtag apart from the import rewrite, so the
-# hash guard in tests/test_vendor.py holds. Only scripts/sync_core.py changes them.
-extend-exclude = ["src/chasetag_arena/core", "src/chasetag_arena/agents/bots.py"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "SIM", "RUF"]

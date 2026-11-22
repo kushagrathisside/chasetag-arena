@@ -27,6 +27,7 @@ from chasetag_arena.arcade.controls import (
     DEFAULT_TIME_LIMIT_S,
     SELECTORS,
     TIME_LIMITS_S,
+    BodyControl,
     Control,
     KeyboardControl,
     KeyboardState,
@@ -39,16 +40,16 @@ from chasetag_arena.arcade.controls import (
     TimeLimitControl,
 )
 from chasetag_arena.arcade.frames import Phase, state_to_frame
+from chasetag_arena.bodies import DEFAULT_BODY, BodySpec, get_body
 from chasetag_arena.core import game
 from chasetag_arena.core.families.base import BodyParams
-from chasetag_arena.core.families.kinematic import default_params
-from chasetag_arena.core.spec.features import encode_v1
+from chasetag_arena.core.spec.features import encode_v1, encode_v2
 from chasetag_arena.core.spec.frames import to_heading_frame
 from chasetag_arena.core.spec.rules import OFFICIAL, Rules
 from chasetag_arena.core.state import FALL, RUNNING, TAG, TIMEOUT, GameState
 from chasetag_arena.planner import Planner
 
-BODY_LABEL: Final[str] = "K/default"  # the default body; the limited preset is not vendored yet
+BODY_LABEL: Final[str] = get_body(DEFAULT_BODY).label  # the body every recorded session uses
 INTERMISSION_S: Final[float] = 1.5
 SUBSCRIBER_QUEUE_SIZE: Final[int] = 64
 # With no planner file loaded, a planner seat plays the cautious fallback bot.
@@ -134,6 +135,7 @@ class GameLoop:
         seed: int,
         selectors: tuple[str, str] = ("greedy", "greedy"),
         params: BodyParams | None = None,
+        body: str = DEFAULT_BODY,
         rules: Rules | None = None,
         clock: Callable[[], float] = time.monotonic,
         planner: Planner | None = None,
@@ -144,7 +146,10 @@ class GameLoop:
                 raise ValueError(f"unknown selector {name!r}")
         self._rules = rules_for_limit(DEFAULT_TIME_LIMIT_S) if rules is None else rules
         self._pending_limit: int | None = None
-        self._params = default_params() if params is None else params
+        # ``params`` overrides the named body, for tests that need their own parameters.
+        self._body: BodySpec = get_body(body)
+        self._params = self._body.build() if params is None else params
+        self._pending_body: str | None = None
         self._clock = clock
         self._planner = planner
         self._planner_bot = None if planner is None else planner.as_bot()
@@ -217,6 +222,16 @@ class GameLoop:
         return self._last_actions
 
     @property
+    def body(self) -> BodySpec:
+        """The body both seats play with now. A change waits for the next round."""
+        return self._body
+
+    @property
+    def body_locked(self) -> bool:
+        """Whether the body is fixed because rounds are being recorded."""
+        return self._recorder is not None
+
+    @property
     def limit_s(self) -> int:
         """The longest a round may run now, in game seconds. A change waits for the next round."""
         return int(self._rules.episode_s)
@@ -253,6 +268,12 @@ class GameLoop:
                 if self._locks_seats():
                     _refuse_unlogged_seat(control)
                 self._pending[control.seat] = control.value
+        elif isinstance(control, BodyControl):
+            with self._lock:
+                if self._recorder is not None:
+                    raise ValueError("while games are being recorded the body is fixed")
+                get_body(control.value)
+                self._pending_body = control.value
         elif isinstance(control, TimeLimitControl):
             with self._lock:
                 if self._locks_seats():
@@ -403,6 +424,10 @@ class GameLoop:
             if self._pending_limit is not None:
                 self._rules = rules_for_limit(self._pending_limit)
                 self._pending_limit = None
+            if self._pending_body is not None:
+                self._body = get_body(self._pending_body)
+                self._params = self._body.build()
+                self._pending_body = None
         self._round_no += 1
         self._key, k_round = jax.random.split(self._key)
         self._state = game.reset(k_round, self._params, self._rules)
@@ -419,6 +444,12 @@ class GameLoop:
         self._last_ended_by = RUNNING
         self._publish(self._frame(self._state, _ZERO, "running", RUNNING, _ZERO))
 
+    def _observe(self, state: GameState, seat: int, name: str) -> Array:
+        """The features a seat's player reads: spec v2 for a planner that asks for it, else v1."""
+        if name == "planner" and self._planner is not None and self._planner.feature_spec == 2:
+            return encode_v2(state, seat, self._rules)
+        return encode_v1(state, seat, self._rules)
+
     def _choose_actions(self, state: GameState, now: float) -> Array:
         """Raw (2, 2) actions for both seats, from each seat's selector."""
         rows: list[Array] = []
@@ -430,7 +461,7 @@ class GameLoop:
                 cmd_h = to_heading_frame(jnp.array([vx, vy]), state.bodies.heading[seat])
                 rows.append(raw_for_command(cmd_h, OFFICIAL.max_speed_mps))
                 continue
-            obs = encode_v1(state, seat, self._rules)
+            obs = self._observe(state, seat, name)
             self._bot_keys[seat], sub = jax.random.split(self._bot_keys[seat])
             bot = self._bot_for(name)
             raw, self._bot_states[seat] = bot.act(obs, sub, self._bot_states[seat])
@@ -480,7 +511,7 @@ class GameLoop:
             phase=phase,
             ended_by=ended_by,
             selectors={"seat0": self._selectors[0], "seat1": self._selectors[1]},
-            body_label=BODY_LABEL,
+            body_label=self._body.label,
             match=self._tally.as_dict(),
             round_score=round_score,
             paused=self._paused,

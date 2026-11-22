@@ -28,10 +28,13 @@ import numpy as np
 from jax import Array
 
 from chasetag_arena.agents.bots import Bot, init_stateless
-from chasetag_arena.core.spec.features import SPEC_V1
+from chasetag_arena.core.spec.features import SPEC_V1, SPEC_V2
 from chasetag_arena.core.spec.rules import OFFICIAL
 
 INPUT_DIM: Final[int] = len(SPEC_V1.names)  # 17 features, spec v1
+# The feature specs a planner file may name in its meta record. Spec v2 is spec v1 plus the
+# last two decision commands. A file with no `feature_spec` entry reads spec v1.
+INPUT_DIMS: Final[dict[int, int]] = {1: len(SPEC_V1.names), 2: len(SPEC_V2.names)}
 OUTPUT_DIM: Final[int] = 2  # one raw planar command
 # The normaliser's variance floor and clip, as chasetag applies them before the network.
 VAR_FLOOR: Final[float] = 1e-4
@@ -58,9 +61,10 @@ class Planner:
     activation: str
     obs_mean: np.ndarray
     obs_var: np.ndarray
+    feature_spec: int = 1  # 1: the 17 spec v1 features; 2: those plus the last two commands
 
     def mean_action(self, features: np.ndarray) -> np.ndarray:
-        """The raw planar command for a (17,) feature vector, as a (2,) array."""
+        """The raw planar command for a feature vector (17 or 19 numbers), as a (2,) array."""
         scale = np.sqrt(np.maximum(self.obs_var, VAR_FLOOR))
         x = np.clip((features - self.obs_mean) / scale, -OBS_CLIP, OBS_CLIP)
         act = ACTIVATIONS[self.activation]
@@ -118,10 +122,20 @@ def load_planner(path: str | Path) -> Planner:
     n_layers = meta.get("n_layers")
     if not isinstance(n_layers, int) or isinstance(n_layers, bool) or n_layers < 1:
         raise PlannerError(f"{file} has no valid n_layers")
+    feature_spec = meta.get("feature_spec", 1)
+    if (
+        not isinstance(feature_spec, int)
+        or isinstance(feature_spec, bool)
+        or feature_spec not in INPUT_DIMS
+    ):
+        raise PlannerError(
+            f"{file} reads feature spec {feature_spec!r}; the arena supports {sorted(INPUT_DIMS)}"
+        )
+    input_dim = INPUT_DIMS[feature_spec]
 
     weights: list[np.ndarray] = []
     biases: list[np.ndarray] = []
-    width = INPUT_DIM
+    width = input_dim
     for i in range(n_layers):
         w = _array(file, arrays, f"net/w{i}")
         b = _array(file, arrays, f"net/b{i}")
@@ -137,8 +151,10 @@ def load_planner(path: str | Path) -> Planner:
 
     obs_mean = _array(file, arrays, "net/obs_mean")
     obs_var = _array(file, arrays, "net/obs_var")
-    if obs_mean.shape != (INPUT_DIM,) or obs_var.shape != (INPUT_DIM,):
-        raise PlannerError(f"{file}: the normaliser must hold {INPUT_DIM} values, as spec v1 does")
+    if obs_mean.shape != (input_dim,) or obs_var.shape != (input_dim,):
+        raise PlannerError(
+            f"{file}: the normaliser must hold {input_dim} values, as spec v{feature_spec} does"
+        )
 
     name = meta.get("name")
     if not isinstance(name, str) or name == "":
@@ -151,6 +167,7 @@ def load_planner(path: str | Path) -> Planner:
         activation=activation,
         obs_mean=obs_mean,
         obs_var=obs_var,
+        feature_spec=feature_spec,
     )
 
 

@@ -21,8 +21,27 @@ applies.
 | Selling the game, or a service built on it | That is a commercial use. |
 | Using it inside a product or service that earns money | That is a commercial use, even if the game itself is free. |
 
-For a commercial use, contact the author, through the
-[project's GitHub page](https://github.com/kushagrathisside/chasetag-arena).
+Commercial use is not allowed under this license. The project is meant for learning and research. If you
+are unsure whether your use counts as noncommercial, ask in an issue on the
+[project's GitHub page](https://github.com/kushagrathisside/chasetag-arena) before you rely on it.
+
+## Is this open source?
+
+Not in the strict sense. The [Open Source Definition](https://opensource.org/osd) does not allow limits on
+commercial use, so a noncommercial license is **source-available** and not open source. You can read,
+run, change and share the code, within the terms above.
+
+## Data and trained planners
+
+Data and trained planners that the project publishes on Hugging Face are licensed under
+[CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/), unless the card of a repository says
+otherwise. You may copy and adapt them for noncommercial purposes if you give credit. You may train
+planners on the data, and share those planners under the same noncommercial terms.
+
+## Contributions
+
+When you contribute code, you license it under this same license, and you keep your copyright. See
+[Contributing](contributing.md).
 
 ## What you must keep
 

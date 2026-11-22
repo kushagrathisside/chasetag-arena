@@ -34,9 +34,9 @@ from jax.typing import DTypeLike
 from chasetag_arena.core.arena import resolve_fence
 from chasetag_arena.core.families.base import BodyParams, push_delay, rest_state
 from chasetag_arena.core.families.spring import HeadingParams, heading_update_2nd
-from chasetag_arena.core.state import BodyState
 from chasetag_arena.core.spec.frames import to_heading_frame, to_world_frame
 from chasetag_arena.core.spec.rules import Rules
+from chasetag_arena.core.state import BodyState
 
 
 @dataclass(frozen=True)

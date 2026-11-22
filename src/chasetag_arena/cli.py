@@ -25,6 +25,7 @@ from chasetag_arena import recording
 from chasetag_arena.arcade.controls import DEFAULT_TIME_LIMIT_S, TIME_LIMITS_S
 from chasetag_arena.arcade.game_loop import GameLoop, rules_for_limit
 from chasetag_arena.arcade.server import ArcadeServer
+from chasetag_arena.bodies import DEFAULT_BODY, body_names, get_body
 from chasetag_arena.contribute import CONSENT_STATUS, DEFAULT_DIR, Contribution
 from chasetag_arena.planner import PlannerError, load_planner
 
@@ -52,6 +53,7 @@ class ServeOptions:
     migration: Path | None = None
     participant: str | None = None
     time_limit_s: int = DEFAULT_TIME_LIMIT_S
+    body: str = DEFAULT_BODY
     contribute: bool = False
     contribute_dir: Path | None = None
 
@@ -111,6 +113,12 @@ def start_serving(options: ServeOptions) -> Serving:
         raise ValueError("--contribute and --participant are separate ways to log; use one")
     if options.contribute and options.host not in LOOPBACK_HOSTS:
         raise ValueError("--contribute only works on this computer: use a loopback --host")
+    get_body(options.body)
+    if options.body != DEFAULT_BODY and (options.contribute or options.participant is not None):
+        raise ValueError(
+            f"--body {options.body} cannot be used while games are recorded: "
+            f"recorded games use the {DEFAULT_BODY} body"
+        )
     seed = secrets.randbits(31)
     session = None if options.participant is None else _start_session(options, seed)
     contribution = (
@@ -123,6 +131,7 @@ def start_serving(options: ServeOptions) -> Serving:
             selectors=LOGGED_SELECTORS,
             planner=planner,
             rules=rules,
+            body=options.body,
             recorder=session,
         )
     elif contribution is not None:
@@ -131,11 +140,12 @@ def start_serving(options: ServeOptions) -> Serving:
             selectors=("keyboard", "greedy"),
             planner=planner,
             rules=rules,
+            body=options.body,
             recorder=contribution,
         )
         contribution.bind(lambda: loop.limit_s)
     else:
-        loop = GameLoop(seed=seed, planner=planner, rules=rules)
+        loop = GameLoop(seed=seed, planner=planner, rules=rules, body=options.body)
     static_dir = PACKAGE_STATIC_DIR if options.static_dir is None else options.static_dir
     try:
         server = ArcadeServer(loop, options.host, options.port, static_dir, contribution)
@@ -248,6 +258,12 @@ def build_parser() -> argparse.ArgumentParser:
             "(default: %(default)s)"
         ),
     )
+    serve.add_argument(
+        "--body",
+        choices=body_names(),
+        default=DEFAULT_BODY,
+        help="the body both seats play with; the page can change it (default: %(default)s)",
+    )
     _store_options(serve, required=False)
     serve.add_argument(
         "--participant",
@@ -332,6 +348,7 @@ def main(argv: list[str] | None = None) -> int:
         migration=migration,
         participant=args.participant,
         time_limit_s=args.time_limit,
+        body=args.body,
         contribute=args.contribute,
         contribute_dir=args.contribute_dir,
     )

@@ -1,10 +1,27 @@
 # chasetag-arena
 
-A one-on-one chase-tag game that runs in your browser, on your own computer. Two bodies share a
-fenced 12 m × 12 m arena. One chases, the other runs, and the roles swap every round. Each seat is
-played by you (keyboard), a scripted bot, or a trained planner.
+[![CI](https://github.com/kushagrathisside/chasetag-arena/actions/workflows/ci.yml/badge.svg)](https://github.com/kushagrathisside/chasetag-arena/actions/workflows/ci.yml)
+[![Licence: PolyForm Noncommercial 1.0.0](https://img.shields.io/badge/licence-PolyForm%20Noncommercial%201.0.0-blue.svg)](LICENSE)
+
+chasetag-arena is a one-on-one chase-tag game that runs in a web browser on your own computer. Two
+bodies share a fenced 12 m × 12 m arena. One chases and the other runs, and the roles change each
+round. Each seat is played by a person at the keyboard, a scripted bot, or a trained planner.
+
+![A round in progress in the arcade](docs/assets/screenshots/round-running.png)
 
 **Documentation:** <https://kushagrathisside.github.io/chasetag-arena/>
+
+## Contents
+
+- [Quick start](#quick-start)
+- [Playing](#playing)
+- [Command-line reference](#command-line-reference)
+- [Rules and scoring](#rules-and-scoring)
+- [Planners](#planners)
+- [Research logging](#research-logging)
+- [Development](#development)
+- [Contributing](#contributing)
+- [Licence](#licence)
 
 ## Quick start
 
@@ -15,13 +32,15 @@ uv sync
 uv run chasetag-arena serve
 ```
 
-The game opens at `http://127.0.0.1:8765/`. Press Ctrl+C in the terminal to stop it.
+The arcade opens at <http://127.0.0.1:8765/>. Press <kbd>Ctrl</kbd>+<kbd>C</kbd> in the terminal to
+stop it. The [install guide](https://kushagrathisside.github.io/chasetag-arena/install/) explains each
+step, and the [first round](https://kushagrathisside.github.io/chasetag-arena/getting-started/)
+walks through a first game.
 
-The [install guide](https://kushagrathisside.github.io/chasetag-arena/install/) explains each step,
-and the [first round](https://kushagrathisside.github.io/chasetag-arena/getting-started/) walks you
-through your first game.
+## Playing
 
-## Features
+The arcade has two seats, **A** and **B**. Choose who plays each seat from the menus above the arena.
+A change applies at the start of the next round.
 
 - Play with the arrow keys against bots, or watch two bots play.
 - Choose the player of each seat. A change applies at the next round.
@@ -52,14 +71,39 @@ uv run --no-sync python -m pytest
 node --test tests/js/*.mjs
 uv run --no-sync ruff check
 uv run --no-sync ruff format --check
+uv run --no-sync mkdocs build --strict
 ```
 
+The Python package is in `src/chasetag_arena/`:
+
+| Path | Contents |
+|---|---|
+| `core/` | The two-seat simulator and the body models. |
+| `agents/` | The scripted bots. |
+| `arcade/` | The game loop, the HTTP server and the browser page. |
+| `planner.py` | Loads and checks planner files. |
+| `recording.py`, `ledger_writer.py`, `mock_player.py` | Research logging and its checks. |
+| `cli.py` | The command-line interface. |
+
 The [contributing guide](https://kushagrathisside.github.io/chasetag-arena/contributing/) covers the
-layout, the diagrams, the screenshots, the docs build and the release process.
+layout in more detail, the diagrams, the screenshots and the release process.
+
+## Contributing
+
+Contributions are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) first. By opening a pull request you
+agree that your contribution is licensed under the project licence below. You keep the copyright in
+your work.
 
 ## Licence
 
-Licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE). You may use, change and share the
-game for any noncommercial purpose. Commercial use needs a separate licence from the author. The
-[license page](https://kushagrathisside.github.io/chasetag-arena/license/) explains the terms in
-plain language.
+The code is licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE). You may use, change and
+share the game for any noncommercial purpose, such as learning, teaching, research and personal
+projects. Commercial use is not allowed. The project is meant for learning and research.
+
+This is a source-available licence, not an open-source licence in the sense of the
+[Open Source Definition](https://opensource.org/osd), because it limits commercial use.
+
+Data and trained planners published on Hugging Face are licensed under
+[CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/), unless their card says otherwise. The
+[licence page](https://kushagrathisside.github.io/chasetag-arena/license/) explains the terms in plain
+language.

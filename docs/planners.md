@@ -11,7 +11,7 @@ and runs a finished file.
 
 | Part | Detail |
 |---|---|
-| **Sees** | 17 numbers: its role (chaser or runner), the other body's position and velocity relative to its own heading, the distance between the bodies, both positions within the arena, its heading, its own velocity, its pelvis height, and how much of the round is left. |
+| **Sees** | 17 numbers: its role (chaser or runner), the other body's position and velocity relative to its own heading, the distance between the bodies, both positions within the arena, its heading, its own velocity, its pelvis height, and how much of the round is left. A planner of the second kind reads 21 numbers: these 17 plus its own last two commands, which gives it a short memory of what it just did. |
 | **Does** | Chooses one planar velocity command every decision, which is every 0.1 s of game time. |
 | **Plays** | The average of its policy, not a random draw. The same position always gets the same move. |
 | **Body** | The default body, `K/default`. |
@@ -58,7 +58,8 @@ refuses a file that cannot.
 | The timing matches | It decides at a different interval from the arena's 10 control steps. |
 | The speed limit matches | Its speed limit is not the arena's 1.5 m/s. |
 | The activation is known | Its activation function is not one of `elu`, `tanh` or `relu`. |
-| The shapes match | Its weight or bias arrays do not fit two outputs and 17 inputs. |
+| The feature set is known | Its `feature_spec` entry is not 1 (the 17 numbers) or 2 (those plus the last two commands). A file with no entry reads the 17 numbers. |
+| The shapes match | Its weight or bias arrays do not fit two outputs and 17 inputs (21 for feature set 2). |
 | The numbers are finite | Any value is NaN or infinity. |
 
 When a file is refused, the server prints the reason and stops, with a message like this:
@@ -81,7 +82,7 @@ A planner file is a single `.npz` archive. It holds:
 - the network's weights and biases, one pair per layer;
 - the observation normaliser, which holds the mean and the variance of the 17 inputs;
 - a small description record in JSON, which names the activation and the number of layers, and
-  optionally a display name.
+  optionally a display name and the feature set (`feature_spec`, 1 or 2).
 
 You do not need to edit the file. The server reads it, and nothing is written back.
 
