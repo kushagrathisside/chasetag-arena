@@ -191,7 +191,7 @@ wheels = [
 
 [[package]]
 name = "jax"
-version = "0.12.0.1"
+version = "0.12.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "jaxlib" },
@@ -200,14 +200,14 @@ dependencies = [
     { name = "opt-einsum" },
     { name = "scipy" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/2e/5b/5b7f007852809973310ed99eede7db6e9e1cd60914f8fe90b091ae264db4/jax-0.12.0.1.tar.gz", hash = "sha256:f543fb1151c351d328b7dd9e40865c01bf9ae10cdf7e21637196172891d51914", size = 3024361, upload-time = "2026-10-21T21:07:07.969Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/9e/49/c7e9c216845f2659848a3044cb192ba7e1164e9f54760f0c0f71d57f3ac2/jax-0.12.1.tar.gz", hash = "sha256:34b04d0df57f7ce81aacb3ee2c969d7a18e5b729ea5f0bf37969f5c5e010f4a8", size = 3210450, upload-time = "2026-11-18T14:00:11.715Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f9/5d/be6a4b67161462d1a0a97c7405459c2f76a4c23c66b39ad496527f68a17d/jax-0.12.0.1-py3-none-any.whl", hash = "sha256:e9dfd256ba090259b10f97f0755d4fc92535b8cb38c0a40df6488a8c8a7dd8ae", size = 3466959, upload-time = "2026-10-21T21:04:05.013Z" },
+    { url = "https://files.pythonhosted.org/packages/63/90/6ff27c51857224b6dc89a5b4d5b61cb921ef7e7294e895df74f853d8daa4/jax-0.12.1-py3-none-any.whl", hash = "sha256:617d896256e0e3781f5e6b0e5bcdbe49b038d63f69d37dd8de1edf0f1c9f0573", size = 3660228, upload-time = "2026-11-18T13:57:38.918Z" },
 ]
 
 [[package]]
 name = "jaxlib"
-version = "0.12.0.1"
+version = "0.12.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "ml-dtypes" },
@@ -215,10 +215,10 @@ dependencies = [
     { name = "scipy" },
 ]
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/17/73/47d66eeab3bb5a48009772f4fa572e46bdf8049ecb180f83d544c933462f/jaxlib-0.12.0.1-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:db2cc8584d7d0d166293ef2475b726988a10f6f9b5a8e3b8e3712415e5570380", size = 60710018, upload-time = "2026-10-21T21:05:22.443Z" },
-    { url = "https://files.pythonhosted.org/packages/c1/cf/f9baa1ba672ced2a7bce86a6afebbc4b565daf04508b7fdeddefee2e9ac0/jaxlib-0.12.0.1-cp312-cp312-manylinux_2_27_aarch64.whl", hash = "sha256:40812201c3bcd4cb104b88f71f58fec4cbd0c32ba90e5c92b3fa8f40819f6774", size = 80858298, upload-time = "2026-10-21T21:05:27.085Z" },
-    { url = "https://files.pythonhosted.org/packages/0d/e0/d39abd53ba408219062c1156bf3b9f965718f66bda8d625cb28453d63c2c/jaxlib-0.12.0.1-cp312-cp312-manylinux_2_27_x86_64.whl", hash = "sha256:78318e9ac79c92972f81c77090f557bdb4a5a49821751c6ee3f6a9c66a948842", size = 86848931, upload-time = "2026-10-21T21:05:31.389Z" },
-    { url = "https://files.pythonhosted.org/packages/de/45/e87c51650ccaba0c08dea0206e132db3093b4e5265ebbb5449f664a955b6/jaxlib-0.12.0.1-cp312-cp312-win_amd64.whl", hash = "sha256:aa24baf4aafd78bbf7104a81f01eadc40332b8b90098634d14d585cd0477eeaf", size = 71385367, upload-time = "2026-10-21T21:05:35.413Z" },
+    { url = "https://files.pythonhosted.org/packages/5a/39/e9474ec651d90364010dee9e906dcccc2b8c11cdc4a20a2dc8d8ef6085fb/jaxlib-0.12.1-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:c5ac929cc5037fdb000ce5fc16d13a9e114819ac4d60a285b073a4ebc091b8d4", size = 58454209, upload-time = "2026-11-18T13:58:54.087Z" },
+    { url = "https://files.pythonhosted.org/packages/f5/b6/a63b3abf05034c858786c92f73a761e5d3a58b08d0ff71a79509aaa54749/jaxlib-0.12.1-cp312-cp312-manylinux_2_27_aarch64.whl", hash = "sha256:1ff691a4b1cc5cf7f958ff95d21d3f00d9a6c44b522b8bbe93a57b021dc92429", size = 79551082, upload-time = "2026-11-18T13:58:57.481Z" },
+    { url = "https://files.pythonhosted.org/packages/f5/43/762ac1c94ac146e6a4f8cca9b34e1cdf9e4a1bd8a4994ae733086d4c898d/jaxlib-0.12.1-cp312-cp312-manylinux_2_27_x86_64.whl", hash = "sha256:596a8a7772aa92e32c2c40967577c3ffea00645544e2166a54f50208b4003f42", size = 83359059, upload-time = "2026-11-18T13:59:00.597Z" },
+    { url = "https://files.pythonhosted.org/packages/43/f5/edf747588459a853c673bd8697d66bea1744988cb6290e7281e7a61c4eef/jaxlib-0.12.1-cp312-cp312-win_amd64.whl", hash = "sha256:f6ce9ee0fbff98d7d462d2cbc80ce965da0be9d961998200574862c0268c2253", size = 67610914, upload-time = "2026-11-18T13:59:03.96Z" },
 ]
 
 [[package]]
