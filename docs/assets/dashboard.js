@@ -56,7 +56,12 @@
     return { issues: all, at: Date.now() };
   }
 
-  function pill(state) {
+    /** One small chip for each domain of an issue (frontend, backend and so on). */
+  function domainChips(domains) {
+    return (domains || []).map((d) => el("span", { class: "dash-chip dash-domain", text: d }));
+  }
+
+function pill(state) {
     return el("span", { class: "dash-pill dash-" + state, text: STATES[state] });
   }
 
@@ -72,7 +77,7 @@
       el("span", { class: "dash-id", text: item.id }),
       el("div", { class: "dash-main" }, [
         el("div", { class: "dash-title" }, [title]),
-        el("div", { class: "dash-meta" }, [pill(item.state), el("span", { class: "dash-chip", text: item.difficulty })]),
+        el("div", { class: "dash-meta" }, [pill(item.state), el("span", { class: "dash-chip", text: item.difficulty })].concat(domainChips(item.domains))),
         notes.length ? el("div", { class: "dash-note", text: notes.join(" ") }) : null,
       ].filter(Boolean)),
     ]);
@@ -97,7 +102,7 @@
       const url = safeIssueUrl(m.url, repo);
       const name = url ? el("a", { href: url, text: m.title }) : el("span", { text: m.title });
       const extra = m.state === "unpublished" ? "Not published yet" : (m.subIssues !== null ? `${m.subIssues} sub-issues` : "Open");
-      return el("li", { class: "dash-module" }, [name, el("span", { class: "dash-chip", text: extra }), el("span", { class: "dash-note", text: m.summary })]);
+      return el("li", { class: "dash-module" }, [name, el("span", { class: "dash-chip", text: extra })].concat(domainChips(m.domains), [el("span", { class: "dash-note", text: m.summary })]));
     });
     return el("section", { class: "dash-epic dash-open" }, [
       el("div", { class: "dash-epic-head" }, [el("h3", { text: `Epic ${open.id} · ${open.name}` }), el("span", { class: "dash-chip", text: "Open epic" })]),

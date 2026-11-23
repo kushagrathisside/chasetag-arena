@@ -83,3 +83,15 @@ def test_the_dashboard_files_the_site_needs_exist() -> None:
     for name in ("plan-status.js", "dashboard.js", "dashboard.css", "contribution-plan.json"):
         assert (ROOT / "docs" / "assets" / name).is_file(), name
     assert (ROOT / "docs" / "diagrams" / "contribution-map.svg").is_file()
+
+
+DOMAINS = {"frontend", "backend", "simulation", "ml", "data", "documentation", "testing"}
+
+
+def test_every_issue_and_module_has_a_known_domain() -> None:
+    for issue in ISSUES:
+        assert issue["domains"], f"{issue['id']} has no domain"
+        assert set(issue["domains"]) <= DOMAINS, f"{issue['id']} has an unknown domain"
+    for module in PLAN["openEpic"]["modules"]:
+        assert module["domains"], f"{module['title']} has no domain"
+        assert set(module["domains"]) <= DOMAINS, f"{module['title']} has an unknown domain"

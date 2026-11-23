@@ -150,8 +150,9 @@ separate agreement to sign.
 ## Picking up a task
 
 Tasks for events such as OpenCode are ordinary GitHub issues with the `help wanted` label, a
-difficulty (`difficulty: beginner` or `difficulty: intermediate`), a track label and acceptance
-criteria.
+difficulty (`difficulty: beginner` or `difficulty: intermediate`), an epic label, a domain label
+(`domain: frontend`, `backend`, `simulation`, `ml`, `data`, `documentation` or `testing`) and
+acceptance criteria.
 
 1. Take only an issue marked `status: ready`, and comment on it to claim it. Wait for a maintainer to assign
    it. An issue marked `status: blocked` needs other issues merged first, and the

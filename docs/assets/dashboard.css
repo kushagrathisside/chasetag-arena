@@ -39,3 +39,4 @@
 [data-md-color-scheme="slate"] #dashboard .dash-pill.dash-blocked { border-color: #aab2bd; color: #aab2bd; }
 [data-md-color-scheme="slate"] #dashboard .dash-start { border-left-color: #7fb2f0; }
 @media (max-width: 40em) { #dashboard .dash-issue { gap: .5rem; } #dashboard progress { width: 5rem; } }
+#dashboard .dash-domain { border-style: dashed; }

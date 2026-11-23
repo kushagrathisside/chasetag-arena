@@ -35,7 +35,9 @@ describes the rest of the workflow.
 
 ## Claiming an issue
 
-Issues for newcomers carry the `help wanted` label, a difficulty label and a track label.
+Issues for newcomers carry the `help wanted` label, a difficulty label, an epic label and a domain
+label (`domain: frontend`, `backend`, `simulation`, `ml`, `data`, `documentation` or `testing`). Filter
+by domain to find the work that suits your skills.
 
 - Take only an issue that is marked `status: ready`. An issue marked `status: blocked` is waiting for
   other issues, which it names under "Blocked by"; the [contributor dashboard](https://kushagrathisside.github.io/chasetag-arena/dashboard/)
