@@ -20,6 +20,8 @@
     connection: $("connection"),
     connectionText: $("connection-text"),
     helpToggle: $("help-toggle"),
+    quitButton: $("quit-button"),
+    stopped: $("stopped"),
     help: $("help"),
     contributeToggle: $("contribute-toggle"),
     recordChip: $("record-chip"),
@@ -84,6 +86,7 @@
     echo: null, // the selectors the server last reported, as [seat0, seat1]
     pending: [null, null], // selectors sent but not yet echoed
     pendingLimit: null, // a round limit sent but not yet started by a round
+    stopped: false, // the server was stopped from this page
     pendingBody: null, // a body name sent but not yet started by a round
     bodies: [], // the bodies the server offers: {name, label, family, summary}
     bodiesLocked: false, // true while recording keeps the body fixed
@@ -169,7 +172,7 @@
     es.addEventListener("snapshot", (e) => onEvent(es, e, true));
     es.addEventListener("frame", (e) => onEvent(es, e, false));
     es.onerror = () => {
-      if (app.es !== es) return;
+      if (app.es !== es || app.stopped) return;
       es.close();
       app.es = null;
       setConnection(navigator.onLine === false ? "offline" : "reconnecting");
@@ -380,6 +383,45 @@
       .catch(() => {
         // The page is offline or the server is restarting. The next command retries.
         return false;
+      });
+  }
+
+  // Quit stops the game server on this computer. The button shows only when the page was opened on
+  // a loopback address, which is the only place the server accepts it.
+  const LOOPBACK_NAMES = ["127.0.0.1", "localhost", "[::1]"];
+
+  function showStopped() {
+    app.stopped = true;
+    if (app.retryTimer !== null) clearTimeout(app.retryTimer);
+    app.retryTimer = null;
+    if (app.es) app.es.close();
+    app.es = null;
+    stopKeyTimer();
+    setConnection("offline");
+    els.stopped.hidden = false;
+  }
+
+  function onQuit() {
+    if (!window.confirm("Stop the game server? The game will end and this page will stop working.")) {
+      return;
+    }
+    els.quitButton.disabled = true;
+    fetch("/quit", {
+      method: "POST",
+      headers: { "X-Requested-With": "chasetag-arena" },
+      body: "{}",
+    })
+      .then((res) => {
+        if (res.ok) {
+          showStopped();
+          return;
+        }
+        els.quitButton.disabled = false;
+        window.alert("The server did not stop: it refused the request.");
+      })
+      .catch(() => {
+        els.quitButton.disabled = false;
+        window.alert("The server did not answer.");
       });
   }
 
@@ -737,6 +779,10 @@
       setSpeed(e.target.value);
       e.target.blur();
     });
+    if (LOOPBACK_NAMES.includes(location.hostname)) {
+      els.quitButton.hidden = false;
+      els.quitButton.addEventListener("click", onQuit);
+    }
     els.bodySelect.addEventListener("change", (e) => {
       onBody(e.target.value);
     });

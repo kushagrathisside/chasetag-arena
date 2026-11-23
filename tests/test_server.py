@@ -393,6 +393,22 @@ def _post_control_with(server: Any, headers: dict[str, str]) -> int:
         conn.close()
 
 
+# --- POST /quit ---------------------------------------------------------------------------
+
+
+def _quit(
+    server: ArcadeServer, headers: dict[str, str] | None = None
+) -> tuple[int, dict[str, Any]]:
+    sent = {"X-Requested-With": "chasetag-arena"} if headers is None else headers
+    conn = http.client.HTTPConnection("127.0.0.1", server.port, timeout=10)
+    try:
+        conn.request("POST", "/quit", body=b"{}", headers=sent)
+        resp = conn.getresponse()
+        return resp.status, json.loads(resp.read())
+    finally:
+        conn.close()
+
+
 def test_control_from_another_origin_is_refused(start: Any) -> None:
     loop, server = start()
     headers = {"Content-Type": "application/json", "Origin": "http://evil.example"}
@@ -416,3 +432,50 @@ def test_control_from_this_page_is_accepted(start: Any) -> None:
     while not loop.paused and time.monotonic() < deadline:
         time.sleep(0.01)
     assert loop.paused
+
+
+def test_quit_without_the_page_header_is_refused_and_the_server_goes_on(start: Any) -> None:
+    _, server = start()
+    status, body = _quit(server, headers={})
+    assert status == 403
+    assert "error" in body
+    assert _get(server, "/healthz")[0] == 200
+
+
+def test_quit_from_another_origin_is_refused(start: Any) -> None:
+    _, server = start()
+    status, _ = _quit(
+        server,
+        headers={"X-Requested-With": "chasetag-arena", "Origin": "http://evil.example"},
+    )
+    assert status == 403
+    assert _get(server, "/healthz")[0] == 200
+
+
+def test_quit_with_a_foreign_host_header_is_refused(start: Any) -> None:
+    _, server = start()
+    status, _ = _quit(
+        server, headers={"X-Requested-With": "chasetag-arena", "Host": "evil.example"}
+    )
+    assert status == 403
+    assert _get(server, "/healthz")[0] == 200
+
+
+def test_a_get_of_the_quit_path_does_not_stop_the_server(start: Any) -> None:
+    _, server = start()
+    _get(server, "/quit")
+    time.sleep(0.5)
+    assert not server.stopping
+    assert _get(server, "/healthz")[0] == 200
+
+
+def test_quit_answers_and_then_stops_the_server(start: Any) -> None:
+    _, server = start()
+    status, body = _quit(server)
+    assert (status, body) == (202, {"stopping": True})
+    deadline = time.monotonic() + 8.0
+    while not server.stopping and time.monotonic() < deadline:
+        time.sleep(0.05)
+    assert server.stopping
+    with pytest.raises(OSError):
+        _get(server, "/healthz")

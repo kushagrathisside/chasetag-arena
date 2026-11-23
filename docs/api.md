@@ -34,6 +34,19 @@ Example:
 curl http://127.0.0.1:8765/planner
 ```
 
+## `POST /quit`
+
+Stops the server. It is what the **Quit** button sends. The server answers `202` with
+`{"stopping": true}`, and then shuts down, so the command that started it ends with exit code 0.
+
+The request must come from the page itself: the `Host` and `Origin` headers must name this server, and
+the `X-Requested-With: chasetag-arena` header must be set. Anything else gets `403`, and so does a
+server that listens on an address other than `127.0.0.1`, `localhost` or `::1`.
+
+```bash
+curl -X POST -H "X-Requested-With: chasetag-arena" http://127.0.0.1:8765/quit
+```
+
 ## `GET /bodies`
 
 Lists the bodies a game can be played with, and says which one is in use.
