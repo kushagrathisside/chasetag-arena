@@ -1,7 +1,7 @@
 # chasetag-arena
 
 [![CI](https://github.com/kushagrathisside/chasetag-arena/actions/workflows/ci.yml/badge.svg)](https://github.com/kushagrathisside/chasetag-arena/actions/workflows/ci.yml)
-[![Licence: PolyForm Noncommercial 1.0.0](https://img.shields.io/badge/licence-PolyForm%20Noncommercial%201.0.0-blue.svg)](LICENSE)
+[![Licence: Apache 2.0](https://img.shields.io/badge/licence-Apache%202.0-blue.svg)](LICENSE)
 
 chasetag-arena is a one-on-one chase-tag game that runs in a web browser on your own computer. Two
 bodies share a fenced 12 m × 12 m arena. One chases and the other runs, and the roles change each
@@ -96,12 +96,8 @@ your work.
 
 ## Licence
 
-The code is licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE). You may use, change and
-share the game for any noncommercial purpose, such as learning, teaching, research and personal
-projects. Commercial use is not allowed. The project is meant for learning and research.
-
-This is a source-available licence, not an open-source licence in the sense of the
-[Open Source Definition](https://opensource.org/osd), because it limits commercial use.
+The code is licensed under the [Apache License 2.0](LICENSE), an open-source licence. You may use,
+change and share it, keeping the licence text and the [NOTICE](NOTICE) file.
 
 Data and trained planners published on Hugging Face are licensed under
 [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/), unless their card says otherwise. The

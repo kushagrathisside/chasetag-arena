@@ -140,5 +140,5 @@ DevTools port. Stop the server when you are done.
 ## The license of your contribution
 
 By opening a pull request you agree that your contribution is licensed under the project's
-[license](license.md), the PolyForm Noncommercial License 1.0.0. You keep your copyright. There is no
+[license](license.md), the Apache License 2.0. You keep your copyright. There is no
 separate agreement to sign.
