@@ -113,6 +113,8 @@ def start_serving(options: ServeOptions) -> Serving:
         raise ValueError("--contribute and --participant are separate ways to log; use one")
     if options.contribute and options.host not in LOOPBACK_HOSTS:
         raise ValueError("--contribute only works on this computer: use a loopback --host")
+    if options.participant is not None and options.host not in LOOPBACK_HOSTS:
+        raise ValueError("--participant only works on this computer: use a loopback --host")
     get_body(options.body)
     if options.body != DEFAULT_BODY and (options.contribute or options.participant is not None):
         raise ValueError(
@@ -157,6 +159,13 @@ def start_serving(options: ServeOptions) -> Serving:
     thread = threading.Thread(target=server.serve_forever, name="chasetag_arena-http", daemon=True)
     thread.start()
     print(f"chasetag-arena: serving at {server.url} (Ctrl+C to stop)", flush=True)
+    if options.host not in LOOPBACK_HOSTS:
+        print(
+            "chasetag-arena: warning: this address is open to your network, and anyone who can "
+            "reach it can play and control the game",
+            file=sys.stderr,
+            flush=True,
+        )
     if session is not None:
         print("chasetag-arena: this session is being logged to the research store", flush=True)
     if contribution is not None:
@@ -331,6 +340,8 @@ def main(argv: list[str] | None = None) -> int:
         parser.error("--contribute and --participant are separate ways to log; use one")
     if args.contribute and args.host not in LOOPBACK_HOSTS:
         parser.error("--contribute only works on this computer: use a loopback --host")
+    if args.participant is not None and args.host not in LOOPBACK_HOSTS:
+        parser.error("--participant only works on this computer: use a loopback --host")
     if args.contribute_dir is not None and not args.contribute:
         parser.error("--contribute-dir needs --contribute")
     migration = args.migration

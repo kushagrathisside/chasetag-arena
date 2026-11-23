@@ -2,7 +2,8 @@
 
 A logged session writes the rounds it plays to a research store, on the computer that runs the
 arcade. Nothing is logged unless the server is started for a participant, and a participant can
-only be added with research consent.
+only be added with research consent. A logged session runs only on a loopback address, so
+`serve --participant` refuses any other `--host`.
 
 !!! warning "Not for real participants yet"
     The consent terms are a draft that has not been reviewed, and the arcade page does not yet tell

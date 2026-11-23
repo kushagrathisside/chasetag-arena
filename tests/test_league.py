@@ -5,6 +5,7 @@ from __future__ import annotations
 import jax
 import jax.numpy as jnp
 import numpy as np
+import pytest
 
 from chasetag_arena import league, train
 from chasetag_arena.core.families.kinematic import default_params
@@ -23,6 +24,7 @@ def test_a_leg_plays_the_roles_it_is_given() -> None:
     np.testing.assert_allclose(float(out["scores"][0]), 0.0, atol=1e-6)
 
 
+@pytest.mark.slow
 def test_a_season_table_adds_up(tmp_path) -> None:
     cfg = train.Config(
         limits=(20,),

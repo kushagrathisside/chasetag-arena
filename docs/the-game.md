@@ -83,7 +83,8 @@ direction, but never faster than 1.5 m/s. A keyboard seat sends the same kind of
 diagonal key press keeps the same top speed of 1.5 m/s rather than 1.5 m/s on each axis.
 
 The decisions come in steps of 0.1 s of game time. Each step, every seat's chosen command takes
-effect. The round therefore has at most 200 decisions.
+effect. A 20-second round therefore has 200 decisions, and the longest round, 600 seconds, has
+6,000.
 
 ## Strategy in brief
 

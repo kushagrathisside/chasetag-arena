@@ -22,7 +22,8 @@ uv run pre-commit install
 Run these before you open a pull request:
 
 ```bash
-uv run --no-sync python -m pytest
+uv run --no-sync python -m pytest -m "not slow"   # quick, while you work
+uv run --no-sync python -m pytest                 # everything, before the pull request
 node --test tests/js/*.mjs
 uv run --no-sync ruff check
 uv run --no-sync ruff format --check
@@ -31,6 +32,21 @@ uv run --no-sync mkdocs build --strict
 
 The pre-commit hooks run the Python checks before each commit. [docs/contributing.md](docs/contributing.md)
 describes the rest of the workflow.
+
+## Claiming an issue
+
+Issues for newcomers carry the `help wanted` label, a difficulty label and a track label.
+
+- Take only an issue that is marked `status: ready`. An issue marked `status: blocked` is waiting for
+  other issues, which it names under "Blocked by"; the [contributor dashboard](https://kushagrathisside.github.io/chasetag-arena/dashboard/)
+  shows the state of every issue, live from GitHub.
+- Comment on the issue to ask for it, and wait to be assigned. One person works on an issue at a
+  time, and you can ask questions in the issue before you start.
+- If you can no longer work on it, say so. An assigned issue with no activity for 14 days may be
+  given to someone else, after a reminder in the issue. There is no deadline otherwise.
+- An issue may need another issue of the same epic to be merged first. The dashboard and the "Blocked by" section say which.
+- Some areas are kept by the maintainer (the simulator core, research logging, the game server,
+  and the CI setup). A task never needs a change there; open an issue if you find a problem in one.
 
 ## Pull requests
 
@@ -46,12 +62,13 @@ record, into an issue or a pull request.
 
 ## Licence
 
-The code is licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE). It is a
-source-available licence, not an open-source one, because it does not allow commercial use.
+The code is licensed under the [Apache License 2.0](LICENSE), an open-source licence.
 
-By opening a pull request you agree that your contribution is licensed under the same licence. You keep
-the copyright in your work, and you confirm that you wrote it, or that you have the right to share it
-under this licence. There is no separate agreement to sign.
+By opening a pull request you agree that your contribution is licensed under the same licence, as
+section 5 of the licence says. You keep the copyright in your work, and you confirm that you wrote it,
+or that you have the right to share it under this licence. There is no separate agreement to sign. Do
+not add code or files copied from elsewhere unless their licence allows it, and say where they came
+from in the pull request.
 
 Data and trained planners shared in the Hugging Face organization are licensed under
 [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/), unless the card of the repository they go

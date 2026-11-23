@@ -179,6 +179,31 @@ def test_the_planner_option_reaches_the_game_loop(planner_file: Path) -> None:
         serving.close()
 
 
+def test_a_logged_session_only_runs_on_a_loopback_address(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    argv = ["serve", "--host", "0.0.0.0", "--store", "s", "--participant", "p", "--migration", "m"]
+    with pytest.raises(SystemExit):
+        main(argv)
+    assert "--participant only works on this computer" in capsys.readouterr().err
+
+
+def test_start_serving_refuses_a_logged_session_on_another_host() -> None:
+    options = ServeOptions(host="0.0.0.0", store=Path("s"), migration=Path("m"), participant="p")
+    with pytest.raises(ValueError, match="--participant only works on this computer"):
+        start_serving(options)
+
+
+def test_serving_on_a_network_address_warns(capsys: pytest.CaptureFixture[str]) -> None:
+    before = set(threading.enumerate())
+    serving = start_serving(ServeOptions(host="0.0.0.0", port=0, open_browser=False))
+    try:
+        assert "open to your network" in capsys.readouterr().err
+    finally:
+        serving.close()
+    _settle(before)
+
+
 def test_quit_ends_the_serve_command_cleanly() -> None:
     options = ServeOptions(port=0, open_browser=False)
     serving = start_serving(options)

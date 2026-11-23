@@ -1,56 +1,39 @@
 # License
 
-chasetag-arena is licensed under the **PolyForm Noncommercial License 1.0.0**. The full text is in the
-repository's [`LICENSE`](https://github.com/kushagrathisside/chasetag-arena/blob/main/LICENSE) file.
-This page explains what it allows in plain terms. If the two ever disagree, the license text is what
-applies.
+The code of chasetag-arena is licensed under the **Apache License 2.0**, an open-source license approved
+by the [Open Source Initiative](https://opensource.org/license/apache-2-0). The full text is in the
+repository's [`LICENSE`](https://github.com/kushagrathisside/chasetag-arena/blob/main/LICENSE) file, and the
+copyright line is in [`NOTICE`](https://github.com/kushagrathisside/chasetag-arena/blob/main/NOTICE). This
+page explains it in plain terms. If the two ever disagree, the license text is what applies.
 
 ## What you may do
 
 | You may | Notes |
 |---|---|
-| Use the game for any **noncommercial** purpose | Play, study, teach, research and personal projects are all noncommercial. |
-| Read, run and change the source code | Changes and new works based on the game are allowed under the same terms. |
-| Share copies of the game | Share it under the same license, and include the license text and its notice. |
-| Publish research that uses the game | Papers, reports and talks are noncommercial uses. |
-
-## What needs permission
-
-| Action | Why |
-|---|---|
-| Selling the game, or a service built on it | That is a commercial use. |
-| Using it inside a product or service that earns money | That is a commercial use, even if the game itself is free. |
-
-Commercial use is not allowed under this license. The project is meant for learning and research. If you
-are unsure whether your use counts as noncommercial, ask in an issue on the
-[project's GitHub page](https://github.com/kushagrathisside/chasetag-arena) before you rely on it.
-
-## Is this open source?
-
-Not in the strict sense. The [Open Source Definition](https://opensource.org/osd) does not allow limits on
-commercial use, so a noncommercial license is **source-available** and not open source. You can read,
-run, change and share the code, within the terms above.
-
-## Data and trained planners
-
-Data and trained planners that the project publishes on Hugging Face are licensed under
-[CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/), unless the card of a repository says
-otherwise. You may copy and adapt them for noncommercial purposes if you give credit. You may train
-planners on the data, and share those planners under the same noncommercial terms.
-
-## Contributions
-
-When you contribute code, you license it under this same license, and you keep your copyright. See
-[Contributing](contributing.md).
+| Use the game for any purpose | Play, study, teach, research, and build on it, including commercial work. |
+| Read, run and change the source code | Changes and new works based on the game are allowed. |
+| Share copies, changed or not | Include the license text and the `NOTICE` file, and say what you changed. |
+| Publish research that uses the game | Papers, reports and talks need no permission. |
 
 ## What you must keep
 
-When you share the game, copy or changed, include:
+- A copy of the license, and the `NOTICE` file, with anything you share.
+- A note on the files you changed.
+- The names and trademarks of the project are not licensed: do not suggest that your version is the
+  project's own.
 
-- the license text, or the link to it;
-- the notice line that begins with `Required Notice:` in the `LICENSE` file.
+The license also gives every contributor's patent rights in their contribution to the users of the code.
+The code comes as it is, with no warranty of any kind.
 
-## Warranty
+## Data and trained planners
 
-The game is provided as it is, with no warranty of any kind. The license text sets out the details.
+The code and the data have different licenses. Data and trained planners that the project publishes on
+Hugging Face are licensed under [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/), unless
+the card of a repository says otherwise. You may copy and adapt them for noncommercial purposes if you
+give credit. This keeps the data for learning and research. The card of each repository states the
+terms for planners trained on it.
 
+## Contributions
+
+When you contribute code, you license it under the Apache License 2.0, and you keep your copyright. See
+[Contributing](contributing.md).

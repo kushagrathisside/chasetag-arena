@@ -84,4 +84,5 @@ The [roadmap](roadmap.md) lists every planned item.
 | [API](api.md) | The HTTP endpoints, the frame format and the control messages. |
 | [Contributing](contributing.md) | Tests, lint, diagrams, screenshots and the docs build. |
 | [Roadmap](roadmap.md) | What is ready and what is planned. |
+| [Contributor dashboard](dashboard.md) | Every contribution issue, and which ones you can take now. |
 | [License](license.md) | What you may do with the game. |

@@ -1,0 +1,41 @@
+#dashboard { margin: 1.2rem 0 2rem; }
+#dashboard .dash-status { font-size: .8rem; opacity: .8; }
+#dashboard .dash-banner { border-left: 4px solid #b8860b; background: var(--md-code-bg-color); padding: .6rem .9rem; border-radius: 2px; }
+#dashboard .dash-summary { list-style: none; margin: .8rem 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); gap: .6rem; }
+#dashboard .dash-card { margin: 0; padding: .6rem .8rem; border: 1px solid var(--md-default-fg-color--lighter); border-radius: 6px; display: flex; flex-direction: column; }
+#dashboard .dash-card strong { font-size: 1.5rem; line-height: 1.1; }
+#dashboard .dash-card span { font-size: .75rem; }
+#dashboard .dash-controls { display: flex; flex-wrap: wrap; gap: .8rem 1.2rem; align-items: center; margin: 1rem 0; }
+#dashboard .dash-filter { display: inline-flex; flex-wrap: wrap; gap: .4rem; }
+#dashboard .dash-filter button { font: inherit; font-size: .8rem; padding: .25rem .8rem; border-radius: 999px; border: 1px solid var(--md-default-fg-color--light); background: transparent; color: inherit; cursor: pointer; }
+#dashboard .dash-filter button[aria-pressed="true"] { background: var(--md-primary-fg-color); color: var(--md-primary-bg-color); border-color: transparent; }
+#dashboard .dash-filter button:focus-visible, #dashboard input:focus-visible, #dashboard a:focus-visible { outline: 3px solid var(--md-accent-fg-color); outline-offset: 2px; }
+#dashboard .dash-epic { margin: 1.6rem 0; padding: 1rem 1.1rem; border: 1px solid var(--md-default-fg-color--lighter); border-radius: 8px; }
+#dashboard .dash-epic.dash-empty { display: none; }
+#dashboard .dash-epic-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .4rem 1rem; }
+#dashboard .dash-epic h3 { margin: 0; }
+#dashboard .dash-progress { display: flex; align-items: center; gap: .6rem; font-size: .8rem; }
+#dashboard progress { width: 8rem; height: .6rem; }
+#dashboard .dash-purpose { margin: .5rem 0; font-size: .85rem; }
+#dashboard .dash-reserve { font-size: .75rem; opacity: .75; }
+#dashboard .dash-list, #dashboard .dash-modules { list-style: none; margin: .6rem 0 0; padding: 0; }
+#dashboard .dash-issue { display: flex; gap: .8rem; padding: .55rem 0 .55rem .6rem; border-left: 4px solid transparent; border-top: 1px solid var(--md-default-fg-color--lightest); margin: 0; }
+#dashboard .dash-issue[hidden] { display: none; }
+#dashboard .dash-start { border-left-color: #1d5fa8; }
+#dashboard .dash-id { font-family: var(--md-code-font-family, monospace); font-weight: 700; min-width: 2.2rem; }
+#dashboard .dash-title a, #dashboard .dash-title span { font-weight: 600; }
+#dashboard .dash-meta { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .25rem; }
+#dashboard .dash-note { font-size: .78rem; opacity: .85; margin-top: .2rem; }
+#dashboard .dash-pill, #dashboard .dash-chip { font-size: .72rem; padding: .05rem .55rem; border-radius: 999px; border: 1px solid var(--md-default-fg-color--light); }
+#dashboard .dash-pill::before { content: "● "; }
+#dashboard .dash-pill.dash-ready { border-color: #2d6a3e; color: #2d6a3e; }
+#dashboard .dash-pill.dash-taken { border-color: #1d5fa8; color: #1d5fa8; }
+#dashboard .dash-pill.dash-blocked { border-color: #6b7280; color: #6b7280; }
+#dashboard .dash-pill.dash-done { background: #2d6a3e; border-color: #2d6a3e; color: #fff; }
+#dashboard .dash-module { display: flex; flex-wrap: wrap; align-items: baseline; gap: .3rem .8rem; padding: .45rem 0; border-top: 1px solid var(--md-default-fg-color--lightest); margin: 0; }
+#dashboard .dash-module .dash-note { flex-basis: 100%; margin: 0; }
+[data-md-color-scheme="slate"] #dashboard .dash-pill.dash-ready { border-color: #7bc98b; color: #7bc98b; }
+[data-md-color-scheme="slate"] #dashboard .dash-pill.dash-taken { border-color: #7fb2f0; color: #7fb2f0; }
+[data-md-color-scheme="slate"] #dashboard .dash-pill.dash-blocked { border-color: #aab2bd; color: #aab2bd; }
+[data-md-color-scheme="slate"] #dashboard .dash-start { border-left-color: #7fb2f0; }
+@media (max-width: 40em) { #dashboard .dash-issue { gap: .5rem; } #dashboard progress { width: 5rem; } }

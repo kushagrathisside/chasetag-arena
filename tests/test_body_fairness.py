@@ -13,6 +13,8 @@ import pytest
 from chasetag_arena.bodies import body_names, get_body
 from chasetag_arena.league import BOT_NAMES, make_leg, planner_league
 
+pytestmark = pytest.mark.slow
+
 GAMES = 64
 LIMIT_S = 20
 _EMPTY_LEAGUE = planner_league([])[0]

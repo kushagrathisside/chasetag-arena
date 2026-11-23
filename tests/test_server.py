@@ -255,7 +255,7 @@ def test_body_at_the_limit_is_read_and_an_oversized_body_is_refused(start: Any) 
 def test_post_without_content_length_is_refused(start: Any) -> None:
     _, server = start()
     with socket.create_connection(("127.0.0.1", server.port), timeout=10) as sock:
-        sock.sendall(b"POST /control HTTP/1.0\r\nHost: x\r\n\r\n")
+        sock.sendall(f"POST /control HTTP/1.0\r\nHost: 127.0.0.1:{server.port}\r\n\r\n".encode())
         status_line = sock.makefile("rb").readline().decode("ascii")
     assert status_line.split()[1] == "411"
 
@@ -384,6 +384,15 @@ def test_a_vanished_viewer_unsubscribes_and_the_loop_parks() -> None:
         loop.stop()
 
 
+def _post_control_with(server: Any, headers: dict[str, str]) -> int:
+    conn = http.client.HTTPConnection("127.0.0.1", server.port, timeout=10)
+    try:
+        conn.request("POST", "/control", body=b'{"kind":"pause"}', headers=headers)
+        return conn.getresponse().status
+    finally:
+        conn.close()
+
+
 # --- POST /quit ---------------------------------------------------------------------------
 
 
@@ -398,6 +407,31 @@ def _quit(
         return resp.status, json.loads(resp.read())
     finally:
         conn.close()
+
+
+def test_control_from_another_origin_is_refused(start: Any) -> None:
+    loop, server = start()
+    headers = {"Content-Type": "application/json", "Origin": "http://evil.example"}
+    assert _post_control_with(server, headers) == 403
+    assert not loop.paused
+
+
+def test_control_with_a_foreign_host_is_refused_on_loopback(start: Any) -> None:
+    loop, server = start()
+    headers = {"Content-Type": "application/json", "Host": "evil.example"}
+    assert _post_control_with(server, headers) == 403
+    assert not loop.paused
+
+
+def test_control_from_this_page_is_accepted(start: Any) -> None:
+    loop, server = start()
+    origin = f"http://127.0.0.1:{server.port}"
+    headers = {"Content-Type": "application/json", "Origin": origin}
+    assert _post_control_with(server, headers) == 202
+    deadline = time.monotonic() + 5.0
+    while not loop.paused and time.monotonic() < deadline:
+        time.sleep(0.01)
+    assert loop.paused
 
 
 def test_quit_without_the_page_header_is_refused_and_the_server_goes_on(start: Any) -> None:

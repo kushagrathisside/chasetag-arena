@@ -21,6 +21,7 @@ nav:
   - How it works: how-it-works.md
   - API: api.md
   - Contributing: contributing.md
+  - Contributor dashboard: dashboard.md
   - Roadmap: roadmap.md
   - License: license.md
 
@@ -56,3 +57,10 @@ markdown_extensions:
   - pymdownx.superfences
   - pymdownx.tabbed:
       alternate_style: true
+
+extra_javascript:
+  - assets/plan-status.js
+  - assets/dashboard.js
+
+extra_css:
+  - assets/dashboard.css
