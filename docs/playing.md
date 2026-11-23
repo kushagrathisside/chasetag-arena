@@ -18,6 +18,7 @@ and the game applies it on its own thread, so the rules are never decided in the
 | **Connection** | Top right | **Connected**, **Reconnecting** or **Offline**. |
 | **Round panel** | Middle right | The round number, the phase, the round score and the match totals. |
 | **Keyboard help** | Top right | Opens the list of keys. |
+| **Quit** | Top right | Stops the game server on this computer, after you confirm. It shows only when the page was opened at `127.0.0.1`, `localhost` or `[::1]`. |
 | **Contribute games** | Top right, only with `--contribute` | Opens the consent screen, and the controls for your recorded games. |
 
 ### Reading the arena

@@ -27,7 +27,15 @@
     <button type="button" class="ghost" id="help-toggle" aria-expanded="false" aria-controls="help">
       Keyboard help
     </button>
+    <button type="button" class="ghost" id="quit-button" hidden>Quit</button>
   </header>
+
+  <div class="stopped" id="stopped" role="alertdialog" aria-labelledby="stopped-title" hidden>
+    <div class="stopped-box">
+      <h2 id="stopped-title">The game has stopped</h2>
+      <p>The server on this computer has shut down. You can close this tab.</p>
+    </div>
+  </div>
 
   <section class="controls" aria-label="Game controls">
     <div class="field">

@@ -177,3 +177,17 @@ def test_the_planner_option_reaches_the_game_loop(planner_file: Path) -> None:
         assert serving.loop.planner.name == "test-planner"
     finally:
         serving.close()
+
+
+def test_quit_ends_the_serve_command_cleanly() -> None:
+    options = ServeOptions(port=0, open_browser=False)
+    serving = start_serving(options)
+    try:
+        conn = http.client.HTTPConnection("127.0.0.1", serving.server.port, timeout=5)
+        conn.request("POST", "/quit", body=b"{}", headers={"X-Requested-With": "chasetag-arena"})
+        assert conn.getresponse().status == 202
+        conn.close()
+        serving.thread.join(8.0)
+        assert not serving.thread.is_alive(), "the serving thread should end after /quit"
+    finally:
+        serving.close()

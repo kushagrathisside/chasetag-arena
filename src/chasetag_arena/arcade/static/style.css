@@ -559,3 +559,37 @@ noscript p {
 .dialog .button-link {
   text-decoration: none;
 }
+
+/* --- quit ------------------------------------------------------------------------------ */
+
+.stopped {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: color-mix(in srgb, var(--bg, #f4f5f7) 92%, transparent);
+}
+
+.stopped[hidden] {
+  display: none;
+}
+
+.stopped-box {
+  max-width: 28rem;
+  padding: 20px 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.stopped-box h2 {
+  margin: 0 0 8px;
+  font-size: 1.1rem;
+}
+
+.stopped-box p {
+  margin: 0;
+}
