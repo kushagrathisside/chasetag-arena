@@ -38,6 +38,7 @@ This page shows every contribution issue, and which of them you can take now. It
 | **Done** | The issue is closed. |
 | **Not published yet** | The issue is planned but has not been created on GitHub. |
 | **Epic** | A group of related issues. Each epic stands on its own. |
+| **Domain** | The kind of work: `frontend` (the browser page), `backend` (server, game loop, command line), `simulation` (bodies, physics, bots), `ml` (planners and training), `data` (the dataset and its tools), `documentation` and `testing`. Each issue carries a `domain:` label on GitHub, so you can filter by the area you know. |
 
 ## How the dashboard stays correct
 
