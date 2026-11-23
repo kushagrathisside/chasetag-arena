@@ -17,6 +17,8 @@ from chasetag_arena.core.state import FALL, RUNNING, TAG
 from chasetag_arena.mock_player import ManualClock
 from chasetag_arena.planner import load_planner
 
+pytestmark = pytest.mark.slow
+
 TINY = train.Config(
     limits=(20,),
     envs=8,

@@ -22,7 +22,8 @@ uv run pre-commit install
 Run these before you open a pull request:
 
 ```bash
-uv run --no-sync python -m pytest
+uv run --no-sync python -m pytest -m "not slow"   # quick, while you work
+uv run --no-sync python -m pytest                 # everything, before the pull request
 node --test tests/js/*.mjs
 uv run --no-sync ruff check
 uv run --no-sync ruff format --check

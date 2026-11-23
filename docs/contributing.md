@@ -51,8 +51,12 @@ repository, and you can change them. A change to the physics of a body needs a t
 The Python tests use pytest:
 
 ```bash
-uv run --no-sync python -m pytest
+uv run --no-sync python -m pytest -m "not slow"   # under two minutes: use it while you work
+uv run --no-sync python -m pytest                 # everything, several minutes: CI runs this
 ```
+
+A test marked `slow` plays many games (the body fairness checks do). Mark a new test `slow` if
+it takes more than a few seconds. Run the full suite once before you open a pull request.
 
 The page's logic and drawing code have their own tests, which run under Node 20 or later:
 
