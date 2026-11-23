@@ -33,6 +33,7 @@ KEEPALIVE_S: Final[float] = 15.0
 # How often an event-stream handler checks for shutdown while it waits for a frame.
 _POLL_S: Final[float] = 0.25
 _SHUTDOWN_WAIT_S: Final[float] = 5.0
+_LOOPBACK_HOSTS: Final[frozenset[str]] = frozenset({"127.0.0.1", "localhost", "::1"})
 _SOCKET_TIMEOUT_S: Final[float] = 30.0
 _SERVER_NAME: Final[str] = "chasetag-arena"
 _NOT_BUILT: Final[bytes] = (
@@ -179,7 +180,28 @@ class _Handler(BaseHTTPRequestHandler):
             self._send_json(400, {"error": "body is not valid JSON"})
             return _FAILED
 
+    def _control_request_ok(self) -> bool:
+        """Whether a control request comes from a page this server served.
+
+        A request that names another origin is refused, so a page on another site cannot steer
+        the game through the player's browser. On a loopback address the Host must also name this
+        server, which stops DNS rebinding. A server on a network address accepts any Host, so
+        that players on that network can use it.
+        """
+        host = self.headers.get("Host", "")
+        origin = self.headers.get("Origin")
+        if origin is not None and origin != f"http://{host}":
+            return False
+        if self._arcade.host in _LOOPBACK_HOSTS:
+            port = self._arcade.port
+            return host in {f"127.0.0.1:{port}", f"localhost:{port}", f"[::1]:{port}"}
+        return True
+
     def _post_control(self) -> None:
+        if not self._control_request_ok():
+            self._discard_body()
+            self._send_json(403, {"error": "this request does not come from this page"})
+            return
         obj = self._read_json()
         if obj is _FAILED:
             return

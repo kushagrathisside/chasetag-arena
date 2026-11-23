@@ -827,6 +827,7 @@ def train(
     ckpt_path = run_dir / "checkpoint.pkl"
     metrics = run_dir / "metrics.jsonl"
     if resume and ckpt_path.exists():
+        log(f"loading {ckpt_path}; a checkpoint is a pickle file, so resume only from your own")
         state = load_checkpoint(ckpt_path)
         if state["config"] != dataclasses.asdict(cfg):
             log("  note: the config differs from the checkpoint's; resuming with the new one")
