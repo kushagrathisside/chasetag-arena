@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Export every docs/diagrams/*.drawio to an SVG next to it, for the documentation site.
 #
+# Run it with no arguments to export all of them, or with some .drawio paths to export only those.
 # Edit a diagram in the draw.io desktop app (or app.diagrams.net), save the .drawio file,
 # then run this script. It needs the draw.io desktop app on PATH as `drawio`. Without a
 # display it runs under xvfb-run, when that is installed.
@@ -12,8 +13,13 @@ if [[ -z "${DISPLAY:-}" ]] && command -v xvfb-run >/dev/null; then
     runner=(xvfb-run -a)
 fi
 
+# With file names as arguments, only those diagrams are exported.
 shopt -s nullglob
-sources=(docs/diagrams/*.drawio)
+if (( $# > 0 )); then
+    sources=("$@")
+else
+    sources=(docs/diagrams/*.drawio)
+fi
 if (( ${#sources[@]} == 0 )); then
     echo "no .drawio files in docs/diagrams" >&2
     exit 1

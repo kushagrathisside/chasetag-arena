@@ -1,0 +1,339 @@
+{
+  "repo": "kushagrathisside/chasetag-arena",
+  "label": "opencode",
+  "epics": [
+    {
+      "id": "1",
+      "name": "Gameplay and Interface",
+      "purpose": "To improve how the game is played and watched in the browser, without changing its rules.",
+      "reserve": "",
+      "issues": [
+        {
+          "id": "1.1",
+          "title": "Allow the movement trails to be shown or hidden",
+          "difficulty": "Beginner",
+          "needs": []
+        },
+        {
+          "id": "1.2",
+          "title": "Allow the length of the movement trails to be chosen",
+          "difficulty": "Intermediate",
+          "needs": [
+            "1.1"
+          ]
+        },
+        {
+          "id": "1.3",
+          "title": "Provide a fullscreen view of the arena",
+          "difficulty": "Beginner",
+          "needs": []
+        },
+        {
+          "id": "1.4",
+          "title": "Mark the arena with coordinate labels",
+          "difficulty": "Beginner",
+          "needs": []
+        },
+        {
+          "id": "1.5",
+          "title": "Provide a button that copies a text summary of the match",
+          "difficulty": "Beginner",
+          "needs": []
+        },
+        {
+          "id": "1.6",
+          "title": "Remember the player's choices between visits",
+          "difficulty": "Intermediate",
+          "needs": []
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "name": "Accessibility",
+      "purpose": "To make the game usable by more people, including those who use a keyboard only, a screen reader, a different colour scheme or a larger text size.",
+      "reserve": "",
+      "issues": [
+        {
+          "id": "2.1",
+          "title": "Make keyboard focus clearly visible on every control",
+          "difficulty": "Beginner",
+          "needs": []
+        },
+        {
+          "id": "2.2",
+          "title": "Allow the light or dark theme to be chosen by the player",
+          "difficulty": "Beginner",
+          "needs": []
+        },
+        {
+          "id": "2.3",
+          "title": "Provide a colour palette suitable for colour-vision deficiency",
+          "difficulty": "Intermediate",
+          "needs": [
+            "2.2"
+          ]
+        },
+        {
+          "id": "2.4",
+          "title": "Announce round events to screen readers",
+          "difficulty": "Intermediate",
+          "needs": []
+        },
+        {
+          "id": "2.5",
+          "title": "Ensure the page stays usable at 200% zoom and with larger text",
+          "difficulty": "Beginner",
+          "needs": [
+            "2.1"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "3",
+      "name": "New Bodies",
+      "purpose": "To widen the choice of bodies, each with distinct physics, using the existing body registry. A new body is registered, described and checked by the existing fairness tests.",
+      "reserve": "",
+      "issues": [
+        {
+          "id": "3.1",
+          "title": "Add a heavy body",
+          "difficulty": "Intermediate",
+          "needs": []
+        },
+        {
+          "id": "3.2",
+          "title": "Add a light body",
+          "difficulty": "Intermediate",
+          "needs": []
+        },
+        {
+          "id": "3.3",
+          "title": "Add a slippery body",
+          "difficulty": "Intermediate",
+          "needs": []
+        },
+        {
+          "id": "3.4",
+          "title": "Generate a comparison table of all registered bodies",
+          "difficulty": "Beginner",
+          "needs": []
+        },
+        {
+          "id": "3.5",
+          "title": "Provide a command that reports the fairness figures of one body",
+          "difficulty": "Intermediate",
+          "needs": []
+        }
+      ]
+    },
+    {
+      "id": "4",
+      "name": "New Bots and Agents",
+      "purpose": "To widen the set of scripted opponents, so that players meet different styles of play.",
+      "reserve": "",
+      "issues": [
+        {
+          "id": "4.1",
+          "title": "Show a short description of each bot in the player menu",
+          "difficulty": "Beginner",
+          "needs": []
+        },
+        {
+          "id": "4.2",
+          "title": "Add a cautious runner",
+          "difficulty": "Intermediate",
+          "needs": [
+            "4.1"
+          ]
+        },
+        {
+          "id": "4.3",
+          "title": "Add a chaser that anticipates the path of the runner",
+          "difficulty": "Intermediate",
+          "needs": [
+            "4.1"
+          ]
+        },
+        {
+          "id": "4.4",
+          "title": "Add a bot that patrols along a fixed route",
+          "difficulty": "Intermediate",
+          "needs": [
+            "4.1"
+          ]
+        },
+        {
+          "id": "4.5",
+          "title": "Add a bot that mirrors its opponent",
+          "difficulty": "Intermediate",
+          "needs": [
+            "4.1"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "5",
+      "name": "Data and Analysis Tools",
+      "purpose": "To help people understand the published match data with small, well-tested tools. These tools read data and write reports. They do not change the simulator. They are published only after the dataset is confirmed to be publicly downloadable, and each is tested with a small made-up example, so that no download is needed. The first issue provides a shared reader, and the others use it.",
+      "reserve": "Held in reserve: describe the contents of a planner file; export one game to a table of frames; export league standings to a spreadsheet file.",
+      "issues": [
+        {
+          "id": "5.1",
+          "title": "Provide a shared reader for the dataset",
+          "difficulty": "Intermediate",
+          "needs": []
+        },
+        {
+          "id": "5.2",
+          "title": "Produce an inventory report of the dataset",
+          "difficulty": "Beginner",
+          "needs": [
+            "5.1"
+          ]
+        },
+        {
+          "id": "5.3",
+          "title": "Check dataset archives against the manifest",
+          "difficulty": "Beginner",
+          "needs": [
+            "5.1"
+          ]
+        },
+        {
+          "id": "5.4",
+          "title": "Report the distribution of game outcomes",
+          "difficulty": "Beginner",
+          "needs": [
+            "5.1"
+          ]
+        },
+        {
+          "id": "5.5",
+          "title": "Produce a matrix of results for each pairing of bots",
+          "difficulty": "Intermediate",
+          "needs": [
+            "5.1"
+          ]
+        },
+        {
+          "id": "5.6",
+          "title": "Report how long games last before a tag",
+          "difficulty": "Beginner",
+          "needs": [
+            "5.1"
+          ]
+        },
+        {
+          "id": "5.7",
+          "title": "Draw the paths of one recorded game as an image",
+          "difficulty": "Intermediate",
+          "needs": [
+            "5.1"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "6",
+      "name": "Documentation and Tutorials",
+      "purpose": "To make the project easier to learn, in plain and correct language.",
+      "reserve": "Held in reserve: translations of the quick-start guide.",
+      "issues": [
+        {
+          "id": "6.1",
+          "title": "Write a glossary of the terms used in the game and the documentation",
+          "difficulty": "Beginner",
+          "needs": []
+        },
+        {
+          "id": "6.2",
+          "title": "Write a page of frequently asked questions",
+          "difficulty": "Beginner",
+          "needs": []
+        },
+        {
+          "id": "6.3",
+          "title": "Write a tutorial: \"Your first body\"",
+          "difficulty": "Intermediate",
+          "needs": []
+        },
+        {
+          "id": "6.4",
+          "title": "Write a tutorial: \"Your first bot\"",
+          "difficulty": "Intermediate",
+          "needs": []
+        },
+        {
+          "id": "6.5",
+          "title": "Write a guide to playing from another device on the same network",
+          "difficulty": "Beginner",
+          "needs": []
+        },
+        {
+          "id": "6.6",
+          "title": "Refresh the screenshots and record a short gameplay clip",
+          "difficulty": "Beginner",
+          "needs": []
+        }
+      ]
+    }
+  ],
+  "openEpic": {
+    "id": "7",
+    "name": "Testing and Quality",
+    "purpose": "An open epic: it has no fixed tasks. Contributors propose sub-issues under a module issue and agree the scope with the maintainer.",
+    "modules": [
+      {
+        "title": "Simulator core and rules",
+        "summary": "Game state, the rules and the scoring (`src/chasetag_arena/core/`)."
+      },
+      {
+        "title": "Body models",
+        "summary": "The registry and the three families of physics (`bodies.py`, `core/families/`)."
+      },
+      {
+        "title": "Scripted bots",
+        "summary": "The built-in opponents (`agents/bots.py`)."
+      },
+      {
+        "title": "Game loop and controls",
+        "summary": "Rounds, pausing, speed and the validation of controls (`arcade/game_loop.py`, `arcade/controls.py`)."
+      },
+      {
+        "title": "Game server and API",
+        "summary": "The local web server and its requests (`arcade/server.py`)."
+      },
+      {
+        "title": "Browser page",
+        "summary": "The page, its logic and its drawing code (`arcade/static/`)."
+      },
+      {
+        "title": "Planners",
+        "summary": "Loading and running trained planner files (`planner.py`)."
+      },
+      {
+        "title": "League and training",
+        "summary": "Season tables and the training commands (`league.py`, `train.py`, `bc.py`)."
+      },
+      {
+        "title": "Dataset tools",
+        "summary": "Dataset creation and checking (`dataset.py`)."
+      },
+      {
+        "title": "Research logging and contribution",
+        "summary": "Recording, consent and export (`recording.py`, `contribute.py`)."
+      },
+      {
+        "title": "Command line",
+        "summary": "The `serve` and `enrol` commands, and their options (`cli.py`)."
+      },
+      {
+        "title": "Documentation and build",
+        "summary": "The documentation site, packaging and continuous integration (`docs/`, `mkdocs.yml`, `pyproject.toml`, `.github/`)."
+      }
+    ]
+  }
+}

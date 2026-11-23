@@ -33,6 +33,21 @@ uv run --no-sync mkdocs build --strict
 The pre-commit hooks run the Python checks before each commit. [docs/contributing.md](docs/contributing.md)
 describes the rest of the workflow.
 
+## Claiming an issue
+
+Issues for newcomers carry the `help wanted` label, a difficulty label and a track label.
+
+- Take only an issue that is marked `status: ready`. An issue marked `status: blocked` is waiting for
+  other issues, which it names under "Blocked by"; the [contributor dashboard](https://kushagrathisside.github.io/chasetag-arena/dashboard/)
+  shows the state of every issue, live from GitHub.
+- Comment on the issue to ask for it, and wait to be assigned. One person works on an issue at a
+  time, and you can ask questions in the issue before you start.
+- If you can no longer work on it, say so. An assigned issue with no activity for 14 days may be
+  given to someone else, after a reminder in the issue. There is no deadline otherwise.
+- An issue may need another issue of the same epic to be merged first. The dashboard and the "Blocked by" section say which.
+- Some areas are kept by the maintainer (the simulator core, research logging, the game server,
+  and the CI setup). A task never needs a change there; open an issue if you find a problem in one.
+
 ## Pull requests
 
 - Keep one change in each pull request.

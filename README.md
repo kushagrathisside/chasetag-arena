@@ -21,6 +21,7 @@ round. Each seat is played by a person at the keyboard, a scripted bot, or a tra
 - [Research logging](#research-logging)
 - [Development](#development)
 - [Contributing](#contributing)
+- [Where to contribute](#where-to-contribute)
 - [Licence](#licence)
 
 ## Quick start
@@ -93,6 +94,14 @@ layout in more detail, the diagrams, the screenshots and the release process.
 Contributions are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) first. By opening a pull request you
 agree that your contribution is licensed under the project licence below. You keep the copyright in
 your work.
+
+## Where to contribute
+
+Contributions are organised in seven epics, and each epic stands on its own. The **[contributor dashboard](https://kushagrathisside.github.io/chasetag-arena/dashboard/)** shows every issue and which ones you can take now. It reads the state of the issues from GitHub, so it is always current.
+
+![All the epics and their issues. Inside an epic, an arrow means that the issue on the left must be merged before the issue on the right.](docs/diagrams/contribution-map.svg)
+
+The plan is also in the repository: [docs/dashboard.md](docs/dashboard.md) and [docs/assets/contribution-plan.json](docs/assets/contribution-plan.json).
 
 ## Licence
 

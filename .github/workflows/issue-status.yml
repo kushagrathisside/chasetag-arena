@@ -1,0 +1,30 @@
+name: Issue status labels
+
+# Keeps `status: ready` and `status: blocked` on the contribution issues correct: an issue is
+# blocked until the issues it needs (docs/assets/contribution-plan.json) are closed.
+on:
+  issues:
+    types: [opened, closed, reopened]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: issue-status
+  cancel-in-progress: false
+
+jobs:
+  labels:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "20"
+      - name: Update the labels
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: node scripts/sync_issue_status.mjs

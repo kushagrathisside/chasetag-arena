@@ -146,3 +146,26 @@ DevTools port. Stop the server when you are done.
 By opening a pull request you agree that your contribution is licensed under the project's
 [license](license.md), the Apache License 2.0. You keep your copyright. There is no
 separate agreement to sign.
+
+## Picking up a task
+
+Tasks for events such as OpenCode are ordinary GitHub issues with the `help wanted` label, a
+difficulty (`difficulty: beginner` or `difficulty: intermediate`), a track label and acceptance
+criteria.
+
+1. Take only an issue marked `status: ready`, and comment on it to claim it. Wait for a maintainer to assign
+   it. An issue marked `status: blocked` needs other issues merged first, and the
+   [contributor dashboard](dashboard.md) shows which, live from GitHub.
+2. Work on one issue per branch and per pull request, and keep the change focused.
+3. Add a test for any change in behaviour, and update the docs when a command or a page changes.
+4. Run the checks in the previous section before you open the pull request, and say in the pull
+   request how you tried the change (for a page change, add a screenshot).
+
+Some areas are kept by the maintainer, and a task never needs a change in them. If you find a
+problem there, open an issue instead of a pull request:
+
+- the simulator core (`src/chasetag_arena/core/`) and the game rules;
+- the planner file format and the PPO training;
+- research logging, consent and any data from people;
+- the structure of the game server.
+
