@@ -1,0 +1,8 @@
+# Every change is reviewed by the maintainer. These paths are kept by the maintainer:
+# a pull request that touches them needs an agreement in an issue first.
+*                                   @kushagrathisside
+/src/chasetag_arena/core/           @kushagrathisside
+/src/chasetag_arena/recording.py    @kushagrathisside
+/src/chasetag_arena/contribute.py   @kushagrathisside
+/src/chasetag_arena/arcade/server.py @kushagrathisside
+/.github/                           @kushagrathisside
