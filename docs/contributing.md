@@ -155,7 +155,7 @@ difficulty (`difficulty: beginner` or `difficulty: intermediate`), an epic label
 acceptance criteria.
 
 1. Take only an issue marked `status: ready`, and comment on it to claim it. Wait for a maintainer to assign
-   it. An issue marked `status: blocked` needs other issues merged first, and the
+   it. An issue marked `status: blocked` is waiting for something it names, and the
    [contributor dashboard](dashboard.md) shows which, live from GitHub.
 2. Work on one issue per branch and per pull request, and keep the change focused.
 3. Add a test for any change in behaviour, and update the docs when a command or a page changes.

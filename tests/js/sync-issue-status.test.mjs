@@ -28,13 +28,13 @@ const issue = (number, title, extra = {}) => ({ number, title, state: "open", la
 
 test("the script relabels the issue that a closed issue unlocks, and nothing else", async () => {
   const fake = await fakeGitHub([
-    issue(1, "[5.1] Provide a shared reader for the dataset", { state: "closed", state_reason: "completed", labels: [{ name: "status: ready" }] }),
-    issue(2, "[5.2] Produce an inventory report of the dataset", { labels: [{ name: "status: blocked" }] }),
-    issue(3, "[5.3] Check dataset archives against the manifest", { labels: [{ name: "status: ready" }] }),
+    issue(1, "[1.1] Allow the movement trails to be shown or hidden", { state: "closed", state_reason: "completed", labels: [{ name: "status: ready" }] }),
+    issue(2, "[1.2] Allow the length of the movement trails to be chosen", { labels: [{ name: "status: blocked" }] }),
+    issue(3, "[1.3] Provide a fullscreen view of the arena", { labels: [{ name: "status: ready" }] }),
   ]);
   try {
     const { stdout } = await run("node", [script], { env: { ...process.env, GITHUB_TOKEN: "t", GITHUB_REPOSITORY: "o/r", GITHUB_API_URL: fake.url } });
-    assert.match(stdout, /#2 \(5\.2\)/);
+    assert.match(stdout, /#2 \(1\.2\)/);
     const writes = fake.calls.filter((c) => c.method !== "GET");
     assert.deepEqual(writes.map((c) => [c.method, c.url]), [
       ["POST", "/repos/o/r/issues/2/labels"],

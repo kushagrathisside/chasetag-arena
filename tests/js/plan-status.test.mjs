@@ -107,3 +107,42 @@ test("a label is added when an issue has none, and closed issues are left alone"
   const changes = PlanStatus.labelChanges(plan, issues);
   assert.deepEqual(changes.map((c) => [c.number, c.add]), [[21, ["status: ready"]], [22, ["status: blocked"]]]);
 });
+
+const withFoundation = {
+  foundations: [{ id: "F1", title: "Shared part" }],
+  epics: [
+    { id: "1", name: "One", issues: [
+      { id: "1.1", title: "Theirs", difficulty: "Beginner", needs: [], maintainer: true },
+      { id: "1.2", title: "Waits", difficulty: "Beginner", needs: ["F1"] },
+      { id: "1.3", title: "Held", difficulty: "Beginner", needs: [], hold: "Waiting for the data." },
+    ] },
+  ],
+};
+
+test("an issue waits for a foundation until the foundation issue is closed", () => {
+  const open = [issue("[F1] Shared part"), issue("[1.2] Waits")];
+  assert.equal(stateById(PlanStatus.compute(withFoundation, open))["1.2"], "blocked");
+  assert.equal(PlanStatus.compute(withFoundation, open).foundations[0].state, "maintainer");
+  const closed = [issue("[F1] Shared part", { state: "closed", state_reason: "completed" }), issue("[1.2] Waits")];
+  assert.equal(stateById(PlanStatus.compute(withFoundation, closed))["1.2"], "ready");
+  assert.equal(PlanStatus.compute(withFoundation, closed).foundations[0].state, "done");
+});
+
+test("the maintainer's issue is never offered, and an issue on hold stays blocked", () => {
+  const result = PlanStatus.compute(withFoundation, [issue("[1.1] Theirs"), issue("[1.3] Held")]);
+  const s = stateById(result);
+  assert.equal(s["1.1"], "maintainer");
+  assert.equal(s["1.3"], "blocked");
+  assert.equal(result.counts.maintainer, 1);
+});
+
+test("labels: the maintainer's issue loses its status label, and a held issue is marked blocked", () => {
+  const changes = PlanStatus.labelChanges(withFoundation, [
+    issue("[1.1] Theirs", { number: 5, labels: [{ name: "status: ready" }] }),
+    issue("[1.3] Held", { number: 6, labels: [{ name: "status: ready" }] }),
+  ]);
+  assert.deepEqual(changes, [
+    { number: 5, id: "1.1", add: [], remove: ["status: ready"] },
+    { number: 6, id: "1.3", add: ["status: blocked"], remove: ["status: ready"] },
+  ]);
+});

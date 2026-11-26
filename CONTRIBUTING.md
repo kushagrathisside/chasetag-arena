@@ -46,7 +46,9 @@ by domain to find the work that suits your skills.
   time, and you can ask questions in the issue before you start.
 - If you can no longer work on it, say so. An assigned issue with no activity for 14 days may be
   given to someone else, after a reminder in the issue. There is no deadline otherwise.
-- An issue may need another issue of the same epic to be merged first. The dashboard and the "Blocked by" section say which.
+- An issue may have to wait: for an earlier issue of the same epic, for a piece of the maintainer's work
+  (such as F2), or for the dataset to be public. The dashboard and the "Blocked by" section say which.
+- An issue marked as the maintainer's work is not open to claims.
 - Some areas are kept by the maintainer (the simulator core, research logging, the game server,
   and the CI setup). A task never needs a change there; open an issue if you find a problem in one.
 

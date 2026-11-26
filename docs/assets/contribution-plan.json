@@ -1,6 +1,12 @@
 {
   "repo": "kushagrathisside/chasetag-arena",
   "label": "opencode",
+  "foundations": [
+    {
+      "id": "F2",
+      "title": "Build the seat menus from the bot registry"
+    }
+  ],
   "epics": [
     {
       "id": "1",
@@ -94,9 +100,7 @@
           "id": "2.3",
           "title": "Provide a colour palette suitable for colour-vision deficiency",
           "difficulty": "Intermediate",
-          "needs": [
-            "2.2"
-          ],
+          "needs": [],
           "domains": [
             "frontend"
           ]
@@ -114,9 +118,7 @@
           "id": "2.5",
           "title": "Ensure the page stays usable at 200% zoom and with larger text",
           "difficulty": "Beginner",
-          "needs": [
-            "2.1"
-          ],
+          "needs": [],
           "domains": [
             "frontend"
           ]
@@ -186,10 +188,11 @@
           "id": "4.1",
           "title": "Show a short description of each bot in the player menu",
           "difficulty": "Beginner",
-          "needs": [],
+          "needs": [
+            "F2"
+          ],
           "domains": [
-            "frontend",
-            "backend"
+            "frontend"
           ]
         },
         {
@@ -197,7 +200,7 @@
           "title": "Add a cautious runner",
           "difficulty": "Intermediate",
           "needs": [
-            "4.1"
+            "F2"
           ],
           "domains": [
             "simulation"
@@ -208,7 +211,7 @@
           "title": "Add a chaser that anticipates the path of the runner",
           "difficulty": "Intermediate",
           "needs": [
-            "4.1"
+            "F2"
           ],
           "domains": [
             "simulation"
@@ -219,7 +222,7 @@
           "title": "Add a bot that patrols along a fixed route",
           "difficulty": "Intermediate",
           "needs": [
-            "4.1"
+            "F2"
           ],
           "domains": [
             "simulation"
@@ -230,7 +233,7 @@
           "title": "Add a bot that mirrors its opponent",
           "difficulty": "Intermediate",
           "needs": [
-            "4.1"
+            "F2"
           ],
           "domains": [
             "simulation"
@@ -251,7 +254,8 @@
           "needs": [],
           "domains": [
             "data"
-          ]
+          ],
+          "maintainer": true
         },
         {
           "id": "5.2",
@@ -262,7 +266,8 @@
           ],
           "domains": [
             "data"
-          ]
+          ],
+          "hold": "Waiting for the dataset to be publicly downloadable."
         },
         {
           "id": "5.3",
@@ -273,7 +278,8 @@
           ],
           "domains": [
             "data"
-          ]
+          ],
+          "hold": "Waiting for the dataset to be publicly downloadable."
         },
         {
           "id": "5.4",
@@ -284,7 +290,8 @@
           ],
           "domains": [
             "data"
-          ]
+          ],
+          "hold": "Waiting for the dataset to be publicly downloadable."
         },
         {
           "id": "5.5",
@@ -295,7 +302,8 @@
           ],
           "domains": [
             "data"
-          ]
+          ],
+          "hold": "Waiting for the dataset to be publicly downloadable."
         },
         {
           "id": "5.6",
@@ -306,7 +314,8 @@
           ],
           "domains": [
             "data"
-          ]
+          ],
+          "hold": "Waiting for the dataset to be publicly downloadable."
         },
         {
           "id": "5.7",
@@ -317,7 +326,8 @@
           ],
           "domains": [
             "data"
-          ]
+          ],
+          "hold": "Waiting for the dataset to be publicly downloadable."
         }
       ]
     },
@@ -358,7 +368,9 @@
           "id": "6.4",
           "title": "Write a tutorial: \"Your first bot\"",
           "difficulty": "Intermediate",
-          "needs": [],
+          "needs": [
+            "F2"
+          ],
           "domains": [
             "documentation"
           ]
