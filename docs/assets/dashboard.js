@@ -7,7 +7,7 @@
 
   const CACHE_MS = 5 * 60 * 1000;
   const STATES = {
-    ready: "Ready", taken: "Taken", blocked: "Blocked", done: "Done",
+    ready: "Ready", taken: "Taken", blocked: "Blocked", done: "Done", maintainer: "With the maintainer",
     unpublished: "Not published yet", notplanned: "Closed, not planned", unknown: "Not checked",
   };
   const FILTERS = [["all", "All"], ["ready", "Ready"], ["taken", "Taken"], ["blocked", "Blocked"], ["done", "Done"]];
@@ -71,7 +71,9 @@ function pill(state) {
     const notes = [];
     if (item.state === "unknown") notes.push("The state could not be read from GitHub.");
     if (item.startHere) notes.push("Start here. It unlocks " + item.unlocks.join(", ") + ".");
-    if (item.state === "blocked") notes.push("Waiting for " + item.waitingOn.join(", ") + ".");
+    if (item.state === "blocked" && item.waitingOn.length) notes.push("Waiting for " + item.waitingOn.join(", ") + ".");
+    if (item.state === "blocked" && item.hold) notes.push(item.hold);
+    if (item.state === "maintainer") notes.push("The maintainer does this one. Please do not claim it.");
     if (item.state === "taken" && item.assignee) notes.push("Taken by " + item.assignee + ".");
     const row = el("li", { class: "dash-issue", "data-state": item.state, "data-difficulty": item.difficulty.toLowerCase() }, [
       el("span", { class: "dash-id", text: item.id }),
@@ -97,6 +99,20 @@ function pill(state) {
     return el("section", { class: "dash-epic" }, parts);
   }
 
+  /** The maintainer's own pieces of work that other issues wait for. */
+  function renderFoundations(foundations, repo) {
+    const items = foundations.map((f) => {
+      const url = safeIssueUrl(f.url, repo);
+      const name = url ? el("a", { href: url, text: f.title }) : el("span", { text: f.title });
+      return el("li", { class: "dash-module" }, [el("span", { class: "dash-id", text: f.id }), " ", name, " ", pill(f.state)]);
+    });
+    return el("section", { class: "dash-epic dash-open" }, [
+      el("div", { class: "dash-epic-head" }, [el("h3", { text: "Maintainer foundations" })]),
+      el("p", { class: "dash-purpose", text: "Work the maintainer does first. Issues that name one of these wait until it is merged." }),
+      el("ul", { class: "dash-modules" }, items),
+    ]);
+  }
+
   function renderOpen(open, repo) {
     const items = open.modules.map((m) => {
       const url = safeIssueUrl(m.url, repo);
@@ -113,6 +129,7 @@ function pill(state) {
 
   function renderSummary(counts, mode) {
     const order = [["ready", "Ready"], ["taken", "Taken"], ["blocked", "Blocked"], ["done", "Done"], ["unpublished", "Not published yet"]];
+    if (counts.maintainer) order.splice(3, 0, ["maintainer", "With the maintainer"]);
     return el("ul", { class: "dash-summary" }, order.map(([k, label]) => el("li", { class: "dash-card dash-" + k }, [
       el("strong", { text: mode === "unknown" ? "–" : String(counts[k]) }), el("span", { text: label }),
     ])));
@@ -151,7 +168,8 @@ function pill(state) {
 
   function withUnknown(model) {
     const epics = model.epics.map((e) => ({ ...e, issues: e.issues.map((i) => ({ ...i, state: "unknown", startHere: i.unlocks.length > 0 })) }));
-    return { ...model, epics };
+    const foundations = model.foundations.map((f) => ({ ...f, state: "unknown" }));
+    return { ...model, epics, foundations };
   }
 
   async function start(root) {
@@ -181,6 +199,7 @@ function pill(state) {
     const children = [status, renderSummary(model.counts, mode)];
     if (mode === "live" && !anyPublished) children.push(el("p", { class: "dash-banner", text: "The issues have not been published yet. This is the plan: it will fill in as the issues are created." }));
     children.push(renderFilters(root));
+    if (model.foundations.length) children.push(renderFoundations(model.foundations, repo));
     for (const epic of model.epics) children.push(renderEpic(epic, repo));
     if (model.open) children.push(renderOpen(model.open, repo));
     root.replaceChildren(...children);

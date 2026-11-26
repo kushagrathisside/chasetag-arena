@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parent.parent
 PLAN = json.loads((ROOT / "docs" / "assets" / "contribution-plan.json").read_text(encoding="utf-8"))
 ISSUES = [issue for epic in PLAN["epics"] for issue in epic["issues"]]
 EPIC_OF = {issue["id"]: epic["id"] for epic in PLAN["epics"] for issue in epic["issues"]}
+FOUNDATIONS = {foundation["id"] for foundation in PLAN["foundations"]}
 
 
 def test_ids_are_unique_and_follow_their_epic() -> None:
@@ -34,9 +35,9 @@ def test_every_issue_is_complete() -> None:
         assert issue["difficulty"] in {"Beginner", "Intermediate"}
 
 
-def test_an_issue_needs_only_issues_of_its_own_epic() -> None:
+def test_an_issue_needs_only_issues_of_its_own_epic_or_a_foundation() -> None:
     for issue in ISSUES:
-        for other in issue["needs"]:
+        for other in set(issue["needs"]) - FOUNDATIONS:
             assert other in EPIC_OF, f"{issue['id']} names an unknown issue {other}"
             assert EPIC_OF[other] == EPIC_OF[issue["id"]], f"{issue['id']} depends on another epic"
 
@@ -46,7 +47,7 @@ def test_a_prerequisite_is_numbered_before_the_issue_that_needs_it() -> None:
         return tuple(int(part) for part in issue_id.split("."))
 
     for issue in ISSUES:
-        for other in issue["needs"]:
+        for other in set(issue["needs"]) - FOUNDATIONS:
             assert number(other) < number(issue["id"]), f"{other} must come before {issue['id']}"
 
 
@@ -63,7 +64,7 @@ def test_no_issue_has_a_helps_link() -> None:
 
 def test_the_order_of_issues_has_no_cycle() -> None:
     needs = {issue["id"]: issue["needs"] for issue in ISSUES}
-    done: set[str] = set()
+    done: set[str] = set(FOUNDATIONS)
     pending = dict(needs)
     while pending:
         ready = [i for i, deps in pending.items() if all(d in done for d in deps)]
@@ -95,3 +96,16 @@ def test_every_issue_and_module_has_a_known_domain() -> None:
     for module in PLAN["openEpic"]["modules"]:
         assert module["domains"], f"{module['title']} has no domain"
         assert set(module["domains"]) <= DOMAINS, f"{module['title']} has an unknown domain"
+
+
+def test_a_foundation_is_named_by_at_least_one_issue() -> None:
+    named = {other for issue in ISSUES for other in issue["needs"]}
+    assert named >= FOUNDATIONS
+
+
+def test_maintainer_work_and_holds_are_well_formed() -> None:
+    for issue in ISSUES:
+        if issue.get("maintainer"):
+            assert not issue["needs"], f"{issue['id']} is the maintainer's and waits for something"
+        if "hold" in issue:
+            assert issue["hold"].endswith("."), f"{issue['id']} has a hold that is not a sentence"
